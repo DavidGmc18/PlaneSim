@@ -1,0 +1,42 @@
+# F-16.mtl
+
+newmtl F-16-airframe
+Ns 32.0
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.5 0.5 0.5
+d 1.0
+illum 2
+map_Kd   diffuse.png
+map_Ks   specular.png
+map_Kn   normal.png
+
+newmtl F-16-hud
+Ns 32.0
+Ka 1.0 1.0 1.0
+Kd 0.009 0.800 0.008
+Ks 0.5 0.5 0.5
+d 1.0
+illum 2
+map_Kd   diffuse.png
+map_Ks   specular.png
+map_Kn   normal.png
+
+newmtl F-16-landingLights
+Ns 32.0
+Ka 1.0 1.0 1.0
+Kd 1.0 1.0 1.0
+Ks 0.0 0.0 0.0
+d 1.0
+illum 1
+map_Kd   diffuse.png
+map_Ks   specular.png
+map_Kn   normal.png
+
+newmtl Glass
+Ns 360.0
+Ka 1.0 1.0 1.0
+Kd 0.8 0.8 0.8
+Ks 0.5 0.5 0.5
+d 1.0
+illum 2

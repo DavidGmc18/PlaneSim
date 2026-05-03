@@ -3,8 +3,8 @@
 out vec4 FragColor;
 
 in vec2 uv;
-in vec3 Norm;
 in vec3 FragPos;
+in mat3 TBN;
 
 uniform vec3 cameraPos;
 
@@ -78,9 +78,11 @@ vec3 computeLigth(Light light, vec3 norm, vec3 viewDir) {
 }
 
 void main() {
+    vec3 norm = texture(material.normal, uv).xyz;
+    norm = norm * 2.0 - 1.0;   
+    norm = normalize(TBN * norm);
+    
     vec3 viewDir = normalize(cameraPos - FragPos);
-    vec3 norm = normalize(Norm);
-    // vec3 norm = normalize(texture(material.normal, uv).rgb * 2.0 - 1.0);
 
     vec3 color = computeParallelLigth(parallelLight, norm, viewDir);
     

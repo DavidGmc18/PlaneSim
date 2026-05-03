@@ -20,7 +20,7 @@ float pitch = 0.0f;
 float fov = 80.0f;
 
 float mouse_sensitivity = 0.1f;
-float speed = 5.0f;
+float speed = 1.0f;
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -54,13 +54,11 @@ int main(int argc, char* argv[]) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glEnable(GL_MULTISAMPLE);
-    // glEnable(GL_CULL_FACE);
-    // glCullFace(GL_BACK);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     
-    Camera camera(glm::vec3(0, 1, 0), yaw, pitch, fov, 0.1f, 256.0f, (float)w / (float)h);
+    Camera camera(glm::vec3(0, 0, 0.5f), yaw, pitch, fov, 0.1f, 256.0f, (float)w / (float)h);
 
 
     GLuint shader = compile_shader_program(SHADER_PATH "default.vert", SHADER_PATH "default.frag");
@@ -71,25 +69,26 @@ int main(int argc, char* argv[]) {
     GLuint brickwall_diffuse = tex_cache.get("assets/brickwall.jpg");
     GLuint brickwall_specular = tex_cache.get("assets/brickwall.jpg");
     GLuint brickwall_normal = tex_cache.get("assets/brickwall_normal.jpg");
-    Material brickwall_material(brickwall_diffuse, brickwall_specular, brickwall_normal, 16.0f, 1.0f);
+    Material brickwall_material(brickwall_diffuse, brickwall_specular, brickwall_normal, 64.0f, 1.0f);
 
 
-    float radius = 128;
-    std::vector<Vertex> ground_verticies = {
-        Vertex(-radius, 0.0f, -radius,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f),
-        Vertex(-radius, 0.0f,  radius,  0.0f, 1.0f, 0.0f,  0.0f, 2*radius),
-        Vertex( radius, 0.0f, -radius,  0.0f, 1.0f, 0.0f,  2*radius, 0.0f),
-        Vertex( radius, 0.0f,  radius,  0.0f, 1.0f, 0.0f,  2*radius, 2*radius)
+    std::vector<Vertex> wall_verticies = {
+        Vertex(-0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f),
+        Vertex(-0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f),
+        Vertex( 0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f),
+        Vertex( 0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f),
     };
-    std::vector<unsigned int> ground_indicies = {0, 1, 2, 2, 1, 3};
-    Mesh ground(ground_verticies, ground_indicies, brickwall_material);
+    std::vector<unsigned int> wall_indicies = {0, 1, 2, 2, 1, 3};
+    compute_tangents(wall_verticies, wall_indicies);
+    Mesh wall(wall_verticies, wall_indicies, brickwall_material);
 
 
-    ParallelLight sun(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.35f), glm::vec3(0.65f), glm::vec3(0.4f));
-    Light light(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f));
+    Light light(glm::vec3(0.3f, 0.0f, 0.2f), glm::vec3(0.3f), glm::vec3(0.3f), glm::vec3(0.8f));
+    Light light2(glm::vec3(-10.0f, 2.0f, 1.0f), glm::vec3(0.3f), glm::vec3(0.3f), glm::vec3(0.8f));
 
 
-    Model model("assets/eurofighter-typhoon/source/Eurofighter.obj", tex_cache, true);
+    Model backpack("assets/backpack/backpack.obj", tex_cache, false);
+    Model jet("assets/F-16/F-16.obj", tex_cache, true);
 
 
     bool keys[SDL_NUM_SCANCODES] = {};
@@ -173,27 +172,39 @@ int main(int argc, char* argv[]) {
             camera.move(move_vector);
         }
 
-        glClearColor(0.45f, 0.55f, 0.85f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(shader);
 
         camera.use(shader);
 
-        sun.use(shader);
         light.use(shader, 0);
-        Light::setCount(shader, 1);
+        light2.use(shader, 1);
+        Light::setCount(shader, 2);
 
         glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-        ground.draw(shader);
+        wall.draw(shader);
 
-        glm::mat4 m = glm::mat4(1.0f);
-        m = glm::translate(m, glm::vec3(0.0f, 2.35f, 0.0f));
-        m = glm::scale(m, glm::vec3(0.1f));
-        // m = glm::rotate(m, glm::radians(90.0f), glm::vec3(0, 1, 0));
-        // m = glm::rotate(m, glm::radians(90.0f), glm::vec3(1, 0, 0));
-        glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, glm::value_ptr(m));
-        model.draw(shader);
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.5f, 0, 0.5f));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 1, 0));
+        glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+        wall.draw(shader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-0.5f, 0, 0.5f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1, 0));
+        model = glm::scale(model, glm::vec3(0.2f));
+        glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+        backpack.draw(shader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-5.0f, 0, 0));
+        // model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1, 0));
+        model = glm::scale(model, glm::vec3(0.05f));
+        glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+        jet.draw(shader);
 
         GLenum err = glGetError();
         if (err != GL_NO_ERROR)

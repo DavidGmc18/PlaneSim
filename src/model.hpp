@@ -21,7 +21,7 @@ class Model {
 public:
     Model(std::string path, TextureCache& texture_cache, bool flip_UVs = false) {
         Assimp::Importer import;
-        const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | (flip_UVs * aiProcess_FlipUVs));
+        const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | (flip_UVs * aiProcess_FlipUVs) | aiProcess_CalcTangentSpace); 
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << '\n';
@@ -57,6 +57,8 @@ private:
         std::vector<unsigned int> indices;
         Material material;
 
+        // std::cout << mesh->mName.C_Str() << '\n';
+
         // vertices
         for(unsigned int i = 0; i < mesh->mNumVertices; i++) {
             Vertex vertex;
@@ -76,6 +78,14 @@ private:
             } else {
                 vertex.uv = glm::vec2(0.0f, 0.0f);
             }
+
+            if (mesh->mTangents) {
+                glm::vec3 T = { mesh->mTangents[i].x,  mesh->mTangents[i].y,  mesh->mTangents[i].z };
+                glm::vec3 B = { mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z };
+                glm::vec3 N = vertex.norm;
+                float w = glm::dot(glm::cross(N, T), B) < 0.0f ? -1.0f : 1.0f;
+                vertex.tan = glm::vec4(T, w);
+            } // TODO fallback
 
             vertices.push_back(vertex);
         }
@@ -121,8 +131,16 @@ private:
             std::cout << "No SPECULAR texture for material, using DEFAULT_SPECULAR!\n";
         }
 
-        // TODO
-        material.normal = texture_cache.getDefault(TextureCache::DEFAULT_NORMAL);
+        if (mat->GetTextureCount(aiTextureType_NORMALS) > 0) {
+            if (mat->GetTextureCount(aiTextureType_NORMALS) > 1) std::cerr << "Too many NORMAL textures for material!\n";
+            aiString str;
+            mat->GetTexture(aiTextureType_NORMALS, 0, &str);
+            std::string path = directory + '/' + std::string(str.C_Str());
+            material.normal = texture_cache.get(path);
+        } else {
+            material.normal = texture_cache.getDefault(TextureCache::DEFAULT_NORMAL);
+            std::cout << "No NORMAL texture for material, using DEFAULT_NORMAL!\n";
+        }
 
         mat->Get(AI_MATKEY_SHININESS, material.shininess);
 

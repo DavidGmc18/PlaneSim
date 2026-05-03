@@ -40,7 +40,7 @@ static GLuint load_texture(std::string path) {
             return 0;
     }
 
-        GLuint id = gen_texture(GL_RGB8, data, width, height, format);
+        GLuint id = gen_texture(GL_RGB, data, width, height, format);
 
     stbi_image_free(data);
     return id;
@@ -48,13 +48,13 @@ static GLuint load_texture(std::string path) {
 
 TextureCache::TextureCache() {
     unsigned char default_diffuse[3] = {255, 255, 255};
-    default_textures[DEFAULT_DIFFUSE] = gen_texture(GL_RGB8, default_diffuse, 1, 1, GL_RGBA);
+    default_textures[DEFAULT_DIFFUSE] = gen_texture(GL_RGB, default_diffuse, 1, 1, GL_RGB);
 
     unsigned char default_specular[3] = {0, 0, 0};
-    default_textures[DEFAULT_SPECULAR] = gen_texture(GL_RGB8, default_specular, 1, 1, GL_RGB);
+    default_textures[DEFAULT_SPECULAR] = gen_texture(GL_RGB, default_specular, 1, 1, GL_RGB);
 
     unsigned char default_normal[3] = {128, 128, 255};
-    default_textures[DEFAULT_NORMAL] = gen_texture(GL_RGB8, default_normal, 1, 1, GL_RGB);
+    default_textures[DEFAULT_NORMAL] = gen_texture(GL_RGB, default_normal, 1, 1, GL_RGB);
 }
 
 TextureCache::~TextureCache() {

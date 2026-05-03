@@ -31,8 +31,8 @@ struct Material {
         glUniform1i(glGetUniformLocation(shader, "material.specular"), 1);
 
         glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, specular);
-        glUniform1i(glGetUniformLocation(shader, "material.specular"), 2);
+        glBindTexture(GL_TEXTURE_2D, normal);
+        glUniform1i(glGetUniformLocation(shader, "material.normal"), 2);
 
         glUniform1f(glGetUniformLocation(shader, "material.shininess"), shininess);
         glUniform1f(glGetUniformLocation(shader, "material.opacity"), opacity);

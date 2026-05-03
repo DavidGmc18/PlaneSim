@@ -1,0 +1,40 @@
+#pragma once
+
+#include <glad/glad.h>
+#include <algorithm>
+#include <iostream>
+
+struct Material {
+    GLuint diffuse = 0;
+    GLuint specular = 0;
+    GLuint normal = 0;
+    float shininess = 32.0f;
+    float opacity = 1.0f;
+
+    Material() = default;
+
+    Material(GLuint diffuse, GLuint specular, GLuint normal, float shininess, float opacity):
+        diffuse(diffuse), specular(specular), shininess(shininess), normal(normal), opacity(opacity) {}
+
+    void use(GLuint shader) {
+        if (diffuse == 0 || specular == 0 || normal == 0) {
+            std::cerr << "Material is not properly initialized!" << diffuse << specular << normal << "\n"; // TODO
+            return;
+        }
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, diffuse);
+        glUniform1i(glGetUniformLocation(shader, "material.diffuse"), 0);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specular);
+        glUniform1i(glGetUniformLocation(shader, "material.specular"), 1);
+
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, specular);
+        glUniform1i(glGetUniformLocation(shader, "material.specular"), 2);
+
+        glUniform1f(glGetUniformLocation(shader, "material.shininess"), shininess);
+        glUniform1f(glGetUniformLocation(shader, "material.opacity"), opacity);
+    }
+};

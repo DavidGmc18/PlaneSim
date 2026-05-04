@@ -13,7 +13,6 @@ add_executable(${PROJECT_NAME}
     src/shader.hpp
     src/stb/stb_image.h
     src/camera.hpp
-    src/mesh.hpp
     src/shader.hpp
     src/model.hpp
     src/light.hpp
@@ -21,6 +20,15 @@ add_executable(${PROJECT_NAME}
     src/vertex.hpp
     src/TextureCache.hpp
     src/TextureCache.cpp
+    src/world/World.hpp
+    src/world/Chunk.hpp
+    src/world/TerrainGenerator.hpp
+    src/world/TerrainGenerator.cpp
+    src/world/Chunk.cpp
+    src/world/World.cpp
+    src/FastNoiseLite/FastNoiseLite.h
+    src/Mesh.hpp
+    src/Mesh.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

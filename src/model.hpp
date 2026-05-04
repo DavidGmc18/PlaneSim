@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "mesh.hpp"
+#include "Mesh.hpp"
 #include <string>
 #include <glad/glad.h>
 #include "TextureCache.hpp"
@@ -33,7 +33,7 @@ public:
     void draw(GLuint shader, glm::mat4& model) {
         glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
         for (Mesh& mesh : meshes) {
-            mesh._draw(shader, model, normalMatrix);
+            mesh.render(shader, model, normalMatrix);
         }
     }
 

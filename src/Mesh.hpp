@@ -1,0 +1,32 @@
+#pragma once
+
+#include <vector>
+#include "vertex.hpp"
+#include "material.hpp"
+#include <glad/glad.h>
+
+class Mesh {
+    GLuint VBO = 0;
+    GLuint VAO = 0;
+    GLuint EBO = 0;
+    unsigned int index_count = 0;
+
+public:
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+    Material material;
+
+    Mesh();
+    ~Mesh();
+
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Material material);
+
+    Mesh(const Mesh&) = delete;
+    Mesh& operator=(const Mesh&) = delete;
+    Mesh(Mesh&& other) noexcept;
+    Mesh& operator=(Mesh&& other) noexcept;
+
+    void build();
+    void render(GLuint shader, glm::mat4& model, glm::mat3& normalMatrix);
+    void draw(GLuint shader, glm::mat4& model);
+};

@@ -1,1 +1,3 @@
 src/glad/** linguist-vendored
+src/stb/** linguist-vendored
+src/FastNoiseLite/** linguist-vendored

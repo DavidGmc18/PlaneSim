@@ -83,6 +83,8 @@ TextureCache::TextureCache() {
 TextureCache::~TextureCache() {
     for (auto const& [path, texture] : cache)
         glDeleteTextures(1, &texture);
+    for (int i = 0; i < (sizeof(default_textures) / sizeof(GLuint)); i++)
+        glDeleteTextures(1, &default_textures[i]);
     cache.clear();
 }
 

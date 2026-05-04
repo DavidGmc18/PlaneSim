@@ -6,7 +6,6 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.hpp"
-#include "mesh.hpp"
 #include "camera.hpp"
 #include "light.hpp"
 #include "model.hpp"
@@ -67,28 +66,10 @@ int main(int argc, char* argv[]) {
 
     TextureCache tex_cache;
 
-    GLuint brickwall_diffuse = tex_cache.get("assets/brickwall.jpg");
-    GLuint brickwall_specular = tex_cache.get("assets/brickwall.jpg");
-    GLuint brickwall_normal = tex_cache.get("assets/brickwall_normal.jpg");
-    Material brickwall_material(brickwall_diffuse, brickwall_specular, brickwall_normal, TextureCache::DEFAULT_SHININESS, 1.0f);
+
+    ParallelLight sun(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.3f), glm::vec3(0.5f), glm::vec3(1.0f));
 
 
-    std::vector<Vertex> wall_verticies = {
-        Vertex(-0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f),
-        Vertex(-0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f),
-        Vertex( 0.5f, -0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f),
-        Vertex( 0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f),
-    };
-    std::vector<unsigned int> wall_indicies = {0, 2, 1, 2, 3, 1};
-    compute_tangents(wall_verticies, wall_indicies);
-    Mesh wall(wall_verticies, wall_indicies, brickwall_material);
-
-
-    Light light(glm::vec3(0.3f, 0.0f, 0.2f), glm::vec3(0.3f), glm::vec3(0.3f), glm::vec3(0.8f));
-    Light light2(glm::vec3(-10.0f, 2.0f, 1.0f), glm::vec3(0.3f), glm::vec3(0.3f), glm::vec3(0.8f));
-
-
-    Model backpack("assets/backpack/backpack.obj", tex_cache, false);
     Model jet("assets/F-16/F-16.obj", tex_cache, true);
 
 
@@ -180,27 +161,10 @@ int main(int argc, char* argv[]) {
 
         camera.use(shader);
 
-        light.use(shader, 0);
-        light2.use(shader, 1);
-        Light::setCount(shader, 2);
-        
+        sun.use(shader);
+        Light::setCount(shader, 0);
+
         glm::mat4 model = glm::mat4(1.0f);
-        wall.draw(shader, model);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.5f, 0, 0.5f));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 1, 0));
-        wall.draw(shader, model);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-0.5f, 0, 0.5f));
-        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1, 0));
-        model = glm::scale(model, glm::vec3(0.2f));
-        backpack.draw(shader, model);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-5.0f, 0, 0));
-        // model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1, 0));
         model = glm::scale(model, glm::vec3(0.05f));
         jet.draw(shader, model);
 

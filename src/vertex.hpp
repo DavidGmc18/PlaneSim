@@ -16,7 +16,7 @@ struct Vertex {
         pos(x, y, z), norm(nx, ny, nz), uv(u, v), tan(0.0f) {}
 };
 
-void compute_tangents(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+inline void compute_tangents(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
     std::vector<glm::vec3> tan_accum(vertices.size(), glm::vec3(0.0f));
     std::vector<glm::vec3> bitan_accum(vertices.size(), glm::vec3(0.0f));
 

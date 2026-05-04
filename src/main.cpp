@@ -11,6 +11,8 @@
 #include "model.hpp"
 #include "TextureCache.hpp"
 
+#include "world/World.hpp"
+
 int w = 800;
 int h = 600;
 
@@ -19,7 +21,7 @@ float pitch = 0.0f;
 float fov = 80.0f;
 
 float mouse_sensitivity = 0.1f;
-float speed = 1.0f;
+float speed = 10.0f;
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -58,7 +60,7 @@ int main(int argc, char* argv[]) {
     glEnable(GL_CULL_FACE);
 
     
-    Camera camera(glm::vec3(0, 0, 0.5f), yaw, pitch, fov, 0.1f, 256.0f, (float)w / (float)h);
+    Camera camera(glm::vec3(0, 5, 0), yaw, pitch, fov, 0.1f, 256.0f, (float)w / (float)h);
 
 
     GLuint shader = compile_shader_program(SHADER_PATH "default.vert", SHADER_PATH "default.frag");
@@ -71,6 +73,9 @@ int main(int argc, char* argv[]) {
 
 
     Model jet("assets/F-16/F-16.obj", tex_cache, true);
+
+
+    World world(tex_cache);
 
 
     bool keys[SDL_NUM_SCANCODES] = {};
@@ -154,7 +159,7 @@ int main(int argc, char* argv[]) {
             camera.move(move_vector);
         }
 
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        glClearColor(0.2f, 0.5f, 0.8f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(shader);
@@ -165,8 +170,11 @@ int main(int argc, char* argv[]) {
         Light::setCount(shader, 0);
 
         glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0, 5, 0));
         model = glm::scale(model, glm::vec3(0.05f));
         jet.draw(shader, model);
+
+        world.draw(shader);
 
         GLenum err = glGetError();
         if (err != GL_NO_ERROR)

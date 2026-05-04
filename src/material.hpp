@@ -8,7 +8,7 @@ struct Material {
     GLuint diffuse = 0;
     GLuint specular = 0;
     GLuint normal = 0;
-    GLuint shininess = 0;
+    GLuint shininess = 0; // TODO rename to glossiness
     float opacity = 1.0f;
 
     Material() = default;
@@ -16,9 +16,9 @@ struct Material {
     Material(GLuint diffuse, GLuint specular, GLuint normal, float shininess, float opacity):
         diffuse(diffuse), specular(specular), shininess(shininess), normal(normal), opacity(opacity) {}
 
-    void use(GLuint shader) {
+    void use(GLuint shader) const {
         if (diffuse == 0 || specular == 0 || normal == 0) {
-            std::cerr << "Material is not properly initialized!" << diffuse << specular << normal << "\n"; // TODO
+            std::cerr << "Material is not properly initialized!\n";
             return;
         }
 

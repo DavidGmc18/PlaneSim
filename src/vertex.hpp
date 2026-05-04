@@ -16,6 +16,33 @@ struct Vertex {
         pos(x, y, z), norm(nx, ny, nz), uv(u, v), tan(0.0f) {}
 };
 
+inline void compute_normals(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+    for (Vertex& vertex : vertices) 
+        vertex.norm = glm::vec3(0.0f);
+
+    for (size_t i = 0; i < indices.size(); i += 3) {
+        Vertex& v1 = vertices[indices[i]];
+        Vertex& v2 = vertices[indices[i+1]];
+        Vertex& v3 = vertices[indices[i+2]];
+
+        glm::vec3 edge1 = v2.pos - v1.pos;
+        glm::vec3 edge2 = v3.pos - v1.pos;
+        glm::vec3 faceNormal = glm::cross(edge1, edge2);
+
+        v1.norm += faceNormal;
+        v2.norm += faceNormal;
+        v3.norm += faceNormal;
+    }
+
+    for (Vertex& vertex : vertices) {
+        if (glm::length(vertex.norm) > 0.0f) {
+            vertex.norm = glm::normalize(vertex.norm);
+        } else {
+            vertex.norm = glm::vec3(0.0f, 1.0f, 0.0f);
+        }
+    }
+}
+
 inline void compute_tangents(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
     std::vector<glm::vec3> tan_accum(vertices.size(), glm::vec3(0.0f));
     std::vector<glm::vec3> bitan_accum(vertices.size(), glm::vec3(0.0f));

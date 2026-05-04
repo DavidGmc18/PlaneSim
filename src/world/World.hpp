@@ -5,8 +5,8 @@
 #include "TextureCache.hpp"
 
 class World {
-    static constexpr unsigned VIEW_DISTANCE = 1;
-    static constexpr unsigned CHUNK_COUNT = (VIEW_DISTANCE * 2 + 1) * (VIEW_DISTANCE * 2 + 1);
+    static constexpr int VIEW_DISTANCE = 2;
+    static constexpr int CHUNK_COUNT = 4 * VIEW_DISTANCE * VIEW_DISTANCE;
 
     TerrainGenerator generator;
     std::array<Chunk, CHUNK_COUNT> chunks;

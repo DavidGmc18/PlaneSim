@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
             camera.move(move_vector);
         }
 
-        glClearColor(0.2f, 0.5f, 0.8f, 1.0f);
+        glClearColor(0.3f, 0.5f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(shader);

@@ -7,10 +7,13 @@ World::World(TextureCache& cache) {
         chunk = Chunk(cache);
     }
 
-    chunks[0].load( 0,  0, generator);
-    chunks[1].load(-1,  0, generator);
-    chunks[2].load( 0, -1, generator);
-    chunks[3].load(-1, -1, generator);
+    for (int z = -VIEW_DISTANCE; z < VIEW_DISTANCE; z++) {
+        int row_offset= (z + VIEW_DISTANCE) * VIEW_DISTANCE * 2;
+        for (int x = -VIEW_DISTANCE; x < VIEW_DISTANCE; x++) {
+            int collumn_offset = x + VIEW_DISTANCE;
+            chunks[row_offset+collumn_offset].load(x, z, generator);
+        }
+    }
 }
 
 void World::draw(GLuint shader) const {

@@ -2,7 +2,11 @@ from PIL import Image
 import numpy as np
 
 # Low = shiny; High = rough; default = 1.0
-SHININESS_POWER = 0.25
+SHININESS_POWER = 1.0
+
+# Low = shiny; High = rough; default = 1.0
+SPECULAR_POWER = 0.7
+
 # Low = less metallic; High = more metallic; start = 0.04
 DIELECTRIC_SPECULAR = 0.06
 
@@ -17,7 +21,7 @@ def lerp(a, b, t):
     return a * (1.0 - t) + b * t
 
 diffuse = base_color * (1.0 - metallic)
-specular = lerp(DIELECTRIC_SPECULAR, base_color, metallic)
+specular = np.pow(lerp(DIELECTRIC_SPECULAR, base_color, metallic), SPECULAR_POWER)
 shininess = np.pow(1.0 - roughness, SHININESS_POWER).squeeze()
 
 Image.fromarray((diffuse * 255).astype(np.uint8)).save("scripts/out/diffuse.png")

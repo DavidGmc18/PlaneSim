@@ -169,12 +169,20 @@ int main(int argc, char* argv[]) {
         sun.use(shader);
         Light::setCount(shader, 0);
 
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0, 5, 0));
-        model = glm::scale(model, glm::vec3(0.05f));
-        jet.draw(shader, model);
+        // Opaque rendering
+        glEnable(GL_DEPTH_TEST);
+
+        glm::mat4 jet_model = glm::mat4(1.0f);
+        jet_model = glm::translate(jet_model, glm::vec3(0, 5, 0));
+        jet_model = glm::scale(jet_model, glm::vec3(0.05f));
+        jet.drawOpaque(shader, jet_model);
 
         world.draw(shader);
+
+        // Transparent rendering
+        glDisable(GL_DEPTH_TEST);
+
+        jet.drawTransparent(shader, jet_model);
 
         GLenum err = glGetError();
         if (err != GL_NO_ERROR)

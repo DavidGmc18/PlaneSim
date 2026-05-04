@@ -13,7 +13,8 @@
 // TODO optimize materials to share, rather than one per mesh
 class Model {
     public:
-    std::vector<Mesh> meshes;
+    std::vector<Mesh> opaque_meshes;
+    std::vector<Mesh> transparent_meshes;
     std::string directory;
 
 public:
@@ -30,9 +31,16 @@ public:
         processNode(scene->mRootNode, scene, texture_cache);
     }
 
-    void draw(GLuint shader, glm::mat4& model) {
+    void drawOpaque(GLuint shader, glm::mat4& model) {
         glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
-        for (Mesh& mesh : meshes) {
+        for (const Mesh& mesh : opaque_meshes) {
+            mesh.render(shader, model, normalMatrix);
+        }
+    }
+
+    void drawTransparent(GLuint shader, glm::mat4& model) {
+        glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
+        for (const Mesh& mesh : transparent_meshes) {
             mesh.render(shader, model, normalMatrix);
         }
     }
@@ -41,8 +49,13 @@ private:
     void processNode(aiNode *node, const aiScene *scene, TextureCache& texture_cache) {
         // Process all node meshes
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-            aiMesh *mesh = scene->mMeshes[node->mMeshes[i]]; 
-            meshes.push_back(processMesh(mesh, scene, texture_cache));			
+            aiMesh *aiMesh = scene->mMeshes[node->mMeshes[i]];
+            Mesh mesh = processMesh(aiMesh, scene, texture_cache);
+            if (mesh.material.opacity < 1.0f) {
+                transparent_meshes.push_back(std::move(mesh));
+            } else {
+                opaque_meshes.push_back(std::move(mesh));
+            }			
         }
 
         // Process all children

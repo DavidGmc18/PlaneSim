@@ -10,8 +10,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-// TODO figureout how texture NORMS work
-// TODO resolve glb model textures
 // TODO optimize materials to share, rather than one per mesh
 class Model {
     public:
@@ -32,9 +30,10 @@ public:
         processNode(scene->mRootNode, scene, texture_cache);
     }
 
-    void draw(GLuint shader) {
+    void draw(GLuint shader, glm::mat4& model) {
+        glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
         for (Mesh& mesh : meshes) {
-            mesh.draw(shader);
+            mesh._draw(shader, model, normalMatrix);
         }
     }
 
@@ -106,43 +105,13 @@ private:
         return Mesh(vertices, indices, material);
     }
 
-    Material loadMaterial(aiMaterial *mat, TextureCache& texture_cache) {
+    Material loadMaterial(aiMaterial* mat, TextureCache& texture_cache) {
         Material material;
 
-        if (mat->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
-            if (mat->GetTextureCount(aiTextureType_DIFFUSE) > 1) std::cerr << "Too many DIFFUSE textures for material!\n";
-            aiString str;
-            mat->GetTexture(aiTextureType_DIFFUSE, 0, &str);
-            std::string path = directory + '/' + std::string(str.C_Str());
-            material.diffuse = texture_cache.get(path);
-        } else {
-            material.diffuse = texture_cache.getDefault(TextureCache::DEFAULT_DIFFUSE);
-            std::cout << "No DIFFUSE texture for material, using DEFAULT_DIFFUSE!\n";
-        }
-
-        if (mat->GetTextureCount(aiTextureType_SPECULAR) > 0) {
-            if (mat->GetTextureCount(aiTextureType_SPECULAR) > 1) std::cerr << "Too many SPECULAR textures for material!\n";
-            aiString str;
-            mat->GetTexture(aiTextureType_SPECULAR, 0, &str);
-            std::string path = directory + '/' + std::string(str.C_Str());
-            material.specular = texture_cache.get(path);
-        } else {
-            material.specular = texture_cache.getDefault(TextureCache::DEFAULT_SPECULAR);
-            std::cout << "No SPECULAR texture for material, using DEFAULT_SPECULAR!\n";
-        }
-
-        if (mat->GetTextureCount(aiTextureType_NORMALS) > 0) {
-            if (mat->GetTextureCount(aiTextureType_NORMALS) > 1) std::cerr << "Too many NORMAL textures for material!\n";
-            aiString str;
-            mat->GetTexture(aiTextureType_NORMALS, 0, &str);
-            std::string path = directory + '/' + std::string(str.C_Str());
-            material.normal = texture_cache.get(path);
-        } else {
-            material.normal = texture_cache.getDefault(TextureCache::DEFAULT_NORMAL);
-            std::cout << "No NORMAL texture for material, using DEFAULT_NORMAL!\n";
-        }
-
-        mat->Get(AI_MATKEY_SHININESS, material.shininess);
+        material.diffuse = getTexture(mat, texture_cache, aiTextureType_DIFFUSE, TextureCache::DEFAULT_DIFFUSE);
+        material.specular = getTexture(mat, texture_cache, aiTextureType_SPECULAR, TextureCache::DEFAULT_SPECULAR);
+        material.normal = getTexture(mat, texture_cache, aiTextureType_NORMALS, TextureCache::DEFAULT_NORMAL);
+        material.shininess = getTexture(mat, texture_cache, aiTextureType_SHININESS, TextureCache::DEFAULT_SHININESS);
 
         float opacity = 1.0f;
         float transparencyFactor = 0.0f;
@@ -151,5 +120,20 @@ private:
         material.opacity = opacity * (1.0f - transparencyFactor);
 
         return material;
+    }
+
+    GLuint getTexture(aiMaterial* mat, TextureCache& texture_cache, aiTextureType type, TextureCache::DefaultTex fallback) {
+        if (mat->GetTextureCount(type) == 0) {
+            std::cout << "Found no " << type << " texture for material!\n";
+            return texture_cache.getDefault(fallback);
+        }
+
+        if (mat->GetTextureCount(type) > 1)
+            std::cout << "Found more than one " << type << " texture for material!\n";
+
+        aiString str;
+        mat->GetTexture(type, 0, &str);
+        std::string path = directory + '/' + std::string(str.C_Str());
+        return texture_cache.get(path);
     }
 };

@@ -41,9 +41,16 @@ public:
         glBindVertexArray(0);
     }
 
-    void draw(GLuint shader) {
+    void _draw(GLuint shader, glm::mat4& model, glm::mat3& normalMatrix) {
         material.use(shader);
+        glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix3fv(glGetUniformLocation(shader, "uNormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    }
+
+    void draw(GLuint shader, glm::mat4& model) {
+        glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
+        _draw(shader, model, normalMatrix);
     }
 };

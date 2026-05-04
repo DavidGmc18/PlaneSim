@@ -8,7 +8,7 @@ struct Material {
     GLuint diffuse = 0;
     GLuint specular = 0;
     GLuint normal = 0;
-    float shininess = 32.0f;
+    GLuint shininess = 0;
     float opacity = 1.0f;
 
     Material() = default;
@@ -34,7 +34,10 @@ struct Material {
         glBindTexture(GL_TEXTURE_2D, normal);
         glUniform1i(glGetUniformLocation(shader, "material.normal"), 2);
 
-        glUniform1f(glGetUniformLocation(shader, "material.shininess"), shininess);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, shininess);
+        glUniform1i(glGetUniformLocation(shader, "material.shininess"), 3);
+
         glUniform1f(glGetUniformLocation(shader, "material.opacity"), opacity);
     }
 };

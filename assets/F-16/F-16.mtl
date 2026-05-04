@@ -9,6 +9,7 @@ d 1.0
 illum 2
 map_Kd   diffuse.png
 map_Ks   specular.png
+map_Ns   shininess.png
 map_Kn   normal.png
 
 newmtl F-16-hud
@@ -20,6 +21,7 @@ d 1.0
 illum 2
 map_Kd   diffuse.png
 map_Ks   specular.png
+map_Ns   shininess.png
 map_Kn   normal.png
 
 newmtl F-16-landingLights
@@ -31,6 +33,7 @@ d 1.0
 illum 1
 map_Kd   diffuse.png
 map_Ks   specular.png
+map_Ns   shininess.png
 map_Kn   normal.png
 
 newmtl Glass

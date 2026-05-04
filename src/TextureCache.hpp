@@ -7,17 +7,18 @@
 
 class TextureCache {
     std::unordered_map<std::string, GLuint> cache;
-    GLuint default_textures[3];
+    GLuint default_textures[4];
 
 public:
     enum DefaultTex {
         DEFAULT_DIFFUSE,
         DEFAULT_SPECULAR,
-        DEFAULT_NORMAL
+        DEFAULT_NORMAL,
+        DEFAULT_SHININESS
     };
 
     TextureCache();
     ~TextureCache();
-    GLuint get(std::string path);
+    GLuint get(std::string path, bool invert = false);
     GLuint getDefault(DefaultTex tex);
 };

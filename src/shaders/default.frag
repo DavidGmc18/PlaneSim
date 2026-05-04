@@ -32,47 +32,48 @@ struct Material {
     sampler2D diffuse;
     sampler2D specular;
     sampler2D normal;
-    float shininess;
+    sampler2D shininess;
     float opacity;
 };
 
 uniform Material material;
 
-vec3 computeParallelLigth(ParallelLight light, vec3 norm, vec3 viewDir) {
+vec3 computeParallelLigth(ParallelLight light, vec3 norm, vec3 viewDir, vec3 tex_diffuse, vec3 tex_specular, float shininess) {
     vec3 reflectDir = reflect(-light.dir, norm);
 
     // Ambient
-    vec3 ambient = light.ambient * texture(material.diffuse, uv).rgb;
+    vec3 ambient = light.ambient * tex_diffuse;
 
     // Diffuse
     float diff = max(dot(norm, light.dir), 0.0);
-    vec3 diffuse = light.diffuse * diff * texture(material.diffuse, uv).rgb;
+    vec3 diffuse = light.diffuse * diff * tex_diffuse;
 
     // Specular
-    float spec = material.shininess > 0.0f ? pow(max(dot(viewDir, reflectDir), 0.0), material.shininess) : 0.0f;
-    vec3 specular = light.specular * spec * texture(material.specular, uv).rgb;
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    vec3 specular = light.specular * spec * tex_specular;
 
     return ambient + diffuse + specular;
 }
 
-vec3 computeLigth(Light light, vec3 norm, vec3 viewDir) {
+vec3 computeLigth(Light light, vec3 norm, vec3 viewDir, vec3 tex_diffuse, vec3 tex_specular, float shininess) {
     vec3 lightDir = normalize(light.pos - FragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);
 
+    // Attenuation
     float distance = length(light.pos - FragPos);
     float attenuation = 1.0 / (1.0f + 0.0075f * pow(distance, 2));
     if (attenuation < (1.0f / 256.0f)) return vec3(0.0f);
 
     // Ambient
-    vec3 ambient = light.ambient * texture(material.diffuse, uv).rgb;
+    vec3 ambient = light.ambient * tex_diffuse;
 
     // Diffuse
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * texture(material.diffuse, uv).rgb;
+    vec3 diffuse = light.diffuse * diff * tex_diffuse;
 
     // Specular
-    float spec = material.shininess > 0.0f ? pow(max(dot(norm, halfwayDir), 0.0), material.shininess) : 0.0f;
-    vec3 specular = light.specular * spec * texture(material.specular, uv).rgb;
+    float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
+    vec3 specular = light.specular * spec * tex_specular;
 
     return (ambient + diffuse + specular) * attenuation;
 }
@@ -81,13 +82,17 @@ void main() {
     vec3 norm = texture(material.normal, uv).xyz;
     norm = norm * 2.0 - 1.0;   
     norm = normalize(TBN * norm);
+
+    vec3 tex_diffuse = texture(material.diffuse, uv).rgb;
+    vec3 tex_specular = texture(material.specular, uv).rgb;
+    
+    float shininess = pow(2, 8 * texture(material.shininess, uv).r);
     
     vec3 viewDir = normalize(cameraPos - FragPos);
 
-    vec3 color = computeParallelLigth(parallelLight, norm, viewDir);
-    
+    vec3 color = computeParallelLigth(parallelLight, norm, viewDir, tex_diffuse, tex_specular, shininess);
     for (int i = 0; i < lightCount; i++) {
-        color += computeLigth(lights[i], norm, viewDir);
+        color += computeLigth(lights[i], norm, viewDir, tex_diffuse, tex_specular, shininess);
     }
     FragColor = vec4(color, material.opacity);
 }

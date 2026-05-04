@@ -21,7 +21,7 @@ static GLuint gen_texture(GLint internalformat, unsigned char *data, int width, 
     return id;
 }
 
-static GLuint load_texture(std::string path) {
+static GLuint load_texture(std::string path, bool invert) {
     int width, height, channels;
     unsigned char *data = stbi_load(path.c_str(), &width, &height, &channels, 0);
     if (!data) {
@@ -31,9 +31,29 @@ static GLuint load_texture(std::string path) {
 
     GLenum format;
     switch (channels) {
-        case 1: format = GL_RED; break;
-        case 3: format = GL_RGB; break;
-        case 4: format = GL_RGBA; break;
+        case 1: 
+            format = GL_RED;
+            if (invert) for (size_t i = 0; i < width * height * channels; i++) {
+                data[i] = 255 - data[i];
+            }
+            break;
+
+        case 3: 
+            format = GL_RGB;
+            if (invert) for (size_t i = 0; i < width * height * channels; i++) {
+                data[i] = 255 - data[i];
+            }
+            break;
+
+        case 4: 
+            format = GL_RGBA;
+            if (invert) for (size_t i = 0; i < width * height * channels; i += 4) {
+                data[i] = 255 - data[i];
+                data[i+1] = 255 - data[i+1];
+                data[i+2] = 255 - data[i+2];
+            }
+            break;
+
         default:
             std::cerr << "Failed to load texture " << path << '\n';
             stbi_image_free(data);
@@ -55,6 +75,9 @@ TextureCache::TextureCache() {
 
     unsigned char default_normal[3] = {128, 128, 255};
     default_textures[DEFAULT_NORMAL] = gen_texture(GL_RGB, default_normal, 1, 1, GL_RGB);
+
+    unsigned char default_shininess[3] = {0, 0, 0};
+    default_textures[DEFAULT_SHININESS] = gen_texture(GL_RGB, default_shininess, 1, 1, GL_RGB);
 }
 
 TextureCache::~TextureCache() {
@@ -63,16 +86,18 @@ TextureCache::~TextureCache() {
     cache.clear();
 }
 
-GLuint TextureCache::get(std::string path) {
+GLuint TextureCache::get(std::string path, bool invert) {
     path = std::filesystem::absolute(path);
-    auto it = cache.find(path);
+    std::string key = path;
+    if (invert) key += ":INVERTED";
+    auto it = cache.find(key);
 
     if (it != cache.end())
         return it->second;
 
-    GLuint texture = load_texture(path);
+    GLuint texture = load_texture(path, invert);
     if (texture)
-        cache[path] = texture;
+        cache[key] = texture;
 
     return texture;
 }

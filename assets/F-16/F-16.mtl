@@ -17,7 +17,7 @@ Ns 32.0
 Ka 1.0 1.0 1.0
 Kd 0.009 0.800 0.008
 Ks 0.5 0.5 0.5
-d 1.0
+d 0.2
 illum 2
 map_Kd   diffuse.png
 map_Ks   specular.png
@@ -39,7 +39,7 @@ map_Kn   normal.png
 newmtl Glass
 Ns 360.0
 Ka 1.0 1.0 1.0
-Kd 0.8 0.8 0.8
-Ks 0.5 0.5 0.5
-d 0.2
+Kd 0.6 0.6 0.4
+Ks 1.0 1.0 1.0
+d 0.3
 illum 2

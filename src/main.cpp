@@ -21,7 +21,7 @@ float pitch = 0.0f;
 float fov = 80.0f;
 
 float mouse_sensitivity = 0.1f;
-float speed = 10.0f;
+float speed = 3.0f;
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     TextureCache tex_cache;
 
 
-    ParallelLight sun(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.3f), glm::vec3(0.5f), glm::vec3(1.0f));
+    ParallelLight sun(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.3f), glm::vec3(0.5f), glm::vec3(1.5f));
 
 
     Model jet("assets/F-16/F-16.obj", tex_cache, true);
@@ -168,10 +168,9 @@ int main(int argc, char* argv[]) {
 
         sun.use(shader);
         Light::setCount(shader, 0);
+        
 
-        // Opaque rendering
-        glEnable(GL_DEPTH_TEST);
-
+    // Opaque rendering
         glm::mat4 jet_model = glm::mat4(1.0f);
         jet_model = glm::translate(jet_model, glm::vec3(0, 5, 0));
         jet_model = glm::scale(jet_model, glm::vec3(0.05f));
@@ -179,10 +178,10 @@ int main(int argc, char* argv[]) {
 
         world.draw(shader);
 
-        // Transparent rendering
-        glDisable(GL_DEPTH_TEST);
 
+    // Transparent rendering
         jet.drawTransparent(shader, jet_model);
+
 
         GLenum err = glGetError();
         if (err != GL_NO_ERROR)

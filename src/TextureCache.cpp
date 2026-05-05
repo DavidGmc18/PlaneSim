@@ -66,25 +66,9 @@ static GLuint load_texture(std::string path, bool invert) {
     return id;
 }
 
-TextureCache::TextureCache() {
-    unsigned char default_diffuse[3] = {255, 255, 255};
-    default_textures[DEFAULT_DIFFUSE] = gen_texture(GL_RGB, default_diffuse, 1, 1, GL_RGB);
-
-    unsigned char default_specular[3] = {0, 0, 0};
-    default_textures[DEFAULT_SPECULAR] = gen_texture(GL_RGB, default_specular, 1, 1, GL_RGB);
-
-    unsigned char default_normal[3] = {128, 128, 255};
-    default_textures[DEFAULT_NORMAL] = gen_texture(GL_RGB, default_normal, 1, 1, GL_RGB);
-
-    unsigned char default_shininess[3] = {0, 0, 0};
-    default_textures[DEFAULT_SHININESS] = gen_texture(GL_RGB, default_shininess, 1, 1, GL_RGB);
-}
-
 TextureCache::~TextureCache() {
     for (auto const& [path, texture] : cache)
         glDeleteTextures(1, &texture);
-    for (int i = 0; i < (sizeof(default_textures) / sizeof(GLuint)); i++)
-        glDeleteTextures(1, &default_textures[i]);
     cache.clear();
 }
 
@@ -104,7 +88,34 @@ GLuint TextureCache::get(std::string path, bool invert) {
     return texture;
 }
 
-GLuint TextureCache::getDefault(DefaultTex tex) {
-    if (tex < 0 || tex >= (sizeof(default_textures) / sizeof(GLuint))) return 0;
-    return default_textures[tex];
+GLuint TextureCache::getColor(glm::vec3 color) {
+    glm::u8vec3 u8_color = glm::u8vec3(color * glm::vec3(255));
+
+    std::string key = ":" + u8_color.r + ':' + u8_color.g + ':' + u8_color.b;
+    auto it = cache.find(key);
+
+    if (it != cache.end())
+        return it->second;
+
+    unsigned char data[3] = {u8_color.r, u8_color.g, u8_color.b};
+    GLuint texture = gen_texture(GL_RGB, data, 1, 1, GL_RGB);
+    cache[key] = texture;
+
+    return texture;
+}
+
+GLuint TextureCache::getScalar(float value) {
+    unsigned char u8_value = (unsigned char)(value * 255);
+
+    std::string key = ":" + u8_value;
+    auto it = cache.find(key);
+
+    if (it != cache.end())
+        return it->second;
+
+    unsigned char data[1] = {u8_value};
+    GLuint texture = gen_texture(GL_RED, data, 1, 1, GL_RED);
+    cache[key] = texture;
+
+    return texture;
 }

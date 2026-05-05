@@ -18,7 +18,7 @@ class Model {
     std::string directory;
 
 public:
-    Model(std::string path, TextureCache& texture_cache, bool flip_UVs = false) {
+    Model(std::string path, TextureCache& cache, bool flip_UVs = false) {
         Assimp::Importer import;
         const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | (flip_UVs * aiProcess_FlipUVs) | aiProcess_CalcTangentSpace); 
 
@@ -28,7 +28,7 @@ public:
         }
         directory = path.substr(0, path.find_last_of('/'));
 
-        processNode(scene->mRootNode, scene, texture_cache);
+        processNode(scene->mRootNode, scene, cache);
     }
 
     void drawOpaque(GLuint shader, glm::mat4& model) {
@@ -46,11 +46,11 @@ public:
     }
 
 private:
-    void processNode(aiNode *node, const aiScene *scene, TextureCache& texture_cache) {
+    void processNode(aiNode *node, const aiScene *scene, TextureCache& cache) {
         // Process all node meshes
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
             aiMesh *aiMesh = scene->mMeshes[node->mMeshes[i]];
-            Mesh mesh = processMesh(aiMesh, scene, texture_cache);
+            Mesh mesh = processMesh(aiMesh, scene, cache);
             if (mesh.material.opacity < 1.0f) {
                 transparent_meshes.push_back(std::move(mesh));
             } else {
@@ -60,11 +60,11 @@ private:
 
         // Process all children
         for (unsigned int i = 0; i < node->mNumChildren; i++) {
-            processNode(node->mChildren[i], scene, texture_cache);
+            processNode(node->mChildren[i], scene, cache);
         }
     }
 
-    Mesh processMesh(aiMesh *mesh, const aiScene *scene, TextureCache& texture_cache) {
+    Mesh processMesh(aiMesh *mesh, const aiScene *scene, TextureCache& cache) {
         std::vector<Vertex> vertices;
         std::vector<unsigned int> indices;
         Material material;
@@ -112,19 +112,55 @@ private:
 
         // Materials
         if (mesh->mMaterialIndex >= 0) {
-            material = loadMaterial(scene->mMaterials[mesh->mMaterialIndex], texture_cache);
+            material = loadMaterial(scene->mMaterials[mesh->mMaterialIndex], cache);
         }
 
         return Mesh(vertices, indices, material);
     }
 
-    Material loadMaterial(aiMaterial* mat, TextureCache& texture_cache) {
+    Material loadMaterial(aiMaterial* mat, TextureCache& cache) {
         Material material;
 
-        material.diffuse = getTexture(mat, texture_cache, aiTextureType_DIFFUSE, TextureCache::DEFAULT_DIFFUSE);
-        material.specular = getTexture(mat, texture_cache, aiTextureType_SPECULAR, TextureCache::DEFAULT_SPECULAR);
-        material.normal = getTexture(mat, texture_cache, aiTextureType_NORMALS, TextureCache::DEFAULT_NORMAL);
-        material.shininess = getTexture(mat, texture_cache, aiTextureType_SHININESS, TextureCache::DEFAULT_SHININESS);
+        material.diffuse = getTexture(mat, cache, aiTextureType_DIFFUSE);
+        if (!material.diffuse) {
+            glm::vec3 color(0, 0, 0);
+            aiColor3D ai_color;
+            if (AI_SUCCESS ==  mat->Get(AI_MATKEY_COLOR_DIFFUSE, ai_color)) {
+                color.r = ai_color.r;
+                color.g = ai_color.g;
+                color.b = ai_color.b;
+            }
+            material.diffuse = cache.getColor(color);
+        }
+
+        material.specular = getTexture(mat, cache, aiTextureType_SPECULAR);
+        if (!material.specular) {
+            glm::vec3 color(0, 0, 0);
+            aiColor3D ai_color;
+            if (AI_SUCCESS ==  mat->Get(AI_MATKEY_COLOR_SPECULAR, ai_color)) {
+                color.r = ai_color.r;
+                color.g = ai_color.g;
+                color.b = ai_color.b;
+            }
+            material.specular = cache.getColor(color);
+        }
+
+        material.normal = getTexture(mat, cache, aiTextureType_NORMALS);
+        if (!material.normal) {
+            material.normal =cache.getColor(glm::vec3(0.5f, 0.5f, 1.0f));
+        }
+
+        material.shininess = getTexture(mat, cache, aiTextureType_SHININESS);
+        if (!material.shininess) {
+            glm::vec3 color(0, 0, 0);
+            float ai_float;
+            if (AI_SUCCESS ==  mat->Get(AI_MATKEY_SHININESS, ai_float)) {
+                color.r = ai_float;
+                color.g = ai_float;
+                color.b = ai_float;
+            }
+            material.shininess = cache.getColor(color);
+        }
 
         float opacity = 1.0f;
         float transparencyFactor = 0.0f;
@@ -135,10 +171,10 @@ private:
         return material;
     }
 
-    GLuint getTexture(aiMaterial* mat, TextureCache& texture_cache, aiTextureType type, TextureCache::DefaultTex fallback) {
+    GLuint getTexture(aiMaterial* mat, TextureCache& cache, aiTextureType type) {
         if (mat->GetTextureCount(type) == 0) {
             std::cout << "Found no " << type << " texture for material!\n";
-            return texture_cache.getDefault(fallback);
+            return 0;
         }
 
         if (mat->GetTextureCount(type) > 1)
@@ -147,6 +183,6 @@ private:
         aiString str;
         mat->GetTexture(type, 0, &str);
         std::string path = directory + '/' + std::string(str.C_Str());
-        return texture_cache.get(path);
+        return cache.get(path);
     }
 };

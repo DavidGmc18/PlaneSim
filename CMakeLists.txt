@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 project(PlaneSim LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
@@ -29,6 +29,13 @@ add_executable(${PROJECT_NAME}
     src/FastNoiseLite/FastNoiseLite.h
     src/Mesh.hpp
     src/Mesh.cpp
+    src/vehicle/RigidBody.hpp
+    src/vehicle/RigidBody.cpp
+    src/CONSTANTS.h
+    src/vehicle/Aircraft.hpp
+    src/vehicle/Aircraft.cpp
+    src/vehicle/Wing.hpp
+    src/vehicle/Wing.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

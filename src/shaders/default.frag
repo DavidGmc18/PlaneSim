@@ -82,6 +82,7 @@ void main() {
     vec3 norm = texture(material.normal, uv).xyz;
     norm = norm * 2.0 - 1.0;   
     norm = normalize(TBN * norm);
+    norm = gl_FrontFacing ? norm : -norm;
 
     vec3 tex_diffuse = texture(material.diffuse, uv).rgb;
     vec3 tex_specular = texture(material.specular, uv).rgb;

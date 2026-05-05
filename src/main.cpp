@@ -59,10 +59,9 @@ int main(int argc, char* argv[]) {
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_CULL_FACE);
 
     
-    Camera camera(glm::vec3(0, 5, 0), yaw, pitch, fov, 0.1f, 256.0f, (float)w / (float)h);
+    Camera camera(glm::vec3(0, 5, 0), yaw, pitch, fov, 0.01f, 256.0f, (float)w / (float)h);
 
 
     GLuint shader = compile_shader_program(SHADER_PATH "default.vert", SHADER_PATH "default.frag");
@@ -176,6 +175,8 @@ int main(int argc, char* argv[]) {
         
 
     // Opaque rendering
+        glEnable(GL_CULL_FACE);
+
         glm::mat4 jet_model = glm::mat4(1.0f);
         jet_model = glm::translate(jet_model, glm::vec3(0, 5, 0));
         jet_model = glm::scale(jet_model, glm::vec3(0.05f));
@@ -186,6 +187,7 @@ int main(int argc, char* argv[]) {
 
     // Transparent rendering
         glDepthMask(GL_FALSE);
+        glDisable(GL_CULL_FACE);
 
         jet.drawTransparent(shader, jet_model);
 

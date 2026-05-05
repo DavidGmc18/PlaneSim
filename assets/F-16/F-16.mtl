@@ -19,10 +19,6 @@ Kd 0.009 0.800 0.008
 Ks 0.5 0.5 0.5
 d 0.2
 illum 2
-map_Kd   diffuse.png
-map_Ks   specular.png
-map_Ns   shininess.png
-map_Kn   normal.png
 
 newmtl F-16-landingLights
 Ns 32.0
@@ -41,5 +37,5 @@ Ns 360.0
 Ka 1.0 1.0 1.0
 Kd 0.6 0.6 0.4
 Ks 1.0 1.0 1.0
-d 0.3
+d 0.25
 illum 2

@@ -20,7 +20,12 @@ class Model {
 public:
     Model(std::string path, TextureCache& cache, bool flip_UVs = false) {
         Assimp::Importer import;
-        const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | (flip_UVs * aiProcess_FlipUVs) | aiProcess_CalcTangentSpace); 
+        const aiScene *scene = import.ReadFile(path,
+            aiProcess_Triangulate
+            | (flip_UVs * aiProcess_FlipUVs)
+            | aiProcess_CalcTangentSpace
+            | aiProcess_JoinIdenticalVertices
+        ); 
 
         if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
             std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << '\n';

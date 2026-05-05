@@ -21,7 +21,7 @@ float pitch = 0.0f;
 float fov = 80.0f;
 
 float mouse_sensitivity = 0.1f;
-float speed = 3.0f;
+float speed = 1.0f;
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
-    SDL_Window* window = SDL_CreateWindow("PlaneSim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_Window* window = SDL_CreateWindow("PlaneSim", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     if (!window) {
         std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << '\n';
         return -1;
@@ -46,6 +46,8 @@ int main(int argc, char* argv[]) {
         std::cerr << "Failed to initialize GLAD\n";
         return -1;
     }
+
+    std::cout << "Loading assets, please wait...\n";
 
     SDL_GL_SetSwapInterval(-1);
 
@@ -77,6 +79,8 @@ int main(int argc, char* argv[]) {
 
     World world(tex_cache);
 
+
+    SDL_ShowWindow(window);
 
     bool keys[SDL_NUM_SCANCODES] = {};
 
@@ -159,6 +163,7 @@ int main(int argc, char* argv[]) {
             camera.move(move_vector);
         }
 
+        glDepthMask(GL_TRUE);
         glClearColor(0.3f, 0.5f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -180,6 +185,8 @@ int main(int argc, char* argv[]) {
 
 
     // Transparent rendering
+        glDepthMask(GL_FALSE);
+
         jet.drawTransparent(shader, jet_model);
 
 

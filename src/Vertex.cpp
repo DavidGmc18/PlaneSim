@@ -1,22 +1,21 @@
-#pragma once
+#include "Vertex.hpp"
 
-#include <glm/glm.hpp>
-#include <vector>
+#include <glm/gtx/string_cast.hpp>
 
-// TODO remove norm (union with tan)
-struct Vertex {
-    glm::vec3 pos;
-    glm::vec3 norm;
-    glm::vec2 uv;
-    glm::vec4 tan;
+Vertex::Vertex(float x, float y, float z, float nx, float ny, float nz, float u, float v):
+    pos(x, y, z), norm(nx, ny, nz), uv(u, v), tan(0.0f) {}
 
-    Vertex() = default;
+std::ostream& operator<<(std::ostream& os, const Vertex& v) {
+    os << "Vertex(";
+    os << "pos=" << glm::to_string(v.pos);
+    os << ", norm=" << glm::to_string(v.norm);
+    os << ", uv=" << glm::to_string(v.uv);
+    os << ", tan=" << glm::to_string(v.tan);
+    os << ')';
+    return os;
+}
 
-    Vertex(float x, float y, float z, float nx, float ny, float nz, float u, float v):
-        pos(x, y, z), norm(nx, ny, nz), uv(u, v), tan(0.0f) {}
-};
-
-inline void compute_normals(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+void Vertex::compute_normals(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
     for (Vertex& vertex : vertices) 
         vertex.norm = glm::vec3(0.0f);
 
@@ -43,7 +42,7 @@ inline void compute_normals(std::vector<Vertex>& vertices, const std::vector<uns
     }
 }
 
-inline void compute_tangents(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+void Vertex::compute_tangents(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
     std::vector<glm::vec3> tan_accum(vertices.size(), glm::vec3(0.0f));
     std::vector<glm::vec3> bitan_accum(vertices.size(), glm::vec3(0.0f));
 

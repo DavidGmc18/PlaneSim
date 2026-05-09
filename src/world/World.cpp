@@ -46,8 +46,8 @@ World::World(TerrainGenerator& generator, TextureCache& cache) {
         }
     }
 
-    compute_normals(mesh.vertices, mesh.indices);
-    compute_tangents(mesh.vertices, mesh.indices);
+    Vertex::compute_normals(mesh.vertices, mesh.indices);
+    Vertex::compute_tangents(mesh.vertices, mesh.indices);
     mesh.build();
 }
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "vertex.hpp"
+#include "Vertex.hpp"
 #include "material.hpp"
 #include <glad/glad.h>
 

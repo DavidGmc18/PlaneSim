@@ -17,7 +17,6 @@ add_executable(${PROJECT_NAME}
     src/model.hpp
     src/light.hpp
     src/material.hpp
-    src/vertex.hpp
     src/TextureCache.hpp
     src/TextureCache.cpp
     src/world/World.hpp
@@ -34,6 +33,8 @@ add_executable(${PROJECT_NAME}
     src/vehicle/Aircraft.cpp
     src/vehicle/Wing.hpp
     src/vehicle/Wing.cpp
+    src/Vertex.hpp
+    src/Vertex.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

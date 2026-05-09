@@ -21,10 +21,8 @@ add_executable(${PROJECT_NAME}
     src/TextureCache.hpp
     src/TextureCache.cpp
     src/world/World.hpp
-    src/world/Chunk.hpp
     src/world/TerrainGenerator.hpp
     src/world/TerrainGenerator.cpp
-    src/world/Chunk.cpp
     src/world/World.cpp
     src/FastNoiseLite/FastNoiseLite.h
     src/Mesh.hpp

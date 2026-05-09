@@ -21,7 +21,7 @@ float pitch = 0.0f;
 float fov = 80.0f;
 
 float mouse_sensitivity = 0.1f;
-float speed = 1.0f;
+float speed = 2.0f;
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     
-    Camera camera(glm::vec3(0, 5, 0), yaw, pitch, fov, 0.01f, 256.0f, (float)w / (float)h);
+    Camera camera(glm::vec3(0, 2, 5), yaw, pitch, fov, 0.01f, 256.0f, (float)w / (float)h);
 
 
     GLuint shader = compile_shader_program(SHADER_PATH "default.vert", SHADER_PATH "default.frag");
@@ -73,10 +73,8 @@ int main(int argc, char* argv[]) {
     ParallelLight sun(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.3f), glm::vec3(0.5f), glm::vec3(1.5f));
 
 
-    Model jet("assets/F-16/F-16.obj", tex_cache, true);
-
-
-    World world(tex_cache);
+    TerrainGenerator generator(0.0f, 0.0f, 1.0f);
+    World world(generator, tex_cache);
 
 
     SDL_ShowWindow(window);
@@ -177,10 +175,6 @@ int main(int argc, char* argv[]) {
     // Opaque rendering
         glEnable(GL_CULL_FACE);
 
-        glm::mat4 jet_model = glm::mat4(1.0f);
-        jet_model = glm::translate(jet_model, glm::vec3(0, 5, 0));
-        jet_model = glm::scale(jet_model, glm::vec3(0.05f));
-        jet.drawOpaque(shader, jet_model);
 
         world.draw(shader);
 
@@ -189,7 +183,6 @@ int main(int argc, char* argv[]) {
         glDepthMask(GL_FALSE);
         glDisable(GL_CULL_FACE);
 
-        jet.drawTransparent(shader, jet_model);
 
 
         GLenum err = glGetError();

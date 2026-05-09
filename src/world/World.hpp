@@ -1,18 +1,15 @@
 #pragma once
 
 #include "TerrainGenerator.hpp"
-#include "Chunk.hpp"
 #include "TextureCache.hpp"
+#include "Mesh.hpp"
 
 class World {
-    static constexpr int VIEW_DISTANCE = 2;
-    static constexpr int CHUNK_COUNT = 4 * VIEW_DISTANCE * VIEW_DISTANCE;
-
-    TerrainGenerator generator;
-    std::array<Chunk, CHUNK_COUNT> chunks;
+    static constexpr int WORLD_SIZE = 256;
+    Mesh mesh;
 
 public:
-    World(TextureCache& cache);
+    World(TerrainGenerator& generator, TextureCache& cache);
 
     void draw(GLuint shader) const;
 };

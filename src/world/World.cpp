@@ -2,7 +2,7 @@
 
 World::World(TerrainGenerator& generator, TextureCache& cache) {
     mesh.vertices.resize((WORLD_SIZE + 1) * (WORLD_SIZE + 1));
-    mesh.indices.resize(WORLD_SIZE * WORLD_SIZE * 6);
+    mesh.triangles.resize(WORLD_SIZE * WORLD_SIZE * 2);
 
     GLuint grass_diffuse = cache.get("assets/grass/diffuse.jpg");
     GLuint grass_specular = cache.get("assets/grass/specular.jpg");
@@ -26,7 +26,8 @@ World::World(TerrainGenerator& generator, TextureCache& cache) {
     // Indices
     for (unsigned z = 0; z < WORLD_SIZE; z++) {
         for (unsigned x = 0; x < WORLD_SIZE; x++) {
-            unsigned int* ptr = &mesh.indices[(z * WORLD_SIZE + x) * 6];
+            Triangle& t0 = mesh.triangles[(z * WORLD_SIZE + x) * 2];
+            Triangle& t1 = mesh.triangles[(z * WORLD_SIZE + x) * 2 + 1];
 
             int rowA = z * (WORLD_SIZE + 1);
             int rowB = rowA + (WORLD_SIZE + 1);
@@ -36,22 +37,26 @@ World::World(TerrainGenerator& generator, TextureCache& cache) {
             int c = rowB + x;
             int d = c + 1;
 
-            ptr[0] = a;
-            ptr[1] = c;
-            ptr[2] = b;
+            t0.v0 = a;
+            t0.v1 = c;
+            t0.v2 = b;
 
-            ptr[3] = b;
-            ptr[4] = c;
-            ptr[5] = d;
+            t1.v0 = b;
+            t1.v1 = c;
+            t1.v2 = d;
         }
     }
 
-    Vertex::compute_normals(mesh.vertices, mesh.indices);
-    Vertex::compute_tangents(mesh.vertices, mesh.indices);
+    Vertex::compute_normals(mesh.vertices, mesh.triangles);
+    Vertex::compute_tangents(mesh.vertices, mesh.triangles);
     mesh.build();
 }
 
 void World::draw(GLuint shader) const {
     glm::mat4 model = glm::mat4(1.0f);
     mesh.draw(shader, model);
+}
+
+const Mesh* World::getMesh() const {
+    return &mesh;
 }

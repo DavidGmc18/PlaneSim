@@ -71,7 +71,7 @@ private:
 
     Mesh processMesh(aiMesh *mesh, const aiScene *scene, TextureCache& cache) {
         std::vector<Vertex> vertices;
-        std::vector<unsigned int> indices;
+        std::vector<Triangle> triangles;
         Material material;
 
         // std::cout << mesh->mName.C_Str() << '\n';
@@ -110,8 +110,8 @@ private:
         // Indices
         for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
             aiFace face = mesh->mFaces[i];
-            for(unsigned int j = 0; j < face.mNumIndices; j++) {
-                indices.push_back(face.mIndices[j]);
+            for(unsigned int j = 0; j < (face.mNumIndices - 2); j += 3) {
+                triangles.push_back(Triangle(face.mIndices[j], face.mIndices[j+1], face.mIndices[j+2]));
             }
         }
 
@@ -120,7 +120,7 @@ private:
             material = loadMaterial(scene->mMaterials[mesh->mMaterialIndex], cache);
         }
 
-        return Mesh(vertices, indices, material);
+        return Mesh(vertices, triangles, material);
     }
 
     Material loadMaterial(aiMaterial* mat, TextureCache& cache) {

@@ -2,6 +2,10 @@
 
 #include <glm/gtx/string_cast.hpp>
 
+Triangle::Triangle(unsigned int v0, unsigned int v1, unsigned int v2)
+    : v0(v0), v1(v1), v2(v2) {}
+
+
 Vertex::Vertex(float x, float y, float z, float nx, float ny, float nz, float u, float v):
     pos(x, y, z), norm(nx, ny, nz), uv(u, v), tan(0.0f) {}
 
@@ -15,14 +19,14 @@ std::ostream& operator<<(std::ostream& os, const Vertex& v) {
     return os;
 }
 
-void Vertex::compute_normals(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+void Vertex::compute_normals(std::vector<Vertex>& vertices, const std::vector<Triangle>& indices) {
     for (Vertex& vertex : vertices) 
         vertex.norm = glm::vec3(0.0f);
 
-    for (size_t i = 0; i < indices.size(); i += 3) {
-        Vertex& v1 = vertices[indices[i]];
-        Vertex& v2 = vertices[indices[i+1]];
-        Vertex& v3 = vertices[indices[i+2]];
+    for (size_t i = 0; i < indices.size(); i++) {
+        Vertex& v1 = vertices[indices[i].v0];
+        Vertex& v2 = vertices[indices[i].v1];
+        Vertex& v3 = vertices[indices[i].v2];
 
         glm::vec3 edge1 = v2.pos - v1.pos;
         glm::vec3 edge2 = v3.pos - v1.pos;
@@ -42,14 +46,14 @@ void Vertex::compute_normals(std::vector<Vertex>& vertices, const std::vector<un
     }
 }
 
-void Vertex::compute_tangents(std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+void Vertex::compute_tangents(std::vector<Vertex>& vertices, const std::vector<Triangle>& indices) {
     std::vector<glm::vec3> tan_accum(vertices.size(), glm::vec3(0.0f));
     std::vector<glm::vec3> bitan_accum(vertices.size(), glm::vec3(0.0f));
 
-    for (size_t i = 0; i < indices.size(); i += 3) {
-        Vertex& v1 = vertices[indices[i]];
-        Vertex& v2 = vertices[indices[i+1]];
-        Vertex& v3 = vertices[indices[i+2]];
+    for (size_t i = 0; i < indices.size(); i++) {
+        Vertex& v1 = vertices[indices[i].v0];
+        Vertex& v2 = vertices[indices[i].v1];
+        Vertex& v3 = vertices[indices[i].v2];
 
         glm::vec3 edge1 = v2.pos - v1.pos;
         glm::vec3 edge2 = v3.pos - v1.pos;
@@ -70,13 +74,13 @@ void Vertex::compute_tangents(std::vector<Vertex>& vertices, const std::vector<u
             -duv2.x * edge1.z + duv1.x * edge2.z
         );
 
-        tan_accum[indices[i]] += tangent;
-        tan_accum[indices[i+1]] += tangent;
-        tan_accum[indices[i+2]] += tangent;
+        tan_accum[indices[i].v0] += tangent;
+        tan_accum[indices[i].v1] += tangent;
+        tan_accum[indices[i].v2] += tangent;
 
-        bitan_accum[indices[i]] += bitangent;
-        bitan_accum[indices[i+1]] += bitangent;
-        bitan_accum[indices[i+2]] += bitangent;
+        bitan_accum[indices[i].v0] += bitangent;
+        bitan_accum[indices[i].v1] += bitangent;
+        bitan_accum[indices[i].v2] += bitangent;
     }
 
     for (size_t i = 0; i < vertices.size(); i++) {

@@ -13,13 +13,13 @@ class Mesh {
 
 public:
     std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
+    std::vector<Triangle> triangles;
     Material material;
 
     Mesh();
     ~Mesh();
 
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Material material);
+    Mesh(std::vector<Vertex> vertices, std::vector<Triangle> triangles, Material material);
 
     Mesh(const Mesh&) = delete;
     Mesh& operator=(const Mesh&) = delete;

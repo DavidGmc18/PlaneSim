@@ -12,4 +12,6 @@ public:
     World(TerrainGenerator& generator, TextureCache& cache);
 
     void draw(GLuint shader) const;
+
+    const Mesh* getMesh() const;
 };

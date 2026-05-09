@@ -15,9 +15,9 @@ Mesh::~Mesh() {
     if (EBO) glDeleteBuffers(1, &EBO);
 }
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Material material): Mesh() {
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<Triangle> triangles, Material material): Mesh() {
     this->vertices = std::move(vertices);
-    this->indices = std::move(indices);
+    this->triangles = std::move(triangles);
     this->material = material;
     build();
 }
@@ -25,7 +25,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, Mate
 Mesh::Mesh(Mesh&& other) noexcept
     : VAO(other.VAO), VBO(other.VBO), EBO(other.EBO), index_count(other.index_count),
     vertices(std::move(other.vertices)), 
-    indices(std::move(other.indices)),
+    triangles(std::move(other.triangles)),
     material(other.material)
 {
     other.VAO = 0;
@@ -45,7 +45,7 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
         index_count = other.index_count;
         
         vertices = std::move(other.vertices);
-        indices = std::move(other.indices);
+        triangles = std::move(other.triangles);
         material = other.material;
 
         other.VAO = 0;
@@ -57,16 +57,16 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept {
 }
 
 void Mesh::build() {
-    if (vertices.empty() || indices.empty()) return;
+    if (vertices.empty() || triangles.empty()) return;
 
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);  
 
-    index_count = indices.size();
+    index_count = triangles.size() * 3;
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned int), triangles.data(), GL_STATIC_DRAW);
 
     glEnableVertexAttribArray(0);	
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));

@@ -33,6 +33,12 @@ add_executable(${PROJECT_NAME}
     src/vehicle/Aircraft.cpp
     src/vehicle/Wing.hpp
     src/vehicle/Wing.cpp
+    src/vehicle/Engine.hpp
+    src/vehicle/Engine.cpp
+    src/vehicle/F16.hpp
+    src/vehicle/F16.cpp
+    src/vehicle/Hitbox.hpp
+    src/vehicle/Hitbox.cpp
     src/Vertex.hpp
     src/Vertex.cpp
 )

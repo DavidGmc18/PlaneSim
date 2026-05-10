@@ -2,23 +2,17 @@
 
 #include "RigidBody.hpp"
 #include "Wing.hpp"
+#include "Engine.hpp"
+#include "Hitbox.hpp"
+
 #include <vector>
 
 class Aircraft : public RigidBody {
 protected:
+    std::vector<Engine> engines; 
     std::vector<Wing> wings; 
-    // std::vector<Engine> engines; 
+    std::vector<Hitbox> hitboxes;
 
 public:
-    void update(float dt) override {
-        // for (Wing& wing : wings) {
-        //     wing.apply_force(this);
-        // }
-
-        // for (Engine& engine : engines) {
-        //     engine.apply_force(this);
-        // }
-
-        RigidBody::update(dt);
-    }
+    virtual void update(float dt, World* world);
 };

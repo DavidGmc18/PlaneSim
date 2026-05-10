@@ -4,8 +4,8 @@
 #include <glm/gtc/quaternion.hpp>
 
 class RigidBody {
-    glm::vec3 force{}; // World-space
-    glm::vec3 torque{}; // Body-space
+    glm::vec3 force{}, impulse{}; // World-space
+    glm::vec3 torque{}, angular_impulse{}; // Body-space
 
 protected:
     glm::vec3 position{}; // World-space
@@ -19,10 +19,20 @@ protected:
 public:
     virtual void update(float dt);
 
-protected:
-    glm::vec3 transformDirection(const glm::vec3& direction) const;
-    glm::vec3 inverseTransformDirection(const glm::vec3& direction) const;
-    glm::vec3 getVelocityAtPoint(const glm::vec3& point) const;
+    float getMass() const;
 
-    void addForceAtPoint(const glm::vec3& force, const glm::vec3& point);
+    glm::vec3 toWorldDirection(const glm::vec3& direction) const;
+    glm::vec3 toBodyDirection(const glm::vec3& direction) const;
+
+    glm::vec3 toWorldPos(const glm::vec3& point) const;
+    glm::vec3 toBodyPos(const glm::vec3& point) const;
+
+    glm::vec3 getBodyVelocityAtPoint(const glm::vec3& point) const;
+    glm::vec3 getWorldVelocityAtPoint(const glm::vec3& point) const;
+
+    void addBodyForceAtBodyPoint(const glm::vec3& force, const glm::vec3& point);
+    void addWorldForceAtWorldPoint(const glm::vec3& force, const glm::vec3& point);
+
+    void addBodyImpulseAtBodyPoint(const glm::vec3& impulse, const glm::vec3& point);
+    void addWorldImpulseAtWorldPoint(const glm::vec3& impulse, const glm::vec3& point);
 };

@@ -13,15 +13,17 @@
 
 #include "world/World.hpp"
 
-int w = 800;
-int h = 600;
+#include "vehicle/F16.hpp"
+
+int w = 1280;
+int h = 720;
 
 float yaw = -90.0f;
 float pitch = 0.0f;
 float fov = 80.0f;
 
 float mouse_sensitivity = 0.1f;
-float speed = 2.0f;
+float speed = 10.0f;
 
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -51,7 +53,7 @@ int main(int argc, char* argv[]) {
 
     SDL_GL_SetSwapInterval(-1);
 
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    // SDL_SetRelativeMouseMode(SDL_TRUE);
 
     glViewport(0, 0, w, h);
     glEnable(GL_DEPTH_TEST);
@@ -61,7 +63,7 @@ int main(int argc, char* argv[]) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     
-    Camera camera(glm::vec3(0, 2, 5), yaw, pitch, fov, 0.01f, 256.0f, (float)w / (float)h);
+    Camera camera(glm::vec3(0.0f, 0.2f, 7.0f), yaw, pitch, fov, 0.001f, 256.0f, (float)w / (float)h);
 
 
     GLuint shader = compile_shader_program(SHADER_PATH "default.vert", SHADER_PATH "default.frag");
@@ -73,8 +75,11 @@ int main(int argc, char* argv[]) {
     ParallelLight sun(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.3f), glm::vec3(0.5f), glm::vec3(1.5f));
 
 
-    TerrainGenerator generator(0.0f, 0.0f, 1.0f);
-    World world(generator, tex_cache);
+    F16 jet(glm::vec3(0.0f, 5.0f, 0.0f), tex_cache);
+
+
+    TerrainGenerator generator(0.0f, 5.0f, 1.0f);
+    World world(1024, generator, tex_cache);
 
 
     SDL_ShowWindow(window);
@@ -160,6 +165,10 @@ int main(int argc, char* argv[]) {
             camera.move(move_vector);
         }
 
+
+        jet.update(frame_time, &world);
+
+
         glDepthMask(GL_TRUE);
         glClearColor(0.3f, 0.5f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -175,6 +184,7 @@ int main(int argc, char* argv[]) {
     // Opaque rendering
         glEnable(GL_CULL_FACE);
 
+        jet.drawOpaque(shader);
 
         world.draw(shader);
 
@@ -183,6 +193,7 @@ int main(int argc, char* argv[]) {
         glDepthMask(GL_FALSE);
         glDisable(GL_CULL_FACE);
 
+        jet.drawTransparent(shader);
 
 
         GLenum err = glGetError();

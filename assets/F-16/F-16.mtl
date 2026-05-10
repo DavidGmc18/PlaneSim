@@ -1,5 +1,7 @@
 # F-16.mtl
 
+# TODO make HUD render before cockpit
+
 newmtl F-16-airframe
 Ns 32.0
 Ka 1.0 1.0 1.0

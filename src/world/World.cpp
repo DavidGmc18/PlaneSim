@@ -1,6 +1,6 @@
 #include "World.hpp"
 
-World::World(TerrainGenerator& generator, TextureCache& cache) {
+World::World(int world_size, TerrainGenerator& generator, TextureCache& cache): WORLD_SIZE(world_size) {
     mesh.vertices.resize((WORLD_SIZE + 1) * (WORLD_SIZE + 1));
     mesh.triangles.resize(WORLD_SIZE * WORLD_SIZE * 2);
 
@@ -59,4 +59,34 @@ void World::draw(GLuint shader) const {
 
 const Mesh* World::getMesh() const {
     return &mesh;
+}
+
+std::array<Triangle, 2> World::getSquare(float x, float z) const {
+    int row = std::floor(z + (float)WORLD_SIZE/2);
+    int col = std::floor(x + (float)WORLD_SIZE/2);
+
+    if (col < 0) col = 0;
+    if (row < 0) row = 0;
+    if (row >= WORLD_SIZE) row = WORLD_SIZE - 1;
+    if (col >= WORLD_SIZE) col = WORLD_SIZE - 1;
+
+    int rowA = row * (WORLD_SIZE + 1);
+    int rowB = rowA + WORLD_SIZE + 1;
+
+    int a = rowA + col;
+    int b = a + 1;
+    int c = rowB + col;
+    int d = c + 1;
+
+    std::array<Triangle, 2> triangles;
+
+    triangles[0].v0 = a;
+    triangles[0].v1 = c;
+    triangles[0].v2 = b;
+
+    triangles[1].v0 = b;
+    triangles[1].v1 = c;
+    triangles[1].v2 = d;
+
+    return triangles;
 }

@@ -6,7 +6,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.hpp"
-#include "camera.hpp"
+#include "Camera.hpp"
 #include "light.hpp"
 #include "model.hpp"
 #include "TextureCache.hpp"
@@ -23,6 +23,7 @@ float pitch = 0.0f;
 float fov = 80.0f;
 
 float mouse_sensitivity = 0.1f;
+float mouse_scroll_sensitivity = 0.3f;
 float speed = 10.0f;
 
 int main(int argc, char* argv[]) {
@@ -62,9 +63,6 @@ int main(int argc, char* argv[]) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    
-    Camera camera(glm::vec3(0.0f, 0.2f, 7.0f), yaw, pitch, fov, 0.001f, 256.0f, (float)w / (float)h);
-
 
     GLuint shader = compile_shader_program(SHADER_PATH "default.vert", SHADER_PATH "default.frag");
 
@@ -78,13 +76,13 @@ int main(int argc, char* argv[]) {
     F16 jet(glm::vec3(0.0f, 5.0f, 0.0f), tex_cache);
 
 
-    TerrainGenerator generator(0.0f, 5.0f, 1.0f);
+    TerrainGenerator generator(0.0f, 0.0f, 1.0f);
     World world(1024, generator, tex_cache);
 
 
     SDL_ShowWindow(window);
 
-    bool keys[SDL_NUM_SCANCODES] = {};
+    // bool keys[SDL_NUM_SCANCODES] = {};
 
     float frame_start = SDL_GetTicks() / 1000.0f;
     bool running = true;
@@ -114,14 +112,14 @@ int main(int argc, char* argv[]) {
                             SDL_ShowCursor(SDL_ENABLE);
                             break;
 
-                        default:
-                            keys[event.key.keysym.scancode] = true;
+                        // default:
+                        //     keys[event.key.keysym.scancode] = true;
                     }
                     break;
 
-                case SDL_KEYUP:
-                    keys[event.key.keysym.scancode] = false;
-                    break;
+                // case SDL_KEYUP:
+                //     keys[event.key.keysym.scancode] = false;
+                //     break;
 
                 case SDL_MOUSEBUTTONDOWN:
                     if (event.button.button == SDL_BUTTON_LEFT) {
@@ -136,34 +134,34 @@ int main(int argc, char* argv[]) {
                         w = event.window.data1;
                         h = event.window.data2;
                         glViewport(0, 0, w, h);
-                        camera.setAspect((float)w / (float)h);
                     } else if (event.window.event == SDL_WINDOWEVENT_DISPLAY_CHANGED) {
                         SDL_GL_SetSwapInterval(-1);
                     }
                     break;
 
                 case SDL_MOUSEMOTION:
-                    camera.addYaw((float)event.motion.xrel * mouse_sensitivity);
-                    camera.addPitch((float)-event.motion.yrel * mouse_sensitivity);
+                    jet.onMouseMove((float)event.motion.xrel * mouse_sensitivity, (float)event.motion.yrel * mouse_sensitivity);
                     break;
                     
                 case SDL_MOUSEWHEEL:
-                    camera.addFov((float)-event.wheel.y);
+                    jet.onMouseScroll((float)event.wheel.y * mouse_scroll_sensitivity);
                     break;
             }
         }
 
-        glm::vec3 move_vector = glm::vec3(0.0f);
-        if (keys[SDL_SCANCODE_W]) move_vector.z += 1.0f;
-        if (keys[SDL_SCANCODE_S]) move_vector.z -= 1.0f;
-        if (keys[SDL_SCANCODE_D]) move_vector.x += 1.0f;
-        if (keys[SDL_SCANCODE_A]) move_vector.x -= 1.0f;
-        if (keys[SDL_SCANCODE_LSHIFT]) move_vector.y += 1.0f;
-        if (keys[SDL_SCANCODE_LCTRL]) move_vector.y -= 1.0f;
-        if (glm::length(move_vector) > 0.0f) {
-            move_vector = glm::normalize(move_vector) * speed * frame_time;
-            camera.move(move_vector);
-        }
+        // glm::vec3 move_vector = glm::vec3(0.0f);
+        // if (keys[SDL_SCANCODE_W]) move_vector.z += 1.0f;
+        // if (keys[SDL_SCANCODE_S]) move_vector.z -= 1.0f;
+        // if (keys[SDL_SCANCODE_D]) move_vector.x += 1.0f;
+        // if (keys[SDL_SCANCODE_A]) move_vector.x -= 1.0f;
+        // if (keys[SDL_SCANCODE_LSHIFT]) move_vector.y += 1.0f;
+        // if (keys[SDL_SCANCODE_LCTRL]) move_vector.y -= 1.0f;
+        // if (glm::length(move_vector) > 0.0f) {
+        //     move_vector = glm::normalize(move_vector) * speed * frame_time;
+        //     // camera.pos += camera.front * move_vector.z;
+        //     // camera.pos += camera.right * move_vector.x;
+        //     // camera.pos += glm::vec3(0.0f, 1.0f, 0.0f) * move_vector.y;
+        // }
 
 
         jet.update(frame_time, &world);
@@ -175,7 +173,7 @@ int main(int argc, char* argv[]) {
 
         glUseProgram(shader);
 
-        camera.use(shader);
+        jet.useCamera(shader, (float)w / (float)h);
 
         sun.use(shader);
         Light::setCount(shader, 0);

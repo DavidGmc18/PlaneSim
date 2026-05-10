@@ -9,7 +9,7 @@ class RigidBody {
 
 protected:
     glm::vec3 position{}; // World-space
-    glm::quat orientation{}; // World-space
+    glm::quat orientation = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); // World-space
     glm::vec3 velocity{}; // World-space
     glm::vec3 angular_velocity{}; // Body-space
     glm::mat3 inertia{}, inverse_inertia{}; // Body-space

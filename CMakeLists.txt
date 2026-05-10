@@ -12,7 +12,6 @@ add_executable(${PROJECT_NAME}
     src/glad/glad.c
     src/shader.hpp
     src/stb/stb_image.h
-    src/camera.hpp
     src/shader.hpp
     src/model.hpp
     src/light.hpp
@@ -41,6 +40,8 @@ add_executable(${PROJECT_NAME}
     src/vehicle/Hitbox.cpp
     src/Vertex.hpp
     src/Vertex.cpp
+    src/Camera.hpp
+    src/Camera.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

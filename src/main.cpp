@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-    GLuint shader = compile_shader_program(SHADER_PATH "default.vert", SHADER_PATH "default.frag");
+    GLuint shader = compile_shader_program("shaders/default.vert", "shaders/default.frag");
 
 
     TextureCache tex_cache;

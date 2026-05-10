@@ -56,6 +56,5 @@ if(APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE "-framework Cocoa" "-framework IOKit")
 endif()
 
-add_definitions(-DSHADER_PATH="${CMAKE_CURRENT_SOURCE_DIR}/src/shaders/")
 add_definitions(-DGL_MAJOR=4)
 add_definitions(-DGL_MINOR=6)

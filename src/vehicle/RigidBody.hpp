@@ -19,6 +19,10 @@ protected:
 public:
     virtual void update(float dt);
 
+    glm::vec3 getPosition() const;
+    glm::quat getOrientation() const;
+    glm::vec3 getVelocity() const;
+    glm::vec3 getAngularVelocity() const;
     float getMass() const;
 
     glm::vec3 toWorldDirection(const glm::vec3& direction) const;

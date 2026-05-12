@@ -42,6 +42,9 @@ add_executable(${PROJECT_NAME}
     src/Vertex.cpp
     src/Camera.hpp
     src/Camera.cpp
+    src/stb/stb_truetype.h
+    src/TextRenderer.hpp
+    src/TextRenderer.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

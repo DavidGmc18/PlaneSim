@@ -20,6 +20,22 @@ void RigidBody::update(float dt) {
     angular_impulse = glm::vec3(0);
 }
 
+glm::vec3 RigidBody::getPosition() const {
+    return this->position;
+}
+
+glm::quat RigidBody::getOrientation() const {
+    return this->orientation;
+}
+
+glm::vec3 RigidBody::getVelocity() const {
+    return this->velocity;
+}
+
+glm::vec3 RigidBody::getAngularVelocity() const {
+    return this->angular_velocity;
+}
+
 float RigidBody::getMass() const {
     return this->mass;
 }

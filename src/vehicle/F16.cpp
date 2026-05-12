@@ -19,8 +19,8 @@ F16::F16(glm::vec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cach
     wings.push_back(Wing(&NACA_2412, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1), 20.0f));
 
     hitboxes.push_back(Hitbox(glm::vec3( 0.0f, -0.835f,  2.4f), 0.110f, 500000.0f, 1600.0f));
-    hitboxes.push_back(Hitbox(glm::vec3( 1.0f, -0.780f, -0.5f), 0.165f, 500000.0f, 3200.0f));
-    hitboxes.push_back(Hitbox(glm::vec3(-1.0f, -0.780f, -0.5f), 0.165f, 500000.0f, 3200.0f));
+    hitboxes.push_back(Hitbox(glm::vec3( 1.0f, -0.780f, -1.0f), 0.165f, 500000.0f, 3200.0f));
+    hitboxes.push_back(Hitbox(glm::vec3(-1.0f, -0.780f, -1.0f), 0.165f, 500000.0f, 3200.0f));
 }
 
 void F16::update(float dt, World* world) {

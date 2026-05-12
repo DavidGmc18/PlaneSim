@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-GLuint compile_shader_program(const char* vertexPath, const char* fragmentPath) {
+inline GLuint compile_shader_program(const char* vertexPath, const char* fragmentPath) {
     std::string vertexCode;
     std::string fragmentCode;
 

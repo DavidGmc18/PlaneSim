@@ -4,12 +4,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <format>
 
 #include "shader.hpp"
 #include "Camera.hpp"
 #include "light.hpp"
 #include "model.hpp"
 #include "TextureCache.hpp"
+#include "TextRenderer.hpp"
 
 #include "world/World.hpp"
 
@@ -50,10 +52,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    std::cout << "Loading assets, please wait...\n";
-
     SDL_GL_SetSwapInterval(-1);
-
     // SDL_SetRelativeMouseMode(SDL_TRUE);
 
     glViewport(0, 0, w, h);
@@ -63,6 +62,8 @@ int main(int argc, char* argv[]) {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+
+    std::cout << "Loading assets, please wait...\n";
 
     GLuint shader = compile_shader_program("shaders/default.vert", "shaders/default.frag");
 
@@ -80,9 +81,11 @@ int main(int argc, char* argv[]) {
     World world(1024, generator, tex_cache);
 
 
-    SDL_ShowWindow(window);
+    TextRenderer::init();
+    TextRenderer text_renderer("assets/fonts/OpenSans-Regular.ttf", 18.0f, w, h);
 
-    // bool keys[SDL_NUM_SCANCODES] = {};
+
+    SDL_ShowWindow(window);
 
     float frame_start = SDL_GetTicks() / 1000.0f;
     bool running = true;
@@ -111,15 +114,8 @@ int main(int argc, char* argv[]) {
                             SDL_SetRelativeMouseMode(SDL_FALSE);
                             SDL_ShowCursor(SDL_ENABLE);
                             break;
-
-                        // default:
-                        //     keys[event.key.keysym.scancode] = true;
                     }
                     break;
-
-                // case SDL_KEYUP:
-                //     keys[event.key.keysym.scancode] = false;
-                //     break;
 
                 case SDL_MOUSEBUTTONDOWN:
                     if (event.button.button == SDL_BUTTON_LEFT) {
@@ -134,6 +130,7 @@ int main(int argc, char* argv[]) {
                         w = event.window.data1;
                         h = event.window.data2;
                         glViewport(0, 0, w, h);
+                        text_renderer.onScreenResize(w, h);
                     } else if (event.window.event == SDL_WINDOWEVENT_DISPLAY_CHANGED) {
                         SDL_GL_SetSwapInterval(-1);
                     }
@@ -148,20 +145,6 @@ int main(int argc, char* argv[]) {
                     break;
             }
         }
-
-        // glm::vec3 move_vector = glm::vec3(0.0f);
-        // if (keys[SDL_SCANCODE_W]) move_vector.z += 1.0f;
-        // if (keys[SDL_SCANCODE_S]) move_vector.z -= 1.0f;
-        // if (keys[SDL_SCANCODE_D]) move_vector.x += 1.0f;
-        // if (keys[SDL_SCANCODE_A]) move_vector.x -= 1.0f;
-        // if (keys[SDL_SCANCODE_LSHIFT]) move_vector.y += 1.0f;
-        // if (keys[SDL_SCANCODE_LCTRL]) move_vector.y -= 1.0f;
-        // if (glm::length(move_vector) > 0.0f) {
-        //     move_vector = glm::normalize(move_vector) * speed * frame_time;
-        //     // camera.pos += camera.front * move_vector.z;
-        //     // camera.pos += camera.right * move_vector.x;
-        //     // camera.pos += glm::vec3(0.0f, 1.0f, 0.0f) * move_vector.y;
-        // }
 
 
         jet.update(frame_time, &world);
@@ -194,12 +177,21 @@ int main(int argc, char* argv[]) {
         jet.drawTransparent(shader);
 
 
+    // Debug
+        glm::vec3 pos = jet.getPosition();
+        text_renderer.render(std::format("Pos X:{:.3f}m Y:{:.3f}m Z:{:.3f}m", pos.x, pos.y, pos.z), glm::vec2(10, 18), glm::vec4(1));
+        glm::vec3 vel = jet.getVelocity();
+        text_renderer.render(std::format("Vel X:{:.3f}m/s Y:{:.3f}m/s Z:{:.3f}m/s", vel.x, vel.y, vel.z), glm::vec2(10, 36), glm::vec4(1));
+
+
         GLenum err = glGetError();
         if (err != GL_NO_ERROR)
             std::cout << "GL error: " << err << '\n';
 
         SDL_GL_SwapWindow(window);
     }
+
+    TextRenderer::terminate();
 
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);

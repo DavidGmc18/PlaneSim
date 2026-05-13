@@ -59,7 +59,7 @@ void Hitbox::apply_forces(RigidBody* rigid_body, World* world) {
     struct {
         glm::vec3 x;
         glm::vec3 normal;
-        float distance = FLT_MAX;
+        float height = FLT_MAX;
     } best_hit; 
     bool hit = false;
 
@@ -79,11 +79,11 @@ void Hitbox::apply_forces(RigidBody* rigid_body, World* world) {
                 glm::vec3 X = computeClosestPointOnTriangle(A, B, C, P);
                 if (glm::dot(P - X, P - X) > radius_sq) continue;
 
-                float distance = glm::dot(P - X, face_normal);
-                if (distance < best_hit.distance) {
+                float height = glm::dot(P - X, face_normal);
+                if (height < best_hit.height) {
                     best_hit.x = X;
                     best_hit.normal = face_normal;
-                    best_hit.distance = distance;
+                    best_hit.height = height;
                     hit = true;
                 }
             }
@@ -91,9 +91,7 @@ void Hitbox::apply_forces(RigidBody* rigid_body, World* world) {
     }
 
     if (hit) {
-        std::cout << best_hit.distance << '\n';
-
-        float compression = std::min((radius - best_hit.distance) / radius, 1.0f);
+        float compression = std::min((radius - best_hit.height) / radius, 1.0f);
         glm::vec3 spring = best_hit.normal * (std::pow(compression, 1.5f) * this->k);
         rigid_body->addWorldForceAtWorldPoint(spring, best_hit.x);
 

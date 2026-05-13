@@ -57,11 +57,13 @@ void Hitbox::apply_forces(RigidBody* rigid_body, World* world) {
     glm::vec3 P = rigid_body->toWorldPos(this->pos);
 
     struct {
-        // glm::vec3 x; // TODO is it more realistic to use hit point for force and impulse, but using P is more stable
+        glm::vec3 x;
         glm::vec3 normal;
         float distance = FLT_MAX;
     } best_hit; 
     bool hit = false;
+
+    float radius_sq = radius * radius;
 
     const Mesh* mesh = world->getMesh();
     for (int z = std::floor(P.z - radius); z <= std::ceil(P.z + radius); z++) {
@@ -75,10 +77,11 @@ void Hitbox::apply_forces(RigidBody* rigid_body, World* world) {
                 glm::vec3 face_normal = glm::normalize(glm::cross(B - A, C - A));
 
                 glm::vec3 X = computeClosestPointOnTriangle(A, B, C, P);
-                float distance = glm::dot(P - X, face_normal);
+                if (glm::dot(P - X, P - X) > radius_sq) continue;
 
-                if (distance < radius && distance < best_hit.distance) {
-                    // best_hit.x = X;
+                float distance = glm::dot(P - X, face_normal);
+                if (distance < best_hit.distance) {
+                    best_hit.x = X;
                     best_hit.normal = face_normal;
                     best_hit.distance = distance;
                     hit = true;
@@ -88,14 +91,16 @@ void Hitbox::apply_forces(RigidBody* rigid_body, World* world) {
     }
 
     if (hit) {
+        std::cout << best_hit.distance << '\n';
+
         float compression = std::min((radius - best_hit.distance) / radius, 1.0f);
         glm::vec3 spring = best_hit.normal * (std::pow(compression, 1.5f) * this->k);
-        rigid_body->addWorldForceAtWorldPoint(spring, P);
+        rigid_body->addWorldForceAtWorldPoint(spring, best_hit.x);
 
         float normal_vel = glm::dot(rigid_body->getWorldVelocityAtPoint(this->pos), best_hit.normal);
         if (normal_vel < 0.0f) {
             glm::vec3 damping = best_hit.normal * (-normal_vel * this->d);
-            rigid_body->addWorldImpulseAtWorldPoint(damping, P);
+            rigid_body->addWorldImpulseAtWorldPoint(damping, best_hit.x);
         }
     }
 }

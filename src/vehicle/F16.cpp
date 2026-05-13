@@ -3,7 +3,7 @@
 F16::F16(glm::vec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cache, true) {
     position = pos;
 
-    mass = 15000.0f;
+    mass = 9207.0f;
     glm::mat3 inertia = glm::mat3(0.0f);
     inertia[0][0] = 150000.0f;
     inertia[1][1] = 200000.0f;
@@ -11,16 +11,16 @@ F16::F16(glm::vec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cach
     inverse_inertia = glm::inverse(inertia);
 
     engines = {
-        Engine(glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), 15000.0f, 0.0f)
+        Engine(glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), 64900.0f, 1.0f)
     };
 
     gravity = true;
 
     wings.push_back(Wing(&NACA_2412, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0), glm::vec3(0, 0, 1), 20.0f));
 
-    hitboxes.push_back(Hitbox(glm::vec3( 0.0f, -0.835f,  2.4f), 0.110f, 500000.0f, 1600.0f));
-    hitboxes.push_back(Hitbox(glm::vec3( 1.0f, -0.780f, -1.0f), 0.165f, 500000.0f, 3200.0f));
-    hitboxes.push_back(Hitbox(glm::vec3(-1.0f, -0.780f, -1.0f), 0.165f, 500000.0f, 3200.0f));
+    hitboxes.push_back(Hitbox(glm::vec3( 0.0f, -0.835f,  2.4f), 0.110f, 500000.0f, 800.0f));
+    hitboxes.push_back(Hitbox(glm::vec3( 1.0f, -0.780f, -1.0f), 0.165f, 500000.0f, 1600.0f));
+    hitboxes.push_back(Hitbox(glm::vec3(-1.0f, -0.780f, -1.0f), 0.165f, 500000.0f, 1600.0f));
 }
 
 void F16::update(float dt, World* world) {

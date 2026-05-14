@@ -45,6 +45,7 @@ add_executable(${PROJECT_NAME}
     src/stb/stb_truetype.h
     src/TextRenderer.hpp
     src/TextRenderer.cpp
+    src/vehicle/KeyHandler.h
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

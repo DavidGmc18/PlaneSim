@@ -12,6 +12,7 @@
 #include "model.hpp"
 #include "TextureCache.hpp"
 #include "TextRenderer.hpp"
+#include "KeyHandler.hpp"
 
 #include "world/World.hpp"
 
@@ -84,6 +85,7 @@ int main(int argc, char* argv[]) {
     TextRenderer::init();
     TextRenderer text_renderer("assets/fonts/OpenSans-Regular.ttf", 18.0f, w, h);
 
+    KeyHandler key_handler;
 
     SDL_ShowWindow(window);
 
@@ -103,6 +105,8 @@ int main(int argc, char* argv[]) {
                     break;
 
                 case SDL_KEYDOWN:
+                    key_handler.onKeyDown(event.key.keysym.scancode);
+
                     switch (event.key.keysym.sym) {
                         case SDLK_F11:
                             isFullscreen = !isFullscreen;
@@ -116,6 +120,9 @@ int main(int argc, char* argv[]) {
                             break;
                     }
                     break;
+
+                case SDL_KEYUP:
+                    key_handler.onKeyUp(event.key.keysym.scancode);
 
                 case SDL_MOUSEBUTTONDOWN:
                     if (event.button.button == SDL_BUTTON_LEFT) {
@@ -147,7 +154,7 @@ int main(int argc, char* argv[]) {
         }
 
 
-        jet.update(frame_time, &world);
+        jet.update(frame_time, &world, key_handler);
 
 
         glDepthMask(GL_TRUE);
@@ -180,8 +187,16 @@ int main(int argc, char* argv[]) {
     // Debug
         glm::vec3 pos = jet.getPosition();
         text_renderer.render(std::format("Pos X:{:.3f}m Y:{:.3f}m Z:{:.3f}m", pos.x, pos.y, pos.z), glm::vec2(10, 18), glm::vec4(1));
+
         glm::vec3 vel = jet.getVelocity();
         text_renderer.render(std::format("Vel X:{:.3f}m/s Y:{:.3f}m/s Z:{:.3f}m/s", vel.x, vel.y, vel.z), glm::vec2(10, 36), glm::vec4(1));
+
+        std::string str = "";
+        const std::vector<Engine>& engines = jet.getEngines();
+        for (int i = 0; i < engines.size(); i++) {
+            str += std::format("Engine {}: {:.1f}%  ", i + 1, engines[i].throttle * 100.0f);
+        }
+        text_renderer.render(str, glm::vec2(10, 54), glm::vec4(1));
 
 
         GLenum err = glGetError();

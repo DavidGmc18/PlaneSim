@@ -2,6 +2,7 @@
 
 #include "Aircraft.hpp"
 #include "model.hpp"
+#include "KeyHandler.hpp"
 
 class F16 : public Aircraft {
     Model model;
@@ -12,7 +13,7 @@ class F16 : public Aircraft {
 public:
     F16(glm::vec3 pos, TextureCache& cache);
 
-    void update(float dt, World* world) override;
+    void update(float dt, World* world, KeyHandler& key_handler);
 
     void drawOpaque(GLuint shader);
     void drawTransparent(GLuint shader);

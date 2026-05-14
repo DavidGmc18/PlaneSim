@@ -11,7 +11,7 @@ F16::F16(glm::vec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cach
     inverse_inertia = glm::inverse(inertia);
 
     engines = {
-        Engine(glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), 64900.0f, 1.0f)
+        Engine(glm::vec3(0, 0, 0), glm::vec3(0, 0, 1), 64900.0f, 0.0f)
     };
 
     gravity = true;
@@ -23,8 +23,10 @@ F16::F16(glm::vec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cach
     hitboxes.push_back(Hitbox(glm::vec3(-1.0f, -0.780f, -1.0f), 0.165f, 500000.0f, 1600.0f));
 }
 
-void F16::update(float dt, World* world) {
+void F16::update(float dt, World* world, KeyHandler& key_handler) {
     Aircraft::update(dt, world);
+
+    engines[0].addThrottle((key_handler[SDL_SCANCODE_LSHIFT] - key_handler[SDL_SCANCODE_LCTRL]) * dt);
 
     uModel = glm::mat4(1.0f);
     uModel = glm::translate(uModel, position);

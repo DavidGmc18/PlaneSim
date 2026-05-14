@@ -23,4 +23,6 @@ public:
 
     void onMouseMove(float x, float y);
     void onMouseScroll(float s);
+
+    const std::vector<Engine>& getEngines() const;
 };

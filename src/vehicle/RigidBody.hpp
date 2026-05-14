@@ -16,6 +16,9 @@ protected:
     float mass = 1.0f;
     bool gravity = true;
 
+    // Debug
+    glm::vec3 acceleration{};
+
 public:
     virtual void update(float dt);
 
@@ -24,6 +27,8 @@ public:
     glm::vec3 getVelocity() const;
     glm::vec3 getAngularVelocity() const;
     float getMass() const;
+
+    glm::vec3 getAcceleration() const;
 
     glm::vec3 toWorldDirection(const glm::vec3& direction) const;
     glm::vec3 toBodyDirection(const glm::vec3& direction) const;

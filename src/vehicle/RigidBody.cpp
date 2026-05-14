@@ -2,8 +2,13 @@
 #include "CONSTANTS.h"
 
 void RigidBody::update(float dt) {
-    velocity += force / mass * dt;
-    velocity += impulse / mass;
+    acceleration = force / mass;
+    velocity += acceleration * dt;
+    
+    glm::vec3 delta_vel_impl = impulse / mass;
+    acceleration += delta_vel_impl / dt;
+    velocity += delta_vel_impl;
+
     if (gravity) velocity.y -= STANDARD_GRAVITY * dt;
 
     position += velocity * dt;
@@ -38,6 +43,10 @@ glm::vec3 RigidBody::getAngularVelocity() const {
 
 float RigidBody::getMass() const {
     return this->mass;
+}
+
+glm::vec3 RigidBody::getAcceleration() const {
+    return this->acceleration;
 }
 
 glm::vec3 RigidBody::toWorldDirection(const glm::vec3& direction) const {

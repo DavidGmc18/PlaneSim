@@ -13,6 +13,7 @@
 #include "TextureCache.hpp"
 #include "TextRenderer.hpp"
 #include "KeyHandler.hpp"
+#include "CONSTANTS.h"
 
 #include "world/World.hpp"
 
@@ -186,17 +187,20 @@ int main(int argc, char* argv[]) {
 
     // Debug
         glm::vec3 pos = jet.getPosition();
-        text_renderer.render(std::format("Pos X:{:.3f}m Y:{:.3f}m Z:{:.3f}m", pos.x, pos.y, pos.z), glm::vec2(10, 18), glm::vec4(1));
+        text_renderer.render(std::format("Pos X: {:10.3f}m  Y: {:10.3f}m  Z: {:10.3f}m", pos.x, pos.y, pos.z), glm::vec2(10, 18), glm::vec4(1));
 
         glm::vec3 vel = jet.getVelocity();
-        text_renderer.render(std::format("Vel X:{:.3f}m/s Y:{:.3f}m/s Z:{:.3f}m/s", vel.x, vel.y, vel.z), glm::vec2(10, 36), glm::vec4(1));
+        text_renderer.render(std::format("Vel X: {: 8.3f}m/s  Y: {: 8.3f}m/s  Z: {: 8.3f}m/s", vel.x, vel.y, vel.z), glm::vec2(10, 36), glm::vec4(1));
 
         std::string str = "";
         const std::vector<Engine>& engines = jet.getEngines();
         for (int i = 0; i < engines.size(); i++) {
-            str += std::format("Engine {}: {:.1f}%  ", i + 1, engines[i].throttle * 100.0f);
+            str += std::format("Engine {}: {:04.1f}%  ", i + 1, engines[i].throttle * 100.0f);
         }
         text_renderer.render(str, glm::vec2(10, 54), glm::vec4(1));
+
+        glm::vec3 a = jet.getAcceleration();
+        text_renderer.render(std::format("Acc X: {:+5.1f}G  Y: {:+5.1f}G  Z: {:+5.1f}G", a.x/STANDARD_GRAVITY, a.y/STANDARD_GRAVITY, a.z/STANDARD_GRAVITY), glm::vec2(10, 72), glm::vec4(1));
 
 
         GLenum err = glGetError();

@@ -202,6 +202,16 @@ int main(int argc, char* argv[]) {
         glm::vec3 a = jet.getAcceleration();
         text_renderer.render(std::format("Acc X: {:+5.1f}G  Y: {:+5.1f}G  Z: {:+5.1f}G", a.x/STANDARD_GRAVITY, a.y/STANDARD_GRAVITY, a.z/STANDARD_GRAVITY), glm::vec2(10, 72), glm::vec4(1));
 
+        const std::vector<Wing>& wings = jet.getWings();
+        int y = 90;
+        for (const Wing& wing : wings) {
+            text_renderer.render(
+                std::format("{} - Alpha: {:+5.1f}deg", wing.getName(), wing.getAlpha()),
+                glm::vec2(10, y), glm::vec4(1)
+            );
+            y += 18;
+        }
+
 
         GLenum err = glGetError();
         if (err != GL_NO_ERROR)

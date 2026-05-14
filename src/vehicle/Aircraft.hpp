@@ -25,4 +25,5 @@ public:
     void onMouseScroll(float s);
 
     const std::vector<Engine>& getEngines() const;
+    const std::vector<Wing>& getWings() const;
 };

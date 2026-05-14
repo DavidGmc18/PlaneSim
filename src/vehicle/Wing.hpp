@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include "RigidBody.hpp"
+#include <string>
 
 // TODO this is very simplified
 class Airfoil {
@@ -21,10 +22,17 @@ class Wing {
     const glm::vec3 normal;
     const float area;
 
+    // Debug
+    const std::string name;
+    float alpha = 0.0f;
+
 public:
-    Wing(const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area);
+    Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area);
 
     void apply_forces(RigidBody* rigid_body);
+
+    std::string getName() const;
+    float getAlpha() const;
 };
 
 extern const Airfoil NACA_2412;

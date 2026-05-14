@@ -35,3 +35,7 @@ void Aircraft::onMouseScroll(float s) {
 const std::vector<Engine>& Aircraft::getEngines() const {
     return engines;
 }
+
+const std::vector<Wing>& Aircraft::getWings() const {
+    return wings;
+}

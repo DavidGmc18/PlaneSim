@@ -21,8 +21,8 @@ glm::vec2 Airfoil::sample(float alpha) const {
 }
 
 
-Wing::Wing(const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area)
-    : airfoil(airfoil), center_of_pressure(center_of_pressure), forward(forward), normal(normal), area(area) {}
+Wing::Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area)
+    : name(name), airfoil(airfoil), center_of_pressure(center_of_pressure), forward(forward), normal(normal), area(area) {}
 
 void Wing::apply_forces(RigidBody* rigid_body) {
     glm::vec3 local_velocity = rigid_body->getBodyVelocityAtPoint(center_of_pressure);
@@ -33,7 +33,7 @@ void Wing::apply_forces(RigidBody* rigid_body) {
     float velocity_forward = glm::dot(local_velocity, forward);
     float velocity_normal = glm::dot(local_velocity, normal);
 
-    float alpha = glm::degrees(std::atan2(-velocity_normal, velocity_forward));
+    alpha = glm::degrees(std::atan2(-velocity_normal, velocity_forward));
     if (!std::isnormal(alpha)) return;
     float effective_velocity_sq = (velocity_forward * velocity_forward) + (velocity_normal * velocity_normal);
 
@@ -55,6 +55,15 @@ void Wing::apply_forces(RigidBody* rigid_body) {
 
     rigid_body->addBodyForceAtBodyPoint(lift + drag, center_of_pressure);
 }
+
+std::string Wing::getName() const {
+    return name;
+}
+
+float Wing::getAlpha() const {
+    return alpha;
+}
+
 
 const std::vector<glm::vec3> NACA_2412_data = {
     {-17.500f, -1.1118f, 0.08608f}, {-17.250f, -1.1738f, 0.07238f}, {-17.000f, -1.2296f, 0.05928f},

@@ -206,7 +206,10 @@ int main(int argc, char* argv[]) {
         int y = 90;
         for (const Wing& wing : wings) {
             text_renderer.render(
-                std::format("{} - Alpha={:+5.1f}deg Fl={:5.1f}N Fd={:5.1f}M", wing.getName(), wing.getAlpha(), wing.getFlift(), wing.getFdrag()),
+                std::format(
+                    "{} - Alpha={:+5.1f}deg  Veff={:5.1f}m/s  Cl={:+6.3f}  Cd={:5.3f}",
+                    wing.getName(), wing.getAlpha(), wing.getVeff(), wing.getCl(), wing.getCd()
+                ),
                 glm::vec2(10, y), glm::vec4(1)
             );
             y += 18;

@@ -25,8 +25,9 @@ class Wing {
     // Debug
     const std::string name;
     float alpha = 0.0f;
-    float f_lift = 0.0f;
-    float f_drag = 0.0f;
+    float cl = 0.0f;
+    float cd = 0.0f;
+    float v_eff = 0.0f;
 
 public:
     Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area);
@@ -35,8 +36,9 @@ public:
 
     std::string getName() const;
     float getAlpha() const;
-    float getFlift() const;
-    float getFdrag() const;
+    float getCl() const;
+    float getCd() const;
+    float getVeff() const;
 };
 
 extern const Airfoil NACA_2412;

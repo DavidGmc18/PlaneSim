@@ -37,6 +37,7 @@ void Wing::apply_forces(RigidBody* rigid_body) {
 
     glm::vec3 vel_eff = tas_forward * this->forward + tas_normal * this->normal;
     float vel_eff_sq = glm::dot(vel_eff, vel_eff);
+    this->v_eff = glm::sqrt(vel_eff_sq);
     if (vel_eff_sq < 0.0001f) return;
 
     glm::vec3 lift_dir = glm::normalize(glm::cross(lateral_dir, vel_eff));
@@ -46,16 +47,13 @@ void Wing::apply_forces(RigidBody* rigid_body) {
     if (!std::isnormal(alpha)) return;
 
     glm::vec2 constants = airfoil->sample(alpha);
-    float cl = constants.x;
-    float cd = constants.y;
+    this->cl = constants.x;
+    this->cd = constants.y;
     const float rho = 1.225f;
     float dynamic_pressure = 0.5f * rho * vel_eff_sq;
 
-    this->f_lift = (dynamic_pressure * this->area * cl);
-    this->f_drag = (dynamic_pressure * this->area * cd);
-
-    glm::vec3 lift = lift_dir * this->f_lift;
-    glm::vec3 drag = drag_dir * this->f_drag;
+    glm::vec3 lift = lift_dir * (dynamic_pressure * this->area * this->cl);
+    glm::vec3 drag = drag_dir * (dynamic_pressure * this->area * this->cd);
 
     rigid_body->addBodyForceAtBodyPoint(lift + drag, this->center_of_pressure);
 }
@@ -68,12 +66,16 @@ float Wing::getAlpha() const {
     return alpha;
 }
 
-float Wing::getFlift() const {
-    return this->f_lift;
+float Wing::getCl() const {
+    return this->cl;
 }
 
-float Wing::getFdrag() const {
-    return this->f_drag;
+float Wing::getCd() const {
+    return this->cd;
+}
+
+float Wing::getVeff() const {
+    return this->v_eff;
 }
 
 

@@ -1,4 +1,5 @@
 #include "Wing.hpp"
+#include <iostream>
 
 Airfoil::Airfoil(const std::vector<glm::vec3> &data)
     : data(std::move(data)), min_alpha(data.front().x), max_alpha(data.back().x) {}
@@ -24,36 +25,39 @@ glm::vec2 Airfoil::sample(float alpha) const {
 Wing::Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area)
     : name(name), airfoil(airfoil), center_of_pressure(center_of_pressure), forward(forward), normal(normal), area(area) {}
 
+// TODO lateral drag
 void Wing::apply_forces(RigidBody* rigid_body) {
-    glm::vec3 local_velocity = rigid_body->getBodyVelocityAtPoint(center_of_pressure);
-    float speed_sq = glm::dot(local_velocity, local_velocity);
+    glm::vec3 lateral_dir = glm::normalize(glm::cross(this->forward, this->normal));
+    glm::vec3 vel = rigid_body->getBodyVelocityAtPoint(this->center_of_pressure);
+    if (glm::dot(vel, vel) < 0.0001f) return;
 
-    if (speed_sq < 0.0001f) return;
+    float tas_forward = glm::dot(vel, this->forward);
+    float tas_normal = glm::dot(vel, this->normal);
+    // float tas_lateral = glm::dot(vel, lateral_dir);
 
-    float velocity_forward = glm::dot(local_velocity, forward);
-    float velocity_normal = glm::dot(local_velocity, normal);
+    glm::vec3 vel_eff = tas_forward * this->forward + tas_normal * this->normal;
+    float vel_eff_sq = glm::dot(vel_eff, vel_eff);
+    if (vel_eff_sq < 0.0001f) return;
 
-    alpha = glm::degrees(std::atan2(-velocity_normal, velocity_forward));
+    glm::vec3 lift_dir = glm::normalize(glm::cross(lateral_dir, vel_eff));
+    glm::vec3 drag_dir = glm::normalize(-vel_eff);
+
+    this->alpha = glm::degrees(std::atan2(-tas_normal, tas_forward));
     if (!std::isnormal(alpha)) return;
-    float effective_velocity_sq = (velocity_forward * velocity_forward) + (velocity_normal * velocity_normal);
-
-    glm::vec3 drag_direction = glm::normalize(-local_velocity);
-    glm::vec3 spanwise_direction = glm::normalize(glm::cross(forward, normal));
-
-    glm::vec3 _lift_dir_raw = glm::cross(spanwise_direction, local_velocity);
-    glm::vec3 lift_direction = (glm::dot(_lift_dir_raw, _lift_dir_raw) > 0.0001f) ? glm::normalize(_lift_dir_raw) : glm::vec3(0.0f);
 
     glm::vec2 constants = airfoil->sample(alpha);
     float cl = constants.x;
     float cd = constants.y;
+    const float rho = 1.225f;
+    float dynamic_pressure = 0.5f * rho * vel_eff_sq;
 
-    float rho = 1.225f;
-    float dynamic_pressure = 0.5f * rho * effective_velocity_sq;
+    this->f_lift = (dynamic_pressure * this->area * cl);
+    this->f_drag = (dynamic_pressure * this->area * cd);
 
-    glm::vec3 lift = lift_direction * (dynamic_pressure * cl * area);
-    glm::vec3 drag = drag_direction * (dynamic_pressure * cd * area);
+    glm::vec3 lift = lift_dir * this->f_lift;
+    glm::vec3 drag = drag_dir * this->f_drag;
 
-    rigid_body->addBodyForceAtBodyPoint(lift + drag, center_of_pressure);
+    rigid_body->addBodyForceAtBodyPoint(lift + drag, this->center_of_pressure);
 }
 
 std::string Wing::getName() const {
@@ -62,6 +66,14 @@ std::string Wing::getName() const {
 
 float Wing::getAlpha() const {
     return alpha;
+}
+
+float Wing::getFlift() const {
+    return this->f_lift;
+}
+
+float Wing::getFdrag() const {
+    return this->f_drag;
 }
 
 

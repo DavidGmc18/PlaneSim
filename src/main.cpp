@@ -190,7 +190,7 @@ int main(int argc, char* argv[]) {
         text_renderer.render(std::format("Pos X: {:10.3f}m  Y: {:10.3f}m  Z: {:10.3f}m", pos.x, pos.y, pos.z), glm::vec2(10, 18), glm::vec4(1));
 
         glm::vec3 vel = jet.getVelocity();
-        text_renderer.render(std::format("Vel X: {: 8.3f}m/s  Y: {: 8.3f}m/s  Z: {: 8.3f}m/s", vel.x, vel.y, vel.z), glm::vec2(10, 36), glm::vec4(1));
+        text_renderer.render(std::format("Vel X: {:10.3f}m/s  Y: {:10.3f}m/s  Z: {:10.3f}m/s", vel.x, vel.y, vel.z), glm::vec2(10, 36), glm::vec4(1));
 
         std::string str = "";
         const std::vector<Engine>& engines = jet.getEngines();
@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
         int y = 90;
         for (const Wing& wing : wings) {
             text_renderer.render(
-                std::format("{} - Alpha: {:+5.1f}deg", wing.getName(), wing.getAlpha()),
+                std::format("{} - Alpha={:+5.1f}deg Fl={:5.1f}N Fd={:5.1f}M", wing.getName(), wing.getAlpha(), wing.getFlift(), wing.getFdrag()),
                 glm::vec2(10, y), glm::vec4(1)
             );
             y += 18;

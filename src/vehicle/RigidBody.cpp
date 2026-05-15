@@ -70,7 +70,7 @@ glm::vec3 RigidBody::getBodyVelocityAtPoint(const glm::vec3& point) const {
 }
 
 glm::vec3 RigidBody::getWorldVelocityAtPoint(const glm::vec3& point) const {
-    return velocity + glm::cross(toWorldDirection(angular_velocity), toWorldDirection(point));
+    return this->velocity + glm::cross(toWorldDirection(angular_velocity), toWorldDirection(point));
 }
 
 void RigidBody::addBodyForceAtBodyPoint(const glm::vec3& force, const glm::vec3& point) {

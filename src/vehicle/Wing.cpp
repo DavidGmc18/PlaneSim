@@ -26,7 +26,7 @@ AirfoilSample Airfoil::sample(float alpha) const {
 
 
 Wing::Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area, float chord)
-    : name(name), airfoil(airfoil), center_of_pressure(center_of_pressure), forward(forward), normal(normal), area(area), chord(chord) {}
+    : name(name), airfoil(airfoil), center_of_pressure(center_of_pressure), forward(glm::normalize(forward)), normal(glm::normalize(normal)), area(area), chord(chord) {}
 
 // TODO lateral drag
 // TODO center of pressyre should be at 25%MAC

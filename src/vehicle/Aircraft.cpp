@@ -2,6 +2,7 @@
 
 void Aircraft::update(float dt, World* world) {
     for (Engine& engine : engines) {
+        engine.update(dt);
         engine.apply_force(this);
     }
 

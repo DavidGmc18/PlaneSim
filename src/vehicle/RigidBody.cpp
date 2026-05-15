@@ -92,3 +92,7 @@ void RigidBody::addWorldImpulseAtWorldPoint(const glm::vec3& impulse, const glm:
     this->impulse += impulse;
     this->angular_impulse += glm::cross(toBodyPos(point), toBodyDirection(impulse));
 }
+
+void RigidBody::addTorque(const glm::vec3& torque) {
+    this->torque += torque;
+}

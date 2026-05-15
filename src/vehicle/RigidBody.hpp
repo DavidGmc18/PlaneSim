@@ -44,4 +44,6 @@ public:
 
     void addBodyImpulseAtBodyPoint(const glm::vec3& impulse, const glm::vec3& point);
     void addWorldImpulseAtWorldPoint(const glm::vec3& impulse, const glm::vec3& point);
+
+    void addTorque(const glm::vec3& torque);
 };

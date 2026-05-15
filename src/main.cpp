@@ -205,10 +205,11 @@ int main(int argc, char* argv[]) {
         const std::vector<Wing>& wings = jet.getWings();
         int y = 90;
         for (const Wing& wing : wings) {
+            AirfoilSample as = wing.getAirfoilSample();
             text_renderer.render(
                 std::format(
-                    "{} - Alpha={:+5.1f}deg  Veff={:5.1f}m/s  Cl={:+6.3f}  Cd={:5.3f}",
-                    wing.getName(), wing.getAlpha(), wing.getVeff(), wing.getCl(), wing.getCd()
+                    "{} - Alpha={:+5.1f}deg  Veff={:5.1f}m/s  Cl={:+6.3f}  Cd={:5.3f}  Cm={:+6.3f}",
+                    wing.getName(), wing.getAlpha(), wing.getVeff(), as.cl, as.cd, as.cm
                 ),
                 glm::vec2(10, y), glm::vec4(1)
             );

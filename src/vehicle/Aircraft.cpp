@@ -33,6 +33,19 @@ void Aircraft::onMouseScroll(float s) {
     this->camera_distance -= s;
 }
 
+void Aircraft::onJoyXMotion(float x) {
+    this->controls.x = x;
+}
+
+void Aircraft::onJoyYMotion(float y) {
+    this->controls.y = y;
+}
+
+void Aircraft::onJoyZMotion(float z) {
+    this->controls.z = z;
+}
+
+
 const std::vector<Engine>& Aircraft::getEngines() const {
     return engines;
 }

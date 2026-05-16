@@ -25,21 +25,34 @@ AirfoilSample Airfoil::sample(float alpha) const {
 }
 
 
-Wing::Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area, float chord)
-    : name(name), airfoil(airfoil), center_of_pressure(center_of_pressure), forward(glm::normalize(forward)), normal(glm::normalize(normal)), area(area), chord(chord) {}
+Wing::Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal,
+    float area, float chord, const float* deflection, float min_deflection, float max_deflection)
+    : name(name), airfoil(airfoil), center_of_pressure(center_of_pressure), forward(glm::normalize(forward)), normal(glm::normalize(normal)),
+    area(area), chord(chord), deflection(deflection), min_deflection(min_deflection), max_deflection(max_deflection) {}
 
 // TODO lateral drag
 // TODO center of pressyre should be at 25%MAC
 void Wing::apply_forces(RigidBody* rigid_body) {
-    glm::vec3 lateral_dir = glm::normalize(glm::cross(this->forward, this->normal));
+    glm::vec3 forward_dir = this->forward;
+    glm::vec3 normal_dir = this->normal;
+    if (this->deflection != NULL && (this->min_deflection != 0.0f || this->max_deflection != 0.0f)) {
+        glm::vec3 right_axis = glm::normalize(glm::cross(forward_dir, normal_dir));
+        float deflection_rad = glm::radians(this->min_deflection + (*this->deflection / 2.0f + 0.5f) * (this->max_deflection - this->min_deflection));
+        glm::mat4 deflection_mat = glm::rotate(glm::mat4(1.0f), deflection_rad, right_axis);
+
+        forward_dir = glm::normalize(glm::vec3(deflection_mat * glm::vec4(forward_dir, 0.0f)));
+        normal_dir = glm::normalize(glm::vec3(deflection_mat * glm::vec4(normal_dir, 0.0f)));
+    }
+    glm::vec3 lateral_dir = glm::normalize(glm::cross(forward_dir, normal_dir));
+
     glm::vec3 vel = rigid_body->getBodyVelocityAtPoint(this->center_of_pressure);
     if (glm::dot(vel, vel) < 0.0001f) return;
 
-    float tas_forward = glm::dot(vel, this->forward);
-    float tas_normal = glm::dot(vel, this->normal);
+    float tas_forward = glm::dot(vel, forward_dir);
+    float tas_normal = glm::dot(vel, normal_dir);
     // float tas_lateral = glm::dot(vel, lateral_dir);
 
-    glm::vec3 vel_eff = tas_forward * this->forward + tas_normal * this->normal;
+    glm::vec3 vel_eff = tas_forward * forward_dir + tas_normal * normal_dir;
     float vel_eff_sq = glm::dot(vel_eff, vel_eff);
     this->v_eff = glm::sqrt(vel_eff_sq);
     if (vel_eff_sq < 0.0001f) return;

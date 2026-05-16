@@ -71,13 +71,13 @@ F16::F16(glm::vec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cach
 
     gravity = true;
 
-    wings.push_back(Wing("Left wing", &MAIN_WING, glm::vec3(-5, 0, 0), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 13.935f, 3.45f));
-    wings.push_back(Wing("Right wing", &MAIN_WING, glm::vec3(5, 0, 0), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 13.935f, 3.45f));
+    wings.push_back(Wing("Left wing", &MAIN_WING, glm::vec3(-5, 0, 0), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 13.935f, 3.45f, &this->controls.x, -10, 10));
+    wings.push_back(Wing("Right wing", &MAIN_WING, glm::vec3(5, 0, 0), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 13.935f, 3.45f, &this->controls.x, 10, -10));
 
-    wings.push_back(Wing("Horizontal stabilizer L", &HORIZONTAL_STAB, glm::vec3(-2.5f, 0, -7.0f), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 5.9f, 1.9f));
-    wings.push_back(Wing("Horizontal stabilizer R", &HORIZONTAL_STAB, glm::vec3(2.5f, 0, -7.0f), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 5.9f, 1.9f));
+    wings.push_back(Wing("Horizontal stabilizer L", &HORIZONTAL_STAB, glm::vec3(-2.5f, 0, -7.0f), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 5.9f, 1.9f, &this->controls.y, -20, 20));
+    wings.push_back(Wing("Horizontal stabilizer R", &HORIZONTAL_STAB, glm::vec3(2.5f, 0, -7.0f), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 5.9f, 1.9f, &this->controls.y, -20, 20));
 
-    wings.push_back(Wing("Vertical stabilizer", &VERTICAL_STAB, glm::vec3(0.0f, 1.5f, -6.8f), glm::vec3(0, 0, 1), glm::vec3(1, 0, 0), 6.0f, 2.4f));
+    wings.push_back(Wing("Vertical stabilizer", &VERTICAL_STAB, glm::vec3(0.0f, 1.5f, -6.8f), glm::vec3(0, 0, 1), glm::vec3(1, 0, 0), 6.0f, 2.4f, &this->controls.z, -10, 10));
 
     hitboxes.push_back(Hitbox(glm::vec3( 0.0f, -0.835f,  2.4f), 0.110f, 500000.0f, 1000.0f));
     hitboxes.push_back(Hitbox(glm::vec3( 1.0f, -0.780f, -1.0f), 0.165f, 500000.0f, 3000.0f));

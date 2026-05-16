@@ -31,7 +31,7 @@ float mouse_scroll_sensitivity = 0.3f;
 float speed = 10.0f;
 
 int main(int argc, char* argv[]) {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << '\n';
         return -1;
     }
@@ -65,7 +65,20 @@ int main(int argc, char* argv[]) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-    std::cout << "Loading assets, please wait...\n";
+    std::cout << "Loading...\n";
+
+
+    SDL_GameController* controller = NULL;
+    for (int i = 0; i < SDL_NumJoysticks(); i++) {
+        if (SDL_IsGameController(i)) {
+            controller = SDL_GameControllerOpen(i);
+            if (controller) {
+                std::cout << "Opened controller: " << SDL_GameControllerName(controller) << '\n';
+                break;
+            }
+        }
+    }
+
 
     GLuint shader = compile_shader_program("shaders/default.vert", "shaders/default.frag");
 
@@ -87,6 +100,8 @@ int main(int argc, char* argv[]) {
     TextRenderer text_renderer("assets/fonts/OpenSans-Regular.ttf", 18.0f, w, h);
 
     KeyHandler key_handler;
+    float left_trigger = 0.0f;
+    float right_trigger = 0.0f;
 
     SDL_ShowWindow(window);
 
@@ -124,6 +139,7 @@ int main(int argc, char* argv[]) {
 
                 case SDL_KEYUP:
                     key_handler.onKeyUp(event.key.keysym.scancode);
+                    break;
 
                 case SDL_MOUSEBUTTONDOWN:
                     if (event.button.button == SDL_BUTTON_LEFT) {
@@ -150,6 +166,28 @@ int main(int argc, char* argv[]) {
                     
                 case SDL_MOUSEWHEEL:
                     jet.onMouseScroll((float)event.wheel.y * mouse_scroll_sensitivity);
+                    break;
+
+                case SDL_CONTROLLERAXISMOTION:
+                    switch (event.caxis.axis) {
+                        case SDL_CONTROLLER_AXIS_LEFTY:
+                            jet.onJoyYMotion(-(float)event.caxis.value / 32768);
+                            break;
+
+                        case SDL_CONTROLLER_AXIS_LEFTX:
+                            jet.onJoyXMotion(-(float)event.caxis.value / 32768);
+                            break;
+
+                        case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+                            left_trigger = (float)event.caxis.value / 32767;
+                            jet.onJoyZMotion(right_trigger - left_trigger);
+                            break;
+
+                        case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
+                            right_trigger = (float)event.caxis.value / 32767;
+                            jet.onJoyZMotion(right_trigger - left_trigger);
+                            break;
+                    }
                     break;
             }
         }

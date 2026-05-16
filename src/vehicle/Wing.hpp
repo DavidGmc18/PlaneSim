@@ -27,6 +27,9 @@ class Wing {
     const float area;
     const float chord;
 
+    const float min_deflection = 0.0f, max_deflection = 0.0f;
+    const float* deflection;
+
     // Debug
     const std::string name;
     float alpha = 0.0f;
@@ -34,7 +37,7 @@ class Wing {
     float v_eff = 0.0f;
 
 public:
-    Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area, float chord);
+    Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area, float chord, const float* deflection, float min_deflection, float max_deflection);
 
     void apply_forces(RigidBody* rigid_body);
 

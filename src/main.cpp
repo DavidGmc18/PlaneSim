@@ -228,7 +228,7 @@ int main(int argc, char* argv[]) {
         text_renderer.render(std::format("Pos X: {:10.3f}m  Y: {:10.3f}m  Z: {:10.3f}m", pos.x, pos.y, pos.z), glm::vec2(10, 18), glm::vec4(1));
 
         glm::vec3 vel = jet.getVelocity();
-        text_renderer.render(std::format("Vel X: {:10.3f}m/s  Y: {:10.3f}m/s  Z: {:10.3f}m/s", vel.x, vel.y, vel.z), glm::vec2(10, 36), glm::vec4(1));
+        text_renderer.render(std::format("Vel X: {:10.3f}m/s  Y: {:10.3f}m/s  Z: {:10.3f}m/s  A: {:8.1f}m/s ({:04.2f}M)", vel.x, vel.y, vel.z, glm::length(vel), glm::length(vel) / 343.0f), glm::vec2(10, 36), glm::vec4(1));
 
         glm::vec3 a = jet.getAcceleration();
         text_renderer.render(std::format("Acc X: {:+5.1f}G  Y: {:+5.1f}G  Z: {:+5.1f}G", a.x/STANDARD_GRAVITY, a.y/STANDARD_GRAVITY, a.z/STANDARD_GRAVITY), glm::vec2(10, 54), glm::vec4(1));

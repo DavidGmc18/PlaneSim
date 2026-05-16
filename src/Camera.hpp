@@ -13,7 +13,7 @@ struct Camera {
     float pitch = 0.0f;
     float fov = 75.0f;
     float near = 0.001f;
-    float far = 1024.0f;
+    float far = 10<<20;
 
     Camera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f));
 

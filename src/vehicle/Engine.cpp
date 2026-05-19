@@ -1,18 +1,17 @@
 #include "Engine.hpp"
 
-Engine::Engine(glm::vec3 pos, glm::vec3 forward, float thrust, const float* throttle)
-    : pos(pos), thrust(forward * thrust), throttle(throttle) {}
+Engine::Engine(glm::vec3 pos, glm::vec3 forward, float thrust, float spool_speed, const float* throttle)
+    : pos(pos), thrust(forward * thrust), throttle(throttle), spool_speed(spool_speed) {}
 
 void Engine::update(RigidBody* body, World* world, float dt) {
     if (!this->throttle) return;
 
-    float delta = glm::clamp(*this->throttle, 0.0f, 1.0f) - this->rpm;
-    delta = (delta > 0.0f ? 1.0f : -1.0f) * std::pow(std::abs(delta), 0.5);
-    if (std::isnormal(delta)) {
-        this->rpm += delta * 0.1f * dt;
-    }
+    float spool_speed = 2.0f;
+    this->rpm = glm::mix(this->rpm, *this->throttle, this->spool_speed * dt);
+    this->rpm = glm::clamp(this->rpm, 0.0f, 1.0f);
+    if (this->rpm < 0.0f) this->rpm = 0.0f;
 
-    glm::vec3 force = std::pow(this->rpm, 2.0f) * thrust;
+    glm::vec3 force = std::pow(this->rpm, 1.5f) * thrust;
     body->addBodyForceAtBodyPoint(force, pos);
 }
 

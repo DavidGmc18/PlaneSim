@@ -122,7 +122,7 @@ F16::F16(glm::vec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cach
     inertia[2][1] = 1331.0f;
     inverse_inertia = glm::inverse(inertia);
 
-    parts.push_back(new Engine(glm::vec3(0, 0, -4.5f), glm::vec3(0, 0, 1), 64900.0f, this->controls[THROTTLE].get()));
+    parts.push_back(new Engine(glm::vec3(0, 0, -4.5f), glm::vec3(0, 0, 1), 64900.0f, 1.0f, this->controls[THROTTLE].get()));
 
     parts.push_back(new Wing("Fuselage", &FUSELAGE, glm::vec3(0.0f, 0.0f, 0.4f), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 15.0f, 4.5f, NULL, 0, 0));
 

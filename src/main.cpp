@@ -190,7 +190,6 @@ int main(int argc, char* argv[]) {
 
                         case  SDL_CONTROLLER_AXIS_RIGHTY:
                             float value = (float)event.caxis.value / 32768;
-                            std::cout << value << '\n';
                             if (std::abs(value) < 0.075f) value = 0.0f;
                             jet.onJoyMotion(-value, THROTTLE, true);
                             break;

@@ -32,7 +32,7 @@ Wing::Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_p
 
 // TODO lateral drag
 // TODO center of pressyre should be at 25%MAC
-void Wing::apply_forces(RigidBody* rigid_body) {
+void Wing::update(RigidBody* body, World* world, float dt) {
     glm::vec3 forward_dir = this->forward;
     glm::vec3 normal_dir = this->normal;
     if (this->deflection != NULL && (this->min_deflection != 0.0f || this->max_deflection != 0.0f)) {
@@ -45,7 +45,7 @@ void Wing::apply_forces(RigidBody* rigid_body) {
     }
     glm::vec3 lateral_dir = glm::normalize(glm::cross(forward_dir, normal_dir));
 
-    glm::vec3 vel = rigid_body->getBodyVelocityAtPoint(this->center_of_pressure);
+    glm::vec3 vel = body->getBodyVelocityAtPoint(this->center_of_pressure);
     if (glm::dot(vel, vel) < 0.0001f) return;
 
     float tas_forward = glm::dot(vel, forward_dir);
@@ -71,8 +71,8 @@ void Wing::apply_forces(RigidBody* rigid_body) {
     glm::vec3 drag = drag_dir * (dynamic_pressure * this->area * this->airfoil_sample.cd);
     glm::vec3 torque = lateral_dir * (dynamic_pressure * this->area * this->chord * this->airfoil_sample.cm);
 
-    rigid_body->addBodyForceAtBodyPoint(lift + drag, this->center_of_pressure);    
-    rigid_body->addTorque(torque);
+    body->addBodyForceAtBodyPoint(lift + drag, this->center_of_pressure);    
+    body->addTorque(torque);
 }
 
 std::string Wing::getName() const {

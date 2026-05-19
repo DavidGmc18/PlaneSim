@@ -1,22 +1,17 @@
 #pragma once
 
-#include "RigidBody.hpp"
-#include <glm/glm.hpp>
+#include "PhysicPart.hpp"
 
-class Engine {
+class Engine : public PhysicPart {
     glm::vec3 pos;
     glm::vec3 thrust;
-    float throttle = 0.0f;
+    const float* throttle;
     float rpm = 0.0f;
     
 public:
-    Engine(glm::vec3 pos, glm::vec3 forward, float thrust, float throttle = 0.0f);
+    Engine(glm::vec3 pos, glm::vec3 forward, float thrust, const float* throttle);
 
-    void update(float dt);
+    void update(RigidBody* body, World* world, float dt) override;
 
-    void apply_force(RigidBody* rigid_body);
-
-    void addThrottle(float value);
-    float getThrottle() const;
     float getRPM() const;
 };

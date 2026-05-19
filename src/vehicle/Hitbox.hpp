@@ -1,10 +1,8 @@
 #pragma once
 
-#include "RigidBody.hpp"
-#include <glm/glm.hpp>
-#include <world/World.hpp>
+#include "PhysicPart.hpp"
 
-class Hitbox {
+class Hitbox : public PhysicPart {
     glm::vec3 pos;
     float radius;
     float k;
@@ -13,5 +11,5 @@ class Hitbox {
 public:
     Hitbox(glm::vec3 pos, float radius, float k, float d);
 
-    void apply_forces(RigidBody* rigid_body, World* world);
+    void update(RigidBody* body, World* world, float dt) override;
 };

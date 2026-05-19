@@ -171,21 +171,28 @@ int main(int argc, char* argv[]) {
                 case SDL_CONTROLLERAXISMOTION:
                     switch (event.caxis.axis) {
                         case SDL_CONTROLLER_AXIS_LEFTY:
-                            jet.onJoyYMotion(-(float)event.caxis.value / 32768);
+                            jet.onJoyMotion(-(float)event.caxis.value / 32768, PITCH);
                             break;
 
                         case SDL_CONTROLLER_AXIS_LEFTX:
-                            jet.onJoyXMotion(-(float)event.caxis.value / 32768);
+                            jet.onJoyMotion((float)event.caxis.value / 32768, ROLL);
                             break;
 
                         case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
                             left_trigger = (float)event.caxis.value / 32767;
-                            jet.onJoyZMotion(right_trigger - left_trigger);
+                            jet.onJoyMotion(right_trigger - left_trigger, YAW);
                             break;
 
                         case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
                             right_trigger = (float)event.caxis.value / 32767;
-                            jet.onJoyZMotion(right_trigger - left_trigger);
+                            jet.onJoyMotion(right_trigger - left_trigger, YAW);
+                            break;
+
+                        case  SDL_CONTROLLER_AXIS_RIGHTY:
+                            float value = (float)event.caxis.value / 32768;
+                            std::cout << value << '\n';
+                            if (std::abs(value) < 0.075f) value = 0.0f;
+                            jet.onJoyMotion(-value, THROTTLE, true);
                             break;
                     }
                     break;
@@ -233,27 +240,35 @@ int main(int argc, char* argv[]) {
         glm::vec3 a = jet.getAcceleration();
         text_renderer.render(std::format("Acc X: {:+5.1f}G  Y: {:+5.1f}G  Z: {:+5.1f}G  A: {:+5.1f}G", a.x/STANDARD_GRAVITY, a.y/STANDARD_GRAVITY, a.z/STANDARD_GRAVITY, glm::length(a)/STANDARD_GRAVITY), glm::vec2(10, 54), glm::vec4(1));
 
-        int y = 72;
-        const std::vector<Engine>& engines = jet.getEngines();
-        for (int i = 0; i < engines.size(); i++) {
-            text_renderer.render(
-                std::format("Engine {}: THR={:04.1f}%  N1={:04.1f}%", i+1,  engines[i].getThrottle() * 100.0f, engines[i].getRPM() * 100.0f),
-                glm::vec2(10, y), glm::vec4(1)
-            );
-            y += 18;
-        }
+        std::span<const AircraftControl> controls = jet.getControls();
+        text_renderer.render(
+            std::format(
+                "PITCH {:+6.3f}  ROLL {:+6.3f}  YAW {:+6.3f}  THROTTLE {:4.1f}",
+                *controls[PITCH].get(), *controls[ROLL].get(), *controls[YAW].get(), *controls[THROTTLE].get() * 100.0f
+            ),
+            glm::vec2(10, 72), glm::vec4(1)
+        );
 
-        const std::vector<Wing>& wings = jet.getWings();
-        for (const Wing& wing : wings) {
-            AirfoilSample as = wing.getAirfoilSample();
-            text_renderer.render(
-                std::format(
-                    "{} - Alpha={:+5.1f}deg  Veff={:5.1f}m/s  Cl={:+6.3f}  Cd={:5.3f}  Cm={:+6.3f}",
-                    wing.getName(), wing.getAlpha(), wing.getVeff(), as.cl, as.cd, as.cm
-                ),
-                glm::vec2(10, y), glm::vec4(1)
-            );
-            y += 18;
+        int y = 90;
+        std::span<const PhysicPart* const> parts = jet.getPhysicParts();
+        for (const PhysicPart* const part : parts) {
+            if (const Wing* wing = dynamic_cast<const Wing*>(part)) {
+                AirfoilSample as = wing->getAirfoilSample();
+                text_renderer.render(
+                    std::format(
+                        "{} - Alpha={:+5.1f}deg  Veff={:5.1f}m/s  Cl={:+6.3f}  Cd={:5.3f}  Cm={:+6.3f}",
+                        wing->getName(), wing->getAlpha(), wing->getVeff(), as.cl, as.cd, as.cm
+                    ),
+                    glm::vec2(10, y), glm::vec4(1)
+                );
+                y += 18;
+            } else if (const Engine* engine = dynamic_cast<const Engine*>(part)) {
+                text_renderer.render(
+                    std::format("Engine: RPM={:04.1f}%", engine->getRPM() * 100.0f),
+                    glm::vec2(10, y), glm::vec4(1)
+                );
+                y += 18;
+            }
         }
 
 

@@ -46,6 +46,7 @@ add_executable(${PROJECT_NAME}
     src/TextRenderer.hpp
     src/TextRenderer.cpp
     src/KeyHandler.hpp
+    src/vehicle/PhysicPart.hpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

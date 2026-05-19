@@ -1,17 +1,41 @@
 #include "Aircraft.hpp"
 
+AircraftControl::AircraftControl(float min, float max): min(min), max(max) {
+    this->value = glm::clamp(this->value, this->min, this->max);
+}
+
+void AircraftControl::setAbsolute(float value) {
+    this->value = value;
+    this->relative = 0.0f;
+}
+
+void AircraftControl::setRelative(float relative) {
+    this->relative = relative;
+}
+
+void AircraftControl::update(float dt) {
+    if (!this->relative) return;
+    this->value = glm::clamp(this->value + dt * this->relative, this->min, this->max);
+}
+
+const float* AircraftControl::get() const {
+    return &value;
+}
+
+
+Aircraft::~Aircraft() {
+    for (PhysicPart* part : parts) {
+        delete part;
+    }
+}
+
 void Aircraft::update(float dt, World* world) {
-    for (Engine& engine : engines) {
-        engine.update(dt);
-        engine.apply_force(this);
+    for (AircraftControl& control : controls) {
+        control.update(dt);
     }
 
-    for (Wing& wing : wings) {
-        wing.apply_forces(this);
-    }
-
-    for (Hitbox& hitbox: hitboxes) {
-        hitbox.apply_forces(this, world);
+    for (PhysicPart* part : parts) {
+        part->update(this, world, dt);
     }
 
     RigidBody::update(dt);
@@ -33,23 +57,20 @@ void Aircraft::onMouseScroll(float s) {
     this->camera_distance -= s;
 }
 
-void Aircraft::onJoyXMotion(float x) {
-    this->controls.x = x;
+void Aircraft::onJoyMotion(float value, AircraftControls control, bool relative) {
+    if (control < 0 || control >= AIRCRAFT_CONTROLS_COUNT) return;
+
+    if (relative) {
+        this->controls[control].setRelative(value);
+    } else {
+        this->controls[control].setAbsolute(value);
+    }
 }
 
-void Aircraft::onJoyYMotion(float y) {
-    this->controls.y = y;
+std::span<const PhysicPart* const> Aircraft::getPhysicParts() const {
+    return this->parts;
 }
 
-void Aircraft::onJoyZMotion(float z) {
-    this->controls.z = z;
-}
-
-
-const std::vector<Engine>& Aircraft::getEngines() const {
-    return engines;
-}
-
-const std::vector<Wing>& Aircraft::getWings() const {
-    return wings;
+std::span<const AircraftControl> Aircraft::getControls() const {
+    return this->controls;
 }

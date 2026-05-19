@@ -53,8 +53,8 @@ glm::vec3 computeClosestPointOnTriangle(const glm::vec3& A, const glm::vec3& B, 
     return A + v * ab + w * ac;
 }
 
-void Hitbox::apply_forces(RigidBody* rigid_body, World* world) {
-    glm::vec3 P = rigid_body->toWorldPos(this->pos);
+void Hitbox::update(RigidBody* body, World* world, float dt) {
+    glm::vec3 P = body->toWorldPos(this->pos);
 
     struct {
         glm::vec3 x;
@@ -93,12 +93,12 @@ void Hitbox::apply_forces(RigidBody* rigid_body, World* world) {
     if (hit) {
         float compression = std::min((radius - best_hit.height) / radius, 1.0f);
         glm::vec3 spring = best_hit.normal * (std::pow(compression, 1.5f) * this->k);
-        rigid_body->addWorldForceAtWorldPoint(spring, best_hit.x);
+        body->addWorldForceAtWorldPoint(spring, best_hit.x);
 
-        float normal_vel = glm::dot(rigid_body->getWorldVelocityAtPoint(this->pos), best_hit.normal);
+        float normal_vel = glm::dot(body->getWorldVelocityAtPoint(this->pos), best_hit.normal);
         if (normal_vel < 0.0f) {
             glm::vec3 damping = best_hit.normal * (-normal_vel * this->d);
-            rigid_body->addWorldImpulseAtWorldPoint(damping, best_hit.x);
+            body->addWorldImpulseAtWorldPoint(damping, best_hit.x);
         }
     }
 }

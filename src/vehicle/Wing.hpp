@@ -1,8 +1,7 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "PhysicPart.hpp"
 #include <vector>
-#include "RigidBody.hpp"
 #include <string>
 
 struct AirfoilSample {
@@ -19,7 +18,7 @@ public:
     AirfoilSample sample(float alpha) const;
 };
 
-class Wing {
+class Wing : public PhysicPart {
     const Airfoil* airfoil;
     const glm::vec3 center_of_pressure;
     const glm::vec3 forward;
@@ -39,7 +38,7 @@ class Wing {
 public:
     Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area, float chord, const float* deflection, float min_deflection, float max_deflection);
 
-    void apply_forces(RigidBody* rigid_body);
+    void update(RigidBody* body, World* world, float dt) override;
 
     std::string getName() const;
     float getAlpha() const;

@@ -148,7 +148,7 @@ F16::F16(glm::vec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cach
     parts.push_back(new Hitbox(glm::vec3(-1.0f, -0.780f, -1.0f), 0.165f, 500000.0f, 3000.0f));
 }
 
-void F16::update(World* world, float dt, KeyHandler& key_handler) {
+void F16::update(World* world, float dt) {
     Aircraft::update(world, dt);
 
     uModel = glm::mat4(1.0f);

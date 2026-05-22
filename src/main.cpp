@@ -12,7 +12,6 @@
 #include "model.hpp"
 #include "TextureCache.hpp"
 #include "TextRenderer.hpp"
-#include "KeyHandler.hpp"
 #include "CONSTANTS.h"
 
 #include "world/World.hpp"
@@ -92,6 +91,9 @@ int main(int argc, char* argv[]) {
     F16 jet(glm::vec3(-5.0f, 5.0f, 0.0f), tex_cache);
 
 
+    Model jdam("assets/JDAM/JDAM.obj", tex_cache);
+
+
     TerrainGenerator generator(0.0f, 0.0f, 1.0f);
     World world(1024, generator, tex_cache);
 
@@ -99,7 +101,6 @@ int main(int argc, char* argv[]) {
     TextRenderer::init();
     TextRenderer text_renderer("assets/fonts/OpenSans-Regular.ttf", 18.0f, w, h);
 
-    KeyHandler key_handler;
     float left_trigger = 0.0f;
     float right_trigger = 0.0f;
 
@@ -121,8 +122,6 @@ int main(int argc, char* argv[]) {
                     break;
 
                 case SDL_KEYDOWN:
-                    key_handler.onKeyDown(event.key.keysym.scancode);
-
                     switch (event.key.keysym.sym) {
                         case SDLK_F11:
                             isFullscreen = !isFullscreen;
@@ -135,10 +134,6 @@ int main(int argc, char* argv[]) {
                             SDL_ShowCursor(SDL_ENABLE);
                             break;
                     }
-                    break;
-
-                case SDL_KEYUP:
-                    key_handler.onKeyUp(event.key.keysym.scancode);
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
@@ -199,7 +194,7 @@ int main(int argc, char* argv[]) {
         }
 
 
-        jet.update(&world, frame_time, key_handler);
+        jet.update(&world, frame_time);
 
 
         glDepthMask(GL_TRUE);
@@ -220,6 +215,9 @@ int main(int argc, char* argv[]) {
         jet.drawOpaque(shader);
 
         world.draw(shader);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        jdam.drawOpaque(shader, model);
 
 
     // Transparent rendering

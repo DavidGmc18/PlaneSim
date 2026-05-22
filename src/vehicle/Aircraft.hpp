@@ -42,7 +42,7 @@ protected:
 
 public:
     ~Aircraft();
-    void update(World* world, float dt) override;
+    virtual void update(World* world, float dt) override;
     void useCamera(GLuint shader, float aspect);
 
     void onMouseMove(float x, float y);

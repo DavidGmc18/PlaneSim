@@ -1,28 +1,5 @@
 #include "Aircraft.hpp"
 
-AircraftControl::AircraftControl(float min, float max): min(min), max(max) {
-    this->value = glm::clamp(this->value, this->min, this->max);
-}
-
-void AircraftControl::setAbsolute(float value) {
-    this->value = value;
-    this->relative = 0.0f;
-}
-
-void AircraftControl::setRelative(float relative) {
-    this->relative = relative;
-}
-
-void AircraftControl::update(float dt) {
-    if (!this->relative) return;
-    this->value = glm::clamp(this->value + dt * this->relative, this->min, this->max);
-}
-
-const float* AircraftControl::get() const {
-    return &value;
-}
-
-
 Aircraft::~Aircraft() {
     for (PhysicPart* part : parts) {
         delete part;
@@ -30,10 +7,6 @@ Aircraft::~Aircraft() {
 }
 
 void Aircraft::update(World* world, float dt) {
-    for (AircraftControl& control : controls) {
-        control.update(dt);
-    }
-
     RigidBody::update(world, dt);
 }
 
@@ -51,18 +24,4 @@ void Aircraft::onMouseMove(float x, float y) {
 
 void Aircraft::onMouseScroll(float s) {
     this->camera_distance -= s;
-}
-
-void Aircraft::onJoyMotion(float value, AircraftControls control, bool relative) {
-    if (control < 0 || control >= AIRCRAFT_CONTROLS_COUNT) return;
-
-    if (relative) {
-        this->controls[control].setRelative(value);
-    } else {
-        this->controls[control].setAbsolute(value);
-    }
-}
-
-std::span<const AircraftControl> Aircraft::getControls() const {
-    return this->controls;
 }

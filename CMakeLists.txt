@@ -45,8 +45,14 @@ add_executable(${PROJECT_NAME}
     src/stb/stb_truetype.h
     src/TextRenderer.hpp
     src/TextRenderer.cpp
-    src/KeyHandler.hpp
     src/vehicle/PhysicPart.hpp
+    src/math.hpp
+    src/control/ControlAxis.hpp
+    src/control/ControlAxis.cpp
+    src/control/KeyHandler.hpp
+    src/control/KeyHandler.cpp
+    src/control/AircraftControls.hpp
+    src/control/AircraftControls.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

@@ -18,6 +18,8 @@
 
 #include "vehicle/F16.hpp"
 
+#include "control/AircraftControls.hpp"
+
 int w = 1280;
 int h = 720;
 
@@ -101,8 +103,9 @@ int main(int argc, char* argv[]) {
     TextRenderer::init();
     TextRenderer text_renderer("assets/fonts/OpenSans-Regular.ttf", 18.0f, w, h);
 
-    float left_trigger = 0.0f;
-    float right_trigger = 0.0f;
+    
+    AircraftControls controls;
+
 
     SDL_ShowWindow(window);
 
@@ -122,6 +125,8 @@ int main(int argc, char* argv[]) {
                     break;
 
                 case SDL_KEYDOWN:
+                    controls.onKeyDown(event.key.keysym.scancode);
+
                     switch (event.key.keysym.sym) {
                         case SDLK_F11:
                             isFullscreen = !isFullscreen;
@@ -134,6 +139,10 @@ int main(int argc, char* argv[]) {
                             SDL_ShowCursor(SDL_ENABLE);
                             break;
                     }
+                    break;
+
+                case SDL_KEYUP:
+                    controls.onKeyUp(event.key.keysym.scancode);
                     break;
 
                 case SDL_MOUSEBUTTONDOWN:
@@ -164,37 +173,16 @@ int main(int argc, char* argv[]) {
                     break;
 
                 case SDL_CONTROLLERAXISMOTION:
-                    switch (event.caxis.axis) {
-                        case SDL_CONTROLLER_AXIS_LEFTY:
-                            jet.onJoyMotion(-(float)event.caxis.value / 32768, PITCH);
-                            break;
-
-                        case SDL_CONTROLLER_AXIS_LEFTX:
-                            jet.onJoyMotion((float)event.caxis.value / 32768, ROLL);
-                            break;
-
-                        case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
-                            left_trigger = (float)event.caxis.value / 32767;
-                            jet.onJoyMotion(right_trigger - left_trigger, YAW);
-                            break;
-
-                        case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
-                            right_trigger = (float)event.caxis.value / 32767;
-                            jet.onJoyMotion(right_trigger - left_trigger, YAW);
-                            break;
-
-                        case  SDL_CONTROLLER_AXIS_RIGHTY:
-                            float value = (float)event.caxis.value / 32768;
-                            if (std::abs(value) < 0.075f) value = 0.0f;
-                            jet.onJoyMotion(-value, THROTTLE, true);
-                            break;
-                    }
+                    controls.onControllerAxis(event.caxis);
                     break;
             }
         }
 
 
-        jet.update(&world, frame_time);
+        controls.update(frame_time);
+
+
+        jet.update(&world, frame_time, &controls);
 
 
         glDepthMask(GL_TRUE);
@@ -237,11 +225,14 @@ int main(int argc, char* argv[]) {
         glm::vec3 a = jet.getAcceleration();
         text_renderer.render(std::format("Acc X: {:+5.1f}G  Y: {:+5.1f}G  Z: {:+5.1f}G  A: {:+5.1f}G", a.x/STANDARD_GRAVITY, a.y/STANDARD_GRAVITY, a.z/STANDARD_GRAVITY, glm::length(a)/STANDARD_GRAVITY), glm::vec2(10, 54), glm::vec4(1));
 
-        std::span<const AircraftControl> controls = jet.getControls();
+        std::span<const ControlAxis> axes = controls.getAxes();
         text_renderer.render(
             std::format(
                 "PITCH {:+6.3f}  ROLL {:+6.3f}  YAW {:+6.3f}  THROTTLE {:4.1f}",
-                *controls[PITCH].get(), *controls[ROLL].get(), *controls[YAW].get(), *controls[THROTTLE].get() * 100.0f
+                axes[AircraftControls::PITCH].absolute,
+                axes[AircraftControls::ROLL].absolute,
+                axes[AircraftControls::YAW].absolute,
+                axes[AircraftControls::THROTTLE].absolute * 100.0f
             ),
             glm::vec2(10, 72), glm::vec4(1)
         );

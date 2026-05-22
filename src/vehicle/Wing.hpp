@@ -26,7 +26,7 @@ class Wing : public PhysicPart {
     const float area;
     const float chord;
 
-    const float min_deflection = 0.0f, max_deflection = 0.0f;
+    const float min_deflection, max_deflection;
     const float* deflection;
 
     // Debug
@@ -36,7 +36,7 @@ class Wing : public PhysicPart {
     float v_eff = 0.0f;
 
 public:
-    Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area, float chord, const float* deflection, float min_deflection, float max_deflection);
+    Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal, float area, float chord, const float* deflection = NULL, float min_deflection = 0.0f, float max_deflection = 0.0f);
 
     void update(RigidBody* body, World* world, float dt) override;
 

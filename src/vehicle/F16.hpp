@@ -2,6 +2,7 @@
 
 #include "Aircraft.hpp"
 #include "model.hpp"
+#include "control/AircraftControls.hpp"
 
 class F16 : public Aircraft {
     Model model;
@@ -9,10 +10,17 @@ class F16 : public Aircraft {
 
     static constexpr float SCALE = 0.05f;
 
+    struct {
+        float flaperon_l, flaperon_r;
+        float taileron_l, taileron_r;
+        float rudder;
+        float throttle;
+    } fbw;
+
 public:
     F16(glm::vec3 pos, TextureCache& cache);
 
-    void update(World* world, float dt) override;
+    void update(World* world, float dt, const AircraftControls* controls);
 
     void drawOpaque(GLuint shader);
     void drawTransparent(GLuint shader);

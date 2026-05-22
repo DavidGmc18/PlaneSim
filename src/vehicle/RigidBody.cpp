@@ -1,7 +1,12 @@
 #include "RigidBody.hpp"
 #include "CONSTANTS.h"
+#include "PhysicPart.hpp"
 
-void RigidBody::update(float dt) {
+void RigidBody::update(World* world, float dt) {
+    for (PhysicPart* part : parts) {
+        part->update(this, world, dt);
+    }
+
     acceleration = force / mass;
     velocity += acceleration * dt;
     
@@ -43,6 +48,10 @@ glm::vec3 RigidBody::getAngularVelocity() const {
 
 float RigidBody::getMass() const {
     return this->mass;
+}
+
+std::span<const PhysicPart* const> RigidBody::getPhysicParts() const {
+    return this->parts;
 }
 
 glm::vec3 RigidBody::getAcceleration() const {

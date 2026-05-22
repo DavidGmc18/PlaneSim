@@ -13,7 +13,7 @@ class F16 : public Aircraft {
 public:
     F16(glm::vec3 pos, TextureCache& cache);
 
-    void update(float dt, World* world, KeyHandler& key_handler);
+    void update(World* world, float dt, KeyHandler& key_handler);
 
     void drawOpaque(GLuint shader);
     void drawTransparent(GLuint shader);

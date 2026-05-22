@@ -29,16 +29,12 @@ Aircraft::~Aircraft() {
     }
 }
 
-void Aircraft::update(float dt, World* world) {
+void Aircraft::update(World* world, float dt) {
     for (AircraftControl& control : controls) {
         control.update(dt);
     }
 
-    for (PhysicPart* part : parts) {
-        part->update(this, world, dt);
-    }
-
-    RigidBody::update(dt);
+    RigidBody::update(world, dt);
 }
 
 void Aircraft::useCamera(GLuint shader, float aspect) {
@@ -65,10 +61,6 @@ void Aircraft::onJoyMotion(float value, AircraftControls control, bool relative)
     } else {
         this->controls[control].setAbsolute(value);
     }
-}
-
-std::span<const PhysicPart* const> Aircraft::getPhysicParts() const {
-    return this->parts;
 }
 
 std::span<const AircraftControl> Aircraft::getControls() const {

@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
     ParallelLight sun(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.3f), glm::vec3(0.5f), glm::vec3(1.5f));
 
 
-    F16 jet(glm::vec3(-500.0f, 5.0f, 0.0f), tex_cache);
+    F16 jet(glm::vec3(-5.0f, 5.0f, 0.0f), tex_cache);
 
 
     TerrainGenerator generator(0.0f, 0.0f, 1.0f);
@@ -199,7 +199,7 @@ int main(int argc, char* argv[]) {
         }
 
 
-        jet.update(frame_time, &world, key_handler);
+        jet.update(&world, frame_time, key_handler);
 
 
         glDepthMask(GL_TRUE);

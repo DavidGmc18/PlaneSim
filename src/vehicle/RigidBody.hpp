@@ -2,6 +2,11 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <vector>
+#include <span>
+#include <world/World.hpp>
+
+class PhysicPart;
 
 class RigidBody {
     glm::vec3 force{}, impulse{}; // World-space
@@ -16,17 +21,21 @@ protected:
     float mass = 1.0f;
     bool gravity = true;
 
+    std::vector<PhysicPart*> parts;
+
     // Debug
     glm::vec3 acceleration{};
 
 public:
-    virtual void update(float dt);
+    virtual void update(World* world, float dt);
 
     glm::vec3 getPosition() const;
     glm::quat getOrientation() const;
     glm::vec3 getVelocity() const;
     glm::vec3 getAngularVelocity() const;
     float getMass() const;
+
+    std::span<const PhysicPart* const> getPhysicParts() const;
 
     glm::vec3 getAcceleration() const;
 

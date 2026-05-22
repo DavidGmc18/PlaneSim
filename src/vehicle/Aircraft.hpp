@@ -30,8 +30,6 @@ public:
 
 class Aircraft : public RigidBody {
 protected:
-    std::vector<PhysicPart*> parts; 
-
     Camera camera;
     float camera_distance = 7.5f;
 
@@ -44,7 +42,7 @@ protected:
 
 public:
     ~Aircraft();
-    virtual void update(float dt, World* world);
+    void update(World* world, float dt) override;
     void useCamera(GLuint shader, float aspect);
 
     void onMouseMove(float x, float y);
@@ -52,6 +50,5 @@ public:
 
     void onJoyMotion(float value, AircraftControls control, bool relative = false);
 
-    std::span<const PhysicPart* const> getPhysicParts() const;
     std::span<const AircraftControl> getControls() const;
 };

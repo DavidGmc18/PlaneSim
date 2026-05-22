@@ -26,18 +26,25 @@ AirfoilSample Airfoil::sample(float alpha) const {
 
 
 Wing::Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal,
-    float area, float chord, const float* deflection, float min_deflection, float max_deflection)
+    float area, float chord, const float* deflection_control, float min_deflection, float max_deflection, float deflection_rate)
     : name(name), airfoil(airfoil), center_of_pressure(center_of_pressure), forward(glm::normalize(forward)), normal(glm::normalize(normal)),
-    area(area), chord(chord), deflection(deflection), min_deflection(min_deflection), max_deflection(max_deflection) {}
+    area(area), chord(chord), deflection_control(deflection_control), min_deflection(min_deflection), max_deflection(max_deflection), deflection_rate(deflection_rate) {}
 
 // TODO lateral drag
 // TODO center of pressyre should be at 25%MAC
 void Wing::update(RigidBody* body, World* world, float dt) {
     glm::vec3 forward_dir = this->forward;
     glm::vec3 normal_dir = this->normal;
-    if (this->deflection != NULL && (this->min_deflection != 0.0f || this->max_deflection != 0.0f)) {
+
+    if (this->deflection_control) {
+        float delta = *this->deflection_control - this->deflection;
+        float max_delta = dt * this->deflection_rate;
+        this->deflection += glm::clamp(delta, -max_delta, max_delta);
+    }
+
+    if (this->deflection != 0.0f) {
         glm::vec3 right_axis = glm::normalize(glm::cross(forward_dir, normal_dir));
-        float deflection_rad = glm::radians(this->min_deflection + (*this->deflection / 2.0f + 0.5f) * (this->max_deflection - this->min_deflection));
+        float deflection_rad = glm::radians(this->deflection);
         glm::mat4 deflection_mat = glm::rotate(glm::mat4(1.0f), deflection_rad, right_axis);
 
         forward_dir = glm::normalize(glm::vec3(deflection_mat * glm::vec4(forward_dir, 0.0f)));

@@ -46,7 +46,6 @@ add_executable(${PROJECT_NAME}
     src/TextRenderer.hpp
     src/TextRenderer.cpp
     src/vehicle/PhysicPart.hpp
-    src/math.hpp
     src/control/ControlAxis.hpp
     src/control/ControlAxis.cpp
     src/control/KeyHandler.hpp

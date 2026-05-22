@@ -71,7 +71,7 @@ void Wing::update(RigidBody* body, World* world, float dt) {
     if (!std::isnormal(alpha)) return;
 
     this->airfoil_sample = airfoil->sample(alpha);
-    const float rho = 1.225f;
+    const float rho = 1.225f * glm::exp(-body->getPosition().y / 9000.0f);
     float dynamic_pressure = 0.5f * rho * vel_eff_sq;
 
     glm::vec3 lift = lift_dir * (dynamic_pressure * this->area * this->airfoil_sample.cl);

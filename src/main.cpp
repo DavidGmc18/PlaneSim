@@ -11,19 +11,14 @@
 #include "rendering/Model.hpp"
 #include "rendering/TextureCache.hpp"
 #include "rendering/TextRenderer.hpp"
-
 #include "physics/CONSTANTS.h"
-
 #include "world/World.hpp"
-
 #include "aircraft/F16.hpp"
-
 #include "physics//Wing.hpp"
 #include "physics//Engine.hpp"
-
 #include "control/AircraftControls.hpp"
-
 #include "camera/Camera.hpp"
+#include "weapon/JDAM.hpp"
 
 int w = 1280;
 int h = 720;
@@ -95,10 +90,10 @@ int main() {
     ParallelLight sun(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.3f), glm::vec3(0.5f), glm::vec3(1.5f));
 
 
-    F16 jet(glm::dvec3(1<<30, 15000.0, 0.0), tex_cache);
+    F16 jet(glm::dvec3(-500.0, 5.0, 0.0), tex_cache);
 
 
-    Model jdam("assets/JDAM/JDAM.obj", tex_cache, true);
+    JDAM jdam(glm::dvec3(-490.0, 5.0, 0.0), tex_cache);
 
 
     TerrainGenerator generator(0.0f, 0.0f, 1.0f);
@@ -198,6 +193,7 @@ int main() {
 
 
         jet.update(&world, frame_time, &controls);
+        jdam.update(&world, frame_time);
 
 
         glDepthMask(GL_TRUE);
@@ -223,9 +219,7 @@ int main() {
         glEnable(GL_CULL_FACE);
 
         jet.drawOpaque(shader, view, projection);
-
-        glm::dmat4 model = glm::dmat4(1.0f);
-        jdam.drawOpaque(shader, model, view, projection);
+        jdam.drawOpaque(shader, view, projection);
 
         world.draw(shader, view, projection);
 
@@ -235,6 +229,7 @@ int main() {
         glDisable(GL_CULL_FACE);
 
         jet.drawTransparent(shader, view, projection);
+        jdam.drawTransparent(shader, view, projection);
 
 
     // Debug

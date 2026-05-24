@@ -1,0 +1,57 @@
+#include "JDAM.hpp"
+#include "physics/Wing.hpp"
+#include "physics/Hitbox.hpp"
+
+const Airfoil FIN(-25.f, 25.0f, {
+    /* -25° */ AirfoilSample(-0.90f, 0.120f, 0.0f),
+    /* -20° */ AirfoilSample(-1.00f, 0.075f, 0.0f),
+    /* -15° */ AirfoilSample(-0.95f, 0.045f, 0.0f),
+    /* -10° */ AirfoilSample(-0.75f, 0.025f, 0.0f),
+    /*  -5° */ AirfoilSample(-0.42f, 0.014f, 0.0f),
+    /*   0° */ AirfoilSample( 0.00f, 0.011f, 0.0f),
+    /*   5° */ AirfoilSample( 0.42f, 0.014f, 0.0f),
+    /*  10° */ AirfoilSample( 0.75f, 0.025f, 0.0f),
+    /*  15° */ AirfoilSample( 0.95f, 0.045f, 0.0f),
+    /*  20° */ AirfoilSample( 1.00f, 0.075f, 0.0f),
+    /*  25° */ AirfoilSample( 0.90f, 0.120f, 0.0f),
+});
+
+JDAM::JDAM(glm::dvec3 pos, TextureCache& cache): model("assets/JDAM/JDAM.obj", cache, true) {
+    position = pos;
+
+    mass = 925.0f;
+    gravity = true;
+
+    glm::mat3 inertia = glm::mat3(0.0f);
+    inertia[0][0] = 280.0f;
+    inertia[1][1] = 280.0f;
+    inertia[2][2] = 18.0f;
+    inverse_inertia = glm::inverse(inertia);
+
+    parts.push_back(new Wing("Fin TL", &FIN, glm::vec3(-0.25f,  0.25f, -1.8f), glm::vec3(0, 0, 1), glm::vec3( 1,  1, 0), 0.18f, 0.3f));
+    parts.push_back(new Wing("Fin TR", &FIN, glm::vec3( 0.25f,  0.25f, -1.8f), glm::vec3(0, 0, 1), glm::vec3(-1,  1, 0), 0.18f, 0.3f));
+    parts.push_back(new Wing("Fin BL", &FIN, glm::vec3(-0.25f, -0.25f, -1.8f), glm::vec3(0, 0, 1), glm::vec3( 1, -1, 0), 0.18f, 0.3f));
+    parts.push_back(new Wing("Fin BR", &FIN, glm::vec3( 0.25f, -0.25f, -1.8f), glm::vec3(0, 0, 1), glm::vec3(-1, -1, 0), 0.18f, 0.3f));
+
+    parts.push_back(new Hitbox(glm::vec3(0.0f, 0.0f,  1.9f), 0.24f, 25000.0f, 60.0f));
+    parts.push_back(new Hitbox(glm::vec3(0.0f, 0.0f,  0.0f), 0.24f, 40000.0f, 80.0f));
+    parts.push_back(new Hitbox(glm::vec3(0.0f, 0.0f, -1.9f), 0.24f, 25000.0f, 60.0f));
+}
+
+void JDAM::update(World* world, float dt) {
+    RigidBody::update(world, dt);
+
+    uModel = glm::dmat4(1.0f);
+    uModel = glm::translate(uModel, position);
+    uModel *= glm::dmat4(glm::mat4_cast(orientation));
+    uModel = glm::rotate(uModel, glm::radians(180.0), glm::dvec3(0, 1, 0));
+    uModel = glm::scale(uModel, glm::dvec3(SCALE));
+}
+
+void JDAM::drawOpaque(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {
+    model.drawOpaque(shader, uModel, view, projection);
+}
+
+void JDAM::drawTransparent(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {
+    model.drawTransparent(shader, uModel, view, projection);
+}

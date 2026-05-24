@@ -52,8 +52,8 @@ World::World(int world_size, TerrainGenerator& generator, TextureCache& cache): 
     mesh.build();
 }
 
-void World::draw(GLuint shader, const glm::mat4& view, const glm::mat4& projection) const {
-    glm::mat4 model = glm::mat4(1.0f);
+void World::draw(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) const {
+    glm::dmat4 model = glm::dmat4(1.0f);
     mesh.render(shader, model, view, projection);
 }
 

@@ -11,7 +11,7 @@ enum class CameraMode {
 };
 
 class Camera {
-    glm::vec3 pos{};
+    glm::dvec3 pos{};
     glm::quat rotation{1.0f, 0.0f, 0.0f, 0.0f};
     float fov = 75.0f;
 
@@ -19,7 +19,7 @@ class Camera {
     glm::vec3 speed{};
 
     // Orbit mode
-    glm::vec3 target{};
+    glm::dvec3 target{};
     float distance = 7.5f;
 
 public:
@@ -30,10 +30,10 @@ public:
     void onMouseScroll(float mz);
 
     void setSpeed(glm::vec3 speed);
-    void setTarget(glm::vec3 target);
+    void setTarget(glm::dvec3 target);
 
     void update(float dt);
+    glm::dmat4 getViewMatrix() const;
     glm::mat4 getProjectionMatrix(float aspect_ratio) const;
-    glm::mat4 getViewMatrix() const;
-    glm::vec3 getPosition() const;
+    glm::dvec3 getPosition() const;
 };

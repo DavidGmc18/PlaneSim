@@ -18,8 +18,8 @@ class Model {
 public:
     Model(std::string path, TextureCache& cache, bool flip_UVs = false);
 
-    void drawOpaque(GLuint shader, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
-    void drawTransparent(GLuint shader, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
+    void drawOpaque(GLuint shader, const glm::dmat4& model, const glm::dmat4& view, const glm::mat4& projection);
+    void drawTransparent(GLuint shader, const glm::dmat4& model, const glm::dmat4& view, const glm::mat4& projection);
 
 private:
     void processNode(aiNode *node, const aiScene *scene, TextureCache& cache);

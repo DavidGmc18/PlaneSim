@@ -6,7 +6,7 @@
 
 class F16 : public RigidBody {
     Model model;
-    glm::mat4 uModel;
+    glm::dmat4 uModel;
 
     static constexpr float SCALE = 0.05f;
 
@@ -18,11 +18,11 @@ class F16 : public RigidBody {
     } fbw;
 
 public:
-    F16(glm::vec3 pos, TextureCache& cache);
+    F16(glm::dvec3 pos, TextureCache& cache);
 
     using RigidBody::update;
     void update(World* world, float dt, const AircraftControls* controls);
 
-    void drawOpaque(GLuint shader, const glm::mat4& view, const glm::mat4& projection);
-    void drawTransparent(GLuint shader, const glm::mat4& view, const glm::mat4& projection);
+    void drawOpaque(GLuint shader, const glm::dmat4& view, const glm::mat4& projection);
+    void drawTransparent(GLuint shader, const glm::dmat4& view, const glm::mat4& projection);
 };

@@ -36,7 +36,7 @@ void RigidBody::update(World* world, float dt) {
     angular_impulse = glm::vec3(0);
 }
 
-glm::vec3 RigidBody::getPosition() const {
+glm::dvec3 RigidBody::getPosition() const {
     return this->position;
 }
 
@@ -72,12 +72,12 @@ glm::vec3 RigidBody::toBodyDirection(const glm::vec3& direction) const {
     return glm::inverse(this->orientation) * direction;
 }
 
-glm::vec3 RigidBody::toWorldPos(const glm::vec3& point) const {
-    return this->position + this->orientation * point;
+glm::dvec3 RigidBody::toWorldPos(const glm::vec3& point) const {
+    return this->position + glm::dvec3(this->orientation * point);
 }
 
-glm::vec3 RigidBody::toBodyPos(const glm::vec3& point) const {
-    return glm::inverse(this->orientation) * (point - this->position);
+glm::vec3 RigidBody::toBodyPos(const glm::dvec3& point) const {
+    return glm::inverse(this->orientation) * glm::vec3(point - this->position);
 }
 
 glm::vec3 RigidBody::getBodyVelocityAtPoint(const glm::vec3& point) const {
@@ -93,7 +93,7 @@ void RigidBody::addBodyForceAtBodyPoint(const glm::vec3& force, const glm::vec3&
     this->torque += glm::cross(point, force);
 }
 
-void RigidBody::addWorldForceAtWorldPoint(const glm::vec3& force, const glm::vec3& point) {
+void RigidBody::addWorldForceAtWorldPoint(const glm::vec3& force, const glm::dvec3& point) {
     this->force += force;
     this->torque += glm::cross(toBodyPos(point), toBodyPos(force));
 }
@@ -103,7 +103,7 @@ void RigidBody::addBodyImpulseAtBodyPoint(const glm::vec3& impulse, const glm::v
     this->angular_impulse += glm::cross(point, impulse);
 }
 
-void RigidBody::addWorldImpulseAtWorldPoint(const glm::vec3& impulse, const glm::vec3& point) {
+void RigidBody::addWorldImpulseAtWorldPoint(const glm::vec3& impulse, const glm::dvec3& point) {
     this->impulse += impulse;
     this->angular_impulse += glm::cross(toBodyPos(point), toBodyDirection(impulse));
 }

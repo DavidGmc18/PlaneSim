@@ -112,7 +112,7 @@ const Airfoil VERTICAL_STAB(-20.f, 20.0f, {
     /*  20° */ AirfoilSample( 0.70f, 0.055f, 0.0f)
 });
 
-F16::F16(glm::vec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cache, true) {
+F16::F16(glm::dvec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cache, true) {
     position = pos;
 
     mass = 9297.0f;
@@ -165,17 +165,17 @@ void F16::update(World* world, float dt, const AircraftControls* controls) {
 
     RigidBody::update(world, dt);
 
-    uModel = glm::mat4(1.0f);
+    uModel = glm::dmat4(1.0f);
     uModel = glm::translate(uModel, position);
-    uModel *= glm::mat4_cast(orientation);
-    uModel = glm::rotate(uModel, glm::radians(-90.0f), glm::vec3(0, 1, 0));
-    uModel = glm::scale(uModel, glm::vec3(SCALE));
+    uModel *= glm::dmat4(glm::mat4_cast(orientation));
+    uModel = glm::rotate(uModel, glm::radians(-90.0), glm::dvec3(0, 1, 0));
+    uModel = glm::scale(uModel, glm::dvec3(SCALE));
 }
 
-void F16::drawOpaque(GLuint shader, const glm::mat4& view, const glm::mat4& projection) {
+void F16::drawOpaque(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {
     model.drawOpaque(shader, uModel, view, projection);
 }
 
-void F16::drawTransparent(GLuint shader, const glm::mat4& view, const glm::mat4& projection) {
+void F16::drawTransparent(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {
     model.drawTransparent(shader, uModel, view, projection);
 }

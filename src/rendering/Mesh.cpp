@@ -80,13 +80,18 @@ void Mesh::build() {
     glBindVertexArray(0);
 }
 
-void Mesh::render(GLuint shader, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) const {
+void Mesh::render(GLuint shader, const glm::dmat4& double_model, const glm::dmat4& double_view, const glm::mat4& projection) const {
     material.use(shader);
 
-    glm::mat4 mvp = projection * view * model;
+    glm::mat4 mv = glm::mat4(double_view * double_model);
+    glm::mat4 mvp = projection * mv;
+
+    glm::mat4 model = glm::mat4(double_model);
+    glm::mat3 normal_matrix = glm::mat3(glm::transpose(glm::inverse(model)));
 
     glUniformMatrix4fv(glGetUniformLocation(shader, "uMVP"), 1, GL_FALSE, glm::value_ptr(mvp));
     glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix3fv(glGetUniformLocation(shader, "uNormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_matrix));
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);

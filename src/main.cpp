@@ -95,7 +95,7 @@ int main() {
     ParallelLight sun(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.3f), glm::vec3(0.5f), glm::vec3(1.5f));
 
 
-    F16 jet(glm::vec3(-5.0f, 5.0f, 0.0f), tex_cache);
+    F16 jet(glm::dvec3(1<<30, 15000.0, 0.0), tex_cache);
 
 
     Model jdam("assets/JDAM/JDAM.obj", tex_cache, true);
@@ -208,12 +208,11 @@ int main() {
         
         camera.setTarget(jet.getPosition());
         camera.update(frame_time);
-        glm::mat4 projection = camera.getProjectionMatrix((float)w / (float)h);
-        glm::mat4 view = camera.getViewMatrix();
         glm::vec3 camera_pos = camera.getPosition();
-        // glUniformMatrix4fv(glGetUniformLocation(shader, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
-        // glUniformMatrix4fv(glGetUniformLocation(shader, "uView"), 1, GL_FALSE, glm::value_ptr(view));
         glUniform3f(glGetUniformLocation(shader, "cameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
+
+        glm::dmat4 view = camera.getViewMatrix();
+        glm::mat4 projection = camera.getProjectionMatrix((float)w / (float)h);
 
     // Light
         sun.use(shader);
@@ -225,7 +224,7 @@ int main() {
 
         jet.drawOpaque(shader, view, projection);
 
-        glm::mat4 model = glm::mat4(1.0f);
+        glm::dmat4 model = glm::dmat4(1.0f);
         jdam.drawOpaque(shader, model, view, projection);
 
         world.draw(shader, view, projection);
@@ -239,7 +238,7 @@ int main() {
 
 
     // Debug
-        glm::vec3 pos = jet.getPosition();
+        glm::dvec3 pos = jet.getPosition();
         text_renderer.render(std::format("Pos X: {:10.3f}m  Y: {:10.3f}m  Z: {:10.3f}m", pos.x, pos.y, pos.z), glm::vec2(10, 18), glm::vec4(1));
 
         glm::vec3 vel = jet.getVelocity();

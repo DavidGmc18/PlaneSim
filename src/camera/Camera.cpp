@@ -26,7 +26,7 @@ void Camera::setSpeed(glm::vec3 speed) {
     this->speed = speed;
 }
 
-void Camera::setTarget(glm::vec3 target) {
+void Camera::setTarget(glm::dvec3 target) {
     this->target = target;
 }
 
@@ -38,19 +38,19 @@ void Camera::update(float dt) {
 
         case CameraMode::ORBIT:
             glm::vec3 front = this->rotation * glm::vec3(0.0f, 0.0f, -1.0f);
-            this->pos = this->target - this->distance * front;
+            this->pos = this->target - glm::dvec3(this->distance * front);
             break;
     }
+}
+
+glm::dmat4 Camera::getViewMatrix() const {
+    return glm::dmat4(glm::mat4_cast(glm::conjugate(this->rotation))) * glm::translate(glm::dmat4(1.0), -this->pos);
 }
 
 glm::mat4 Camera::getProjectionMatrix(float aspect_ratio) const {
     return glm::perspective(glm::radians(this->fov), aspect_ratio, 0.001f, (float)(1<<20));
 }
 
-glm::mat4 Camera::getViewMatrix() const {
-    return glm::mat4_cast(glm::conjugate(this->rotation)) * glm::translate(glm::mat4(1.0f), -pos);
-}
-
-glm::vec3 Camera::getPosition() const {
+glm::dvec3 Camera::getPosition() const {
     return this->pos;
 }

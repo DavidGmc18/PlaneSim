@@ -54,10 +54,10 @@ glm::vec3 computeClosestPointOnTriangle(const glm::vec3& A, const glm::vec3& B, 
 }
 
 void Hitbox::update(RigidBody* body, World* world, float) {
-    glm::vec3 P = body->toWorldPos(this->pos);
+    glm::dvec3 P = body->toWorldPos(this->pos);
 
     struct {
-        glm::vec3 x;
+        glm::dvec3 x;
         glm::vec3 normal;
         float height = FLT_MAX;
     } best_hit; 
@@ -76,10 +76,11 @@ void Hitbox::update(RigidBody* body, World* world, float) {
 
                 glm::vec3 face_normal = glm::normalize(glm::cross(B - A, C - A));
 
-                glm::vec3 X = computeClosestPointOnTriangle(A, B, C, P);
+                // TODO computeClosestPointOnTriangle should be in double
+                glm::dvec3 X = glm::dvec3(computeClosestPointOnTriangle(A, B, C, P));
                 if (glm::dot(P - X, P - X) > radius_sq) continue;
 
-                float height = glm::dot(P - X, face_normal);
+                float height = glm::dot(glm::vec3(P - X), face_normal);
                 if (height < best_hit.height) {
                     best_hit.x = X;
                     best_hit.normal = face_normal;

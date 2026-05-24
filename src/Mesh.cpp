@@ -23,7 +23,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<Triangle> triangles, Materi
 }
 
 Mesh::Mesh(Mesh&& other) noexcept
-    : VAO(other.VAO), VBO(other.VBO), EBO(other.EBO), index_count(other.index_count),
+    : VBO(other.VBO), VAO(other.VAO), EBO(other.EBO), index_count(other.index_count),
     vertices(std::move(other.vertices)), 
     triangles(std::move(other.triangles)),
     material(other.material)

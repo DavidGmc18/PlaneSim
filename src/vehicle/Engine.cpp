@@ -3,7 +3,7 @@
 Engine::Engine(glm::vec3 pos, glm::vec3 forward, float thrust, float spool_speed, const float* throttle)
     : pos(pos), thrust(forward * thrust), throttle(throttle), spool_speed(spool_speed) {}
 
-void Engine::update(RigidBody* body, World* world, float dt) {
+void Engine::update(RigidBody* body, World*, float dt) {
     if (!this->throttle) return;
 
     this->rpm = glm::mix(this->rpm, *this->throttle, this->spool_speed * dt);

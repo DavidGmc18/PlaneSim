@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RigidBody.hpp"
-#include "model.hpp"
+#include "Model.hpp"
 #include "control/AircraftControls.hpp"
 
 class F16 : public RigidBody {
@@ -20,6 +20,7 @@ class F16 : public RigidBody {
 public:
     F16(glm::vec3 pos, TextureCache& cache);
 
+    using RigidBody::update;
     void update(World* world, float dt, const AircraftControls* controls);
 
     void drawOpaque(GLuint shader);

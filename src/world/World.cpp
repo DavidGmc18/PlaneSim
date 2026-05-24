@@ -24,8 +24,8 @@ World::World(int world_size, TerrainGenerator& generator, TextureCache& cache): 
     }
 
     // Indices
-    for (unsigned z = 0; z < WORLD_SIZE; z++) {
-        for (unsigned x = 0; x < WORLD_SIZE; x++) {
+    for (int z = 0; z < WORLD_SIZE; z++) {
+        for (int x = 0; x < WORLD_SIZE; x++) {
             Triangle& t0 = mesh.triangles[(z * WORLD_SIZE + x) * 2];
             Triangle& t1 = mesh.triangles[(z * WORLD_SIZE + x) * 2 + 1];
 

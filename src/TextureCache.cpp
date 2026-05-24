@@ -29,25 +29,27 @@ static GLuint load_texture(std::string path, bool invert) {
         return 0;
     }
 
+    size_t values = (size_t)width * height * channels;
+
     GLenum format;
     switch (channels) {
-        case 1: 
+        case 1:
             format = GL_RED;
-            if (invert) for (size_t i = 0; i < width * height * channels; i++) {
+            if (invert) for (size_t i = 0; i < values; i++) {
                 data[i] = 255 - data[i];
             }
             break;
 
         case 3: 
             format = GL_RGB;
-            if (invert) for (size_t i = 0; i < width * height * channels; i++) {
+            if (invert) for (size_t i = 0; i < values; i++) {
                 data[i] = 255 - data[i];
             }
             break;
 
         case 4: 
             format = GL_RGBA;
-            if (invert) for (size_t i = 0; i < width * height * channels; i += 4) {
+            if (invert) for (size_t i = 0; i < values; i += 4) {
                 data[i] = 255 - data[i];
                 data[i+1] = 255 - data[i+1];
                 data[i+2] = 255 - data[i+2];

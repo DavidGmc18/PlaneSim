@@ -1,9 +1,12 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "TextRenderer.hpp"
 
-#include "shader.hpp"
+#include "Shader.hpp"
 #include <format>
 #include <glm/gtc/type_ptr.hpp>
+#include <vector>
+#include <fstream>
+#include <iostream>
 
 void TextRenderer::init() {
     if (shader == 0)

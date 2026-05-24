@@ -27,12 +27,13 @@ AirfoilSample Airfoil::sample(float alpha) const {
 
 Wing::Wing(std::string name, const Airfoil* airfoil, const glm::vec3 center_of_pressure, glm::vec3 forward, glm::vec3 normal,
     float area, float chord, const float* deflection_control, float min_deflection, float max_deflection, float deflection_rate)
-    : name(name), airfoil(airfoil), center_of_pressure(center_of_pressure), forward(glm::normalize(forward)), normal(glm::normalize(normal)),
-    area(area), chord(chord), deflection_control(deflection_control), min_deflection(min_deflection), max_deflection(max_deflection), deflection_rate(deflection_rate) {}
+    : airfoil(airfoil), center_of_pressure(center_of_pressure), forward(glm::normalize(forward)), normal(glm::normalize(normal)),
+    area(area), chord(chord), min_deflection(min_deflection), max_deflection(max_deflection), deflection_rate(deflection_rate), deflection_control(deflection_control),
+    name(name) {}
 
 // TODO lateral drag
 // TODO center of pressyre should be at 25%MAC
-void Wing::update(RigidBody* body, World* world, float dt) {
+void Wing::update(RigidBody* body, World*, float dt) {
     glm::vec3 forward_dir = this->forward;
     glm::vec3 normal_dir = this->normal;
 

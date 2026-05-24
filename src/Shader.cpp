@@ -1,13 +1,11 @@
-#pragma once
-
-#include <glad/glad.h>
+#include "Shader.hpp"
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <vector>
 
-inline GLuint compile_shader_program(const char* vertexPath, const char* fragmentPath) {
+GLuint compile_shader_program(const char* vertexPath, const char* fragmentPath) {
     std::string vertexCode;
     std::string fragmentCode;
 
@@ -30,7 +28,7 @@ inline GLuint compile_shader_program(const char* vertexPath, const char* fragmen
 
         vertexCode   = vShaderStream.str();
         fragmentCode = fShaderStream.str();	
-    } catch(std::ifstream::failure e) {
+    } catch(const std::ifstream::failure& e) {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << e.what() << '\n';
     }
 

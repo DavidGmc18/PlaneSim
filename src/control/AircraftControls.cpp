@@ -69,6 +69,7 @@ void AircraftControls::onKeyDown(SDL_Scancode code) {
         AXIS_KEYS_DOWN(ROLL, SDL_SCANCODE_A, SDL_SCANCODE_D, 1.0f);
         AXIS_KEYS_DOWN(YAW, SDL_SCANCODE_Q, SDL_SCANCODE_E, 1.0f);
         AXIS_KEYS_DOWN(THROTTLE, SDL_SCANCODE_LCTRL, SDL_SCANCODE_LSHIFT, 1.0f);
+        default: break;
     }
 
     this->keys.onButtonDown(code);
@@ -80,6 +81,7 @@ void AircraftControls::onKeyUp(SDL_Scancode code) {
         AXIS_KEYS_UP(ROLL, SDL_SCANCODE_A, SDL_SCANCODE_D, 1.0f, 2.0f);
         AXIS_KEYS_UP(YAW, SDL_SCANCODE_Q, SDL_SCANCODE_E, 1.0f, 2.0f);
         AXIS_KEYS_UP(THROTTLE, SDL_SCANCODE_LCTRL, SDL_SCANCODE_LSHIFT, 1.0f, 0.0f)
+        default: break;
     }
 
     this->keys.onButtonUp(code);

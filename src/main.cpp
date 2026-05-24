@@ -6,9 +6,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <format>
 
-#include "shader.hpp"
+#include "Shader.hpp"
 #include "light.hpp"
-#include "model.hpp"
+#include "Model.hpp"
 #include "TextureCache.hpp"
 #include "TextRenderer.hpp"
 #include "CONSTANTS.h"
@@ -34,7 +34,7 @@ float mouse_sensitivity = 0.1f;
 float mouse_scroll_sensitivity = 0.3f;
 float speed = 10.0f;
 
-int main(int argc, char* argv[]) {
+int main() {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << '\n';
         return -1;
@@ -213,6 +213,7 @@ int main(int argc, char* argv[]) {
         glUniformMatrix4fv(glGetUniformLocation(shader, "uView"), 1, GL_FALSE, glm::value_ptr(view));
         glUniform3f(glGetUniformLocation(shader, "cameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
 
+    // Light
         sun.use(shader);
         Light::setCount(shader, 0);
         
@@ -222,10 +223,10 @@ int main(int argc, char* argv[]) {
 
         jet.drawOpaque(shader);
 
-        world.draw(shader);
-
         glm::mat4 model = glm::mat4(1.0f);
         jdam.drawOpaque(shader, model);
+
+        world.draw(shader);
 
 
     // Transparent rendering

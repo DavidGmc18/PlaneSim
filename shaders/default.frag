@@ -32,13 +32,13 @@ struct Material {
     sampler2D diffuse;
     sampler2D specular;
     sampler2D normal;
-    sampler2D shininess;
+    sampler2D glossiness;
     float opacity;
 };
 
 uniform Material material;
 
-vec3 computeParallelLigth(ParallelLight light, vec3 norm, vec3 viewDir, vec3 tex_diffuse, vec3 tex_specular, float shininess) {
+vec3 computeParallelLigth(ParallelLight light, vec3 norm, vec3 viewDir, vec3 tex_diffuse, vec3 tex_specular, float glossiness) {
     vec3 reflectDir = reflect(-light.dir, norm);
 
     // Ambient
@@ -49,13 +49,13 @@ vec3 computeParallelLigth(ParallelLight light, vec3 norm, vec3 viewDir, vec3 tex
     vec3 diffuse = light.diffuse * diff * tex_diffuse;
 
     // Specular
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), glossiness);
     vec3 specular = light.specular * spec * tex_specular;
 
     return ambient + diffuse + specular;
 }
 
-vec3 computeLigth(Light light, vec3 norm, vec3 viewDir, vec3 tex_diffuse, vec3 tex_specular, float shininess) {
+vec3 computeLigth(Light light, vec3 norm, vec3 viewDir, vec3 tex_diffuse, vec3 tex_specular, float glossiness) {
     vec3 lightDir = normalize(light.pos - FragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);
 
@@ -72,7 +72,7 @@ vec3 computeLigth(Light light, vec3 norm, vec3 viewDir, vec3 tex_diffuse, vec3 t
     vec3 diffuse = light.diffuse * diff * tex_diffuse;
 
     // Specular
-    float spec = pow(max(dot(norm, halfwayDir), 0.0), shininess);
+    float spec = pow(max(dot(norm, halfwayDir), 0.0), glossiness);
     vec3 specular = light.specular * spec * tex_specular;
 
     return (ambient + diffuse + specular) * attenuation;
@@ -87,13 +87,13 @@ void main() {
     vec3 tex_diffuse = texture(material.diffuse, uv).rgb;
     vec3 tex_specular = texture(material.specular, uv).rgb;
     
-    float shininess = pow(2, 8 * texture(material.shininess, uv).r);
+    float glossiness = pow(2, 8 * texture(material.glossiness, uv).r);
     
     vec3 viewDir = normalize(cameraPos - FragPos);
 
-    vec3 color = computeParallelLigth(parallelLight, norm, viewDir, tex_diffuse, tex_specular, shininess);
+    vec3 color = computeParallelLigth(parallelLight, norm, viewDir, tex_diffuse, tex_specular, glossiness);
     for (int i = 0; i < lightCount; i++) {
-        color += computeLigth(lights[i], norm, viewDir, tex_diffuse, tex_specular, shininess);
+        color += computeLigth(lights[i], norm, viewDir, tex_diffuse, tex_specular, glossiness);
     }
     FragColor = vec4(color, material.opacity);
 }

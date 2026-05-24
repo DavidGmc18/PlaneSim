@@ -53,7 +53,7 @@ glm::vec3 computeClosestPointOnTriangle(const glm::vec3& A, const glm::vec3& B, 
     return A + v * ab + w * ac;
 }
 
-void Hitbox::update(RigidBody* body, World* world, float dt) {
+void Hitbox::update(RigidBody* body, World* world, float) {
     glm::vec3 P = body->toWorldPos(this->pos);
 
     struct {

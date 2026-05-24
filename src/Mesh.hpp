@@ -2,7 +2,7 @@
 
 #include <vector>
 #include "Vertex.hpp"
-#include "material.hpp"
+#include "Material.hpp"
 #include <glad/glad.h>
 
 class Mesh {

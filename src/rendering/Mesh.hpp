@@ -28,5 +28,5 @@ public:
 
     void build();
     
-    void render(GLuint shader, const glm::mat4& model) const;
+    void render(GLuint shader, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) const;
 };

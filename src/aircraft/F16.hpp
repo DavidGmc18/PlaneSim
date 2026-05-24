@@ -23,6 +23,6 @@ public:
     using RigidBody::update;
     void update(World* world, float dt, const AircraftControls* controls);
 
-    void drawOpaque(GLuint shader);
-    void drawTransparent(GLuint shader);
+    void drawOpaque(GLuint shader, const glm::mat4& view, const glm::mat4& projection);
+    void drawTransparent(GLuint shader, const glm::mat4& view, const glm::mat4& projection);
 };

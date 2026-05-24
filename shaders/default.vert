@@ -5,8 +5,7 @@ layout (location = 1) in vec3 aNorm;
 layout (location = 2) in vec2 aUV;
 layout (location = 3) in vec4 aTan;
 
-uniform mat4 uProjection;
-uniform mat4 uView;
+uniform mat4 uMVP;
 uniform mat4 uModel;
 
 out vec2 uv;
@@ -14,10 +13,10 @@ out vec3 FragPos;
 out mat3 TBN;
 
 void main() {
-    vec4 pos = uModel * vec4(aPos, 1.0);
-    gl_Position = uProjection * uView * pos;
+    vec4 pos = vec4(aPos, 1.0);
+    gl_Position = uMVP * pos;
     uv = aUV;
-    FragPos = vec3(pos);
+    FragPos = vec3(uModel * pos);
 
     mat3 normalMatrix = mat3(transpose(inverse(uModel)));
 

@@ -211,8 +211,8 @@ int main() {
         glm::mat4 projection = camera.getProjectionMatrix((float)w / (float)h);
         glm::mat4 view = camera.getViewMatrix();
         glm::vec3 camera_pos = camera.getPosition();
-        glUniformMatrix4fv(glGetUniformLocation(shader, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
-        glUniformMatrix4fv(glGetUniformLocation(shader, "uView"), 1, GL_FALSE, glm::value_ptr(view));
+        // glUniformMatrix4fv(glGetUniformLocation(shader, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
+        // glUniformMatrix4fv(glGetUniformLocation(shader, "uView"), 1, GL_FALSE, glm::value_ptr(view));
         glUniform3f(glGetUniformLocation(shader, "cameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
 
     // Light
@@ -223,19 +223,19 @@ int main() {
     // Opaque rendering
         glEnable(GL_CULL_FACE);
 
-        jet.drawOpaque(shader);
+        jet.drawOpaque(shader, view, projection);
 
         glm::mat4 model = glm::mat4(1.0f);
-        jdam.drawOpaque(shader, model);
+        jdam.drawOpaque(shader, model, view, projection);
 
-        world.draw(shader);
+        world.draw(shader, view, projection);
 
 
     // Transparent rendering
         glDepthMask(GL_FALSE);
         glDisable(GL_CULL_FACE);
 
-        jet.drawTransparent(shader);
+        jet.drawTransparent(shader, view, projection);
 
 
     // Debug

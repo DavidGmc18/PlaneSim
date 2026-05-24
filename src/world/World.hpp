@@ -11,7 +11,7 @@ class World {
 public:
     World(int world_size, TerrainGenerator& generator, TextureCache& cache);
 
-    void draw(GLuint shader) const;
+    void draw(GLuint shader, const glm::mat4& view, const glm::mat4& projection) const;
 
     const Mesh* getMesh() const;
 

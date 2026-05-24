@@ -172,10 +172,10 @@ void F16::update(World* world, float dt, const AircraftControls* controls) {
     uModel = glm::scale(uModel, glm::vec3(SCALE));
 }
 
-void F16::drawOpaque(GLuint shader) {
-    model.drawOpaque(shader, uModel);
+void F16::drawOpaque(GLuint shader, const glm::mat4& view, const glm::mat4& projection) {
+    model.drawOpaque(shader, uModel, view, projection);
 }
 
-void F16::drawTransparent(GLuint shader) {
-    model.drawTransparent(shader, uModel);
+void F16::drawTransparent(GLuint shader, const glm::mat4& view, const glm::mat4& projection) {
+    model.drawTransparent(shader, uModel, view, projection);
 }

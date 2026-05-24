@@ -1,7 +1,7 @@
 #include "Material.hpp"
 #include <iostream>
 
-Material::Material(GLuint diffuse, GLuint specular, GLuint normal, float glossiness, float opacity):
+Material::Material(GLuint diffuse, GLuint specular, GLuint normal, GLuint glossiness, float opacity):
     diffuse(diffuse), specular(specular), normal(normal), glossiness(glossiness), opacity(opacity) {}
 
 void Material::use(GLuint shader) const {

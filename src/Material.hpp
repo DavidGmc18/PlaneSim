@@ -10,7 +10,7 @@ struct Material {
     float opacity = 1.0f;
 
     Material() = default;
-    Material(GLuint diffuse, GLuint specular, GLuint normal, float glossiness, float opacity);
+    Material(GLuint diffuse, GLuint specular, GLuint normal, GLuint glossiness, float opacity);
 
     void use(GLuint shader) const;
 };

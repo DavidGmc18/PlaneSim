@@ -1,6 +1,7 @@
 #include "TextureCache.hpp"
 #include <filesystem>
 #include <iostream>
+#include <format>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
@@ -93,7 +94,7 @@ GLuint TextureCache::get(std::string path, bool invert) {
 GLuint TextureCache::getColor(glm::vec3 color) {
     glm::u8vec3 u8_color = glm::u8vec3(color * glm::vec3(255));
 
-    std::string key = ":" + u8_color.r + ':' + u8_color.g + ':' + u8_color.b;
+    std::string key = std::format(":{}:{}:{}", u8_color.r, u8_color.g, u8_color.b);
     auto it = cache.find(key);
 
     if (it != cache.end())

@@ -24,6 +24,8 @@ void Vertex::compute_normals(std::vector<Vertex>& vertices, const std::vector<Tr
         vertex.norm = glm::vec3(0.0f);
 
     for (size_t i = 0; i < indices.size(); i++) {
+        if (indices[i].v0 >= vertices.size() || indices[i].v1 >= vertices.size() || indices[i].v2 >= vertices.size()) continue;
+
         Vertex& v1 = vertices[indices[i].v0];
         Vertex& v2 = vertices[indices[i].v1];
         Vertex& v3 = vertices[indices[i].v2];
@@ -38,7 +40,7 @@ void Vertex::compute_normals(std::vector<Vertex>& vertices, const std::vector<Tr
     }
 
     for (Vertex& vertex : vertices) {
-        if (glm::length(vertex.norm) > 0.0f) {
+        if (glm::length(vertex.norm) > 0.00001f) {
             vertex.norm = glm::normalize(vertex.norm);
         } else {
             vertex.norm = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -51,6 +53,8 @@ void Vertex::compute_tangents(std::vector<Vertex>& vertices, const std::vector<T
     std::vector<glm::vec3> bitan_accum(vertices.size(), glm::vec3(0.0f));
 
     for (size_t i = 0; i < indices.size(); i++) {
+        if (indices[i].v0 >= vertices.size() || indices[i].v1 >= vertices.size() || indices[i].v2 >= vertices.size()) continue;
+
         Vertex& v1 = vertices[indices[i].v0];
         Vertex& v2 = vertices[indices[i].v1];
         Vertex& v3 = vertices[indices[i].v2];
@@ -60,7 +64,8 @@ void Vertex::compute_tangents(std::vector<Vertex>& vertices, const std::vector<T
         glm::vec2 duv1 = v2.uv - v1.uv;
         glm::vec2 duv2 = v3.uv - v1.uv;
 
-        float f = 1.0f / (duv1.x * duv2.y - duv2.x * duv1.y);
+        float denominator = (duv1.x * duv2.y - duv2.x * duv1.y);
+        float f = (std::abs(denominator) > 0.000001f) ? 1.0f / denominator : 0.0f;
 
         glm::vec3 tangent = f * glm::vec3(
             duv2.y * edge1.x - duv1.y * edge2.x,

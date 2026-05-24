@@ -31,3 +31,11 @@ $(BUILD_DIR)/obj/%.o: $(SRC_DIR)/%
 
 # DEPS
 -include $(DEPS)
+
+
+# RUN
+run:
+	@$(BINARY)
+
+run-hud:
+	@mangohud --dlsym $(BINARY)

@@ -27,6 +27,8 @@ protected:
     glm::vec3 acceleration{};
 
 public:
+    ~RigidBody();
+
     virtual void update(World* world, float dt);
 
     glm::vec3 getPosition() const;

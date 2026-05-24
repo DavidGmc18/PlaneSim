@@ -2,6 +2,12 @@
 #include "CONSTANTS.h"
 #include "PhysicPart.hpp"
 
+RigidBody::~RigidBody() {
+    for (PhysicPart* part : parts) {
+        delete part;
+    }
+}
+
 void RigidBody::update(World* world, float dt) {
     for (PhysicPart* part : parts) {
         part->update(this, world, dt);

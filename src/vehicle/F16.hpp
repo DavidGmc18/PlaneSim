@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Aircraft.hpp"
+#include "RigidBody.hpp"
 #include "model.hpp"
 #include "control/AircraftControls.hpp"
 
-class F16 : public Aircraft {
+class F16 : public RigidBody {
     Model model;
     glm::mat4 uModel;
 

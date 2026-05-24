@@ -1,9 +1,9 @@
-#include "ControlAxis.hpp"
+#include "VirtualAxis.hpp"
 #include <glm/glm.hpp>
 
-ControlAxis::ControlAxis(float min, float max): min(min), max(max) {}
+VirtualAxis::VirtualAxis(float min, float max): min(min), max(max) {}
 
-void ControlAxis::update(float dt) {
+void VirtualAxis::update(float dt) {
     this->absolute += relative * dt;
     if (this->decay) {
         this->absolute *= glm::exp(-decay * dt);
@@ -12,7 +12,7 @@ void ControlAxis::update(float dt) {
     this->absolute = glm::clamp(this->absolute, this->min, this->max);
 }
 
-void ControlAxis::setAbsolute(float absolute) {
+void VirtualAxis::setAbsolute(float absolute) {
     this->absolute = absolute;
     this->relative = 0.0f;
     this->decay = 0.0f;

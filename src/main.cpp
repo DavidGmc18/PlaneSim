@@ -7,7 +7,6 @@
 #include <format>
 
 #include "shader.hpp"
-#include "Camera.hpp"
 #include "light.hpp"
 #include "model.hpp"
 #include "TextureCache.hpp"
@@ -17,8 +16,12 @@
 #include "world/World.hpp"
 
 #include "vehicle/F16.hpp"
+#include "vehicle/Wing.hpp"
+#include "vehicle/Engine.hpp"
 
 #include "control/AircraftControls.hpp"
+
+#include "camera/Camera.hpp"
 
 int w = 1280;
 int h = 720;
@@ -107,6 +110,9 @@ int main(int argc, char* argv[]) {
     AircraftControls controls;
 
 
+    Camera camera(CameraMode::ORBIT);
+
+
     SDL_ShowWindow(window);
 
     float frame_start = SDL_GetTicks() / 1000.0f;
@@ -124,9 +130,19 @@ int main(int argc, char* argv[]) {
                     running = false;
                     break;
 
+                case SDL_WINDOWEVENT:
+                    if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                        w = event.window.data1;
+                        h = event.window.data2;
+                        glViewport(0, 0, w, h);
+                        text_renderer.onScreenResize(w, h);
+                    } else if (event.window.event == SDL_WINDOWEVENT_DISPLAY_CHANGED) {
+                        SDL_GL_SetSwapInterval(-1);
+                    }
+                    break;
+
                 case SDL_KEYDOWN:
                     controls.onKeyDown(event.key.keysym.scancode);
-
                     switch (event.key.keysym.sym) {
                         case SDLK_F11:
                             isFullscreen = !isFullscreen;
@@ -153,27 +169,24 @@ int main(int argc, char* argv[]) {
                     }
                     break;
 
-                case SDL_WINDOWEVENT:
-                    if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                        w = event.window.data1;
-                        h = event.window.data2;
-                        glViewport(0, 0, w, h);
-                        text_renderer.onScreenResize(w, h);
-                    } else if (event.window.event == SDL_WINDOWEVENT_DISPLAY_CHANGED) {
-                        SDL_GL_SetSwapInterval(-1);
-                    }
-                    break;
-
                 case SDL_MOUSEMOTION:
-                    jet.onMouseMove((float)event.motion.xrel * mouse_sensitivity, (float)event.motion.yrel * mouse_sensitivity);
+                    camera.onMouseMove((float)event.motion.xrel * mouse_sensitivity, (float)event.motion.yrel * mouse_sensitivity);
                     break;
                     
                 case SDL_MOUSEWHEEL:
-                    jet.onMouseScroll((float)event.wheel.y * mouse_scroll_sensitivity);
+                    camera.onMouseScroll((float)event.wheel.y * mouse_scroll_sensitivity);
                     break;
 
                 case SDL_CONTROLLERAXISMOTION:
                     controls.onControllerAxis(event.caxis);
+                    break;
+
+                case SDL_CONTROLLERBUTTONDOWN:
+                    controls.onControllerButtonDown((SDL_GameControllerButton)event.cbutton.button);
+                    break;
+
+                case SDL_CONTROLLERBUTTONUP:
+                    controls.onControllerButtonUp((SDL_GameControllerButton)event.cbutton.button);
                     break;
             }
         }
@@ -190,8 +203,15 @@ int main(int argc, char* argv[]) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(shader);
-
-        jet.useCamera(shader, (float)w / (float)h);
+        
+        camera.setTarget(jet.getPosition());
+        camera.update(frame_time);
+        glm::mat4 projection = camera.getProjectionMatrix((float)w / (float)h);
+        glm::mat4 view = camera.getViewMatrix();
+        glm::vec3 camera_pos = camera.getPosition();
+        glUniformMatrix4fv(glGetUniformLocation(shader, "uProjection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(shader, "uView"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniform3f(glGetUniformLocation(shader, "cameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
 
         sun.use(shader);
         Light::setCount(shader, 0);
@@ -225,7 +245,7 @@ int main(int argc, char* argv[]) {
         glm::vec3 a = jet.getAcceleration();
         text_renderer.render(std::format("Acc X: {:+5.1f}G  Y: {:+5.1f}G  Z: {:+5.1f}G  A: {:+5.1f}G", a.x/STANDARD_GRAVITY, a.y/STANDARD_GRAVITY, a.z/STANDARD_GRAVITY, glm::length(a)/STANDARD_GRAVITY), glm::vec2(10, 54), glm::vec4(1));
 
-        std::span<const ControlAxis> axes = controls.getAxes();
+        std::span<const VirtualAxis> axes = controls.getAxes();
         text_renderer.render(
             std::format(
                 "PITCH {:+6.3f}  ROLL {:+6.3f}  YAW {:+6.3f}  THROTTLE {:4.1f}",

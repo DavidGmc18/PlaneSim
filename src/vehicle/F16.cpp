@@ -1,4 +1,7 @@
 #include "F16.hpp"
+#include "Wing.hpp"
+#include "Engine.hpp"
+#include "Hitbox.hpp"
 
 const Airfoil FUSELAGE(-40.0f, 40.0f, {
     /* -40° */ AirfoilSample(-0.380f, 0.265f, 0.000f),
@@ -160,7 +163,7 @@ void F16::update(World* world, float dt, const AircraftControls* controls) {
 
     fbw.throttle = controls->getAxisValue(AircraftControls::THROTTLE);
 
-    Aircraft::update(world, dt);
+    RigidBody::update(world, dt);
 
     uModel = glm::mat4(1.0f);
     uModel = glm::translate(uModel, position);

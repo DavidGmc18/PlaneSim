@@ -28,8 +28,6 @@ add_executable(${PROJECT_NAME}
     src/vehicle/RigidBody.hpp
     src/vehicle/RigidBody.cpp
     src/CONSTANTS.h
-    src/vehicle/Aircraft.hpp
-    src/vehicle/Aircraft.cpp
     src/vehicle/Wing.hpp
     src/vehicle/Wing.cpp
     src/vehicle/Engine.hpp
@@ -40,18 +38,17 @@ add_executable(${PROJECT_NAME}
     src/vehicle/Hitbox.cpp
     src/Vertex.hpp
     src/Vertex.cpp
-    src/Camera.hpp
-    src/Camera.cpp
     src/stb/stb_truetype.h
     src/TextRenderer.hpp
     src/TextRenderer.cpp
     src/vehicle/PhysicPart.hpp
-    src/control/ControlAxis.hpp
-    src/control/ControlAxis.cpp
-    src/control/KeyHandler.hpp
-    src/control/KeyHandler.cpp
+    src/control/VirtualAxis.hpp
+    src/control/VirtualAxis.cpp
     src/control/AircraftControls.hpp
     src/control/AircraftControls.cpp
+    src/control/ButtonHandler.hpp
+    src/camera/Camera.hpp
+    src/camera/Camera.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

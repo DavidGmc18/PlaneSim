@@ -17,21 +17,34 @@ clean:
 
 
 SOURCES := $(shell find $(SRC_DIR) -type f \( -name "*.cpp" -o -name "*.c" \))
-OBJECTS := $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/obj/%.o, $(SOURCES))
+OBJECTS := $(patsubst $(SRC_DIR)/%, $(BUILD_DIR)/obj/src/%.o, $(SOURCES))
 DEPS := $(OBJECTS:.o=.d)
+
+EXTERNAL_SOURCES := $(shell find $(EXTERNAL_DIR) -type f \( -name "*.cpp" -o -name "*.c" \))
+EXTERNAL_OBJECTS := $(patsubst $(EXTERNAL_DIR)/%, $(BUILD_DIR)/obj/external/%.o, $(EXTERNAL_SOURCES))
 
 build:
 	@$(MAKE) $(BINARY) -j$(shell nproc) --output-sync=target --no-print-directory
+	@echo "Done!"
 
-$(BINARY): $(OBJECTS)
+$(BINARY): $(OBJECTS) $(EXTERNAL_OBJECTS)
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(LDFLAGS)
+	@echo "Linking $(subst $(SOURCE_DIR)/,,$@)"
+	@$(CXX) $(CXXFLAGS) $(INCLUDES) $^ -o $@ $(LDFLAGS)
 
 
 # OBJECTS
-$(BUILD_DIR)/obj/%.o: $(SRC_DIR)/%
+$(BUILD_DIR)/obj/src/%.o: $(SRC_DIR)/%
 	@mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) -MMD -MP -c $< -o $@
+	@echo "Compiling $(subst $(SOURCE_DIR)/,,$<)"
+	@$(CXX) $(CXXFLAGS_SRC) $(CXXFLAGSINTERNAL) $(INCLUDES) -MMD -MP -c $< -o $@
+
+
+# EXTERNAL OBJECTS
+$(BUILD_DIR)/obj/external/%.o: $(EXTERNAL_DIR)/%
+	@mkdir -p $(@D)
+	@echo "Compiling $(subst $(SOURCE_DIR)/,,$<)"
+	@$(CXX) $(CXXFLAGS_EXTERNAL) $(INCLUDES) -MMD -MP -c $< -o $@
 
 
 # DEPS

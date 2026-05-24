@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
     F16 jet(glm::vec3(-5.0f, 5.0f, 0.0f), tex_cache);
 
 
-    Model jdam("assets/JDAM/JDAM.obj", tex_cache);
+    Model jdam("assets/JDAM/JDAM.obj", tex_cache, true);
 
 
     TerrainGenerator generator(0.0f, 0.0f, 1.0f);

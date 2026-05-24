@@ -36,17 +36,15 @@ public:
         processNode(scene->mRootNode, scene, cache);
     }
 
-    void drawOpaque(GLuint shader, glm::mat4& model) {
-        glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
+    void drawOpaque(GLuint shader, const glm::mat4& model) {
         for (const Mesh& mesh : opaque_meshes) {
-            mesh.render(shader, model, normalMatrix);
+            mesh.render(shader, model);
         }
     }
 
-    void drawTransparent(GLuint shader, glm::mat4& model) {
-        glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
+    void drawTransparent(GLuint shader, const glm::mat4& model) {
         for (const Mesh& mesh : transparent_meshes) {
-            mesh.render(shader, model, normalMatrix);
+            mesh.render(shader, model);
         }
     }
 
@@ -74,8 +72,6 @@ private:
         std::vector<Triangle> triangles;
         Material material;
 
-        // std::cout << mesh->mName.C_Str() << '\n';
-
         // vertices
         for(unsigned int i = 0; i < mesh->mNumVertices; i++) {
             Vertex vertex;
@@ -84,9 +80,13 @@ private:
             vertex.pos.y = mesh->mVertices[i].y;
             vertex.pos.z = mesh->mVertices[i].z;
 
-            vertex.norm.x = mesh->mNormals[i].x;
-            vertex.norm.y = mesh->mNormals[i].y;
-            vertex.norm.z = mesh->mNormals[i].z;
+            if (mesh->mNormals) {
+                vertex.norm.x = mesh->mNormals[i].x;
+                vertex.norm.y = mesh->mNormals[i].y;
+                vertex.norm.z = mesh->mNormals[i].z;
+            } else {
+                vertex.norm = glm::vec3(0.0f, 1.0f, 0.0f);
+            }
 
             if (mesh->mTextureCoords[0]) {
                 glm::vec2 vec;
@@ -96,13 +96,20 @@ private:
                 vertex.uv = glm::vec2(0.0f, 0.0f);
             }
 
-            if (mesh->mTangents) {
+            if (mesh->mTangents && mesh->mBitangents) {
                 glm::vec3 T = { mesh->mTangents[i].x,  mesh->mTangents[i].y,  mesh->mTangents[i].z };
                 glm::vec3 B = { mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z };
                 glm::vec3 N = vertex.norm;
-                float w = glm::dot(glm::cross(N, T), B) < 0.0f ? -1.0f : 1.0f;
-                vertex.tan = glm::vec4(T, w);
-            } // TODO fallback
+
+                if (glm::length(T) > 0.00001f && glm::length(B) > 0.00001) {
+                    float w = glm::dot(glm::cross(N, T), B) < 0.0f ? -1.0f : 1.0f;
+                    vertex.tan = glm::vec4(T, w);
+                } else {
+                    vertex.tan = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+                }
+            } else {
+                vertex.tan = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            }
 
             vertices.push_back(vertex);
         }
@@ -110,7 +117,7 @@ private:
         // Indices
         for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
             aiFace face = mesh->mFaces[i];
-            for(unsigned int j = 0; j < (face.mNumIndices - 2); j += 3) {
+            for(unsigned int j = 0; j <= (face.mNumIndices - 3); j += 3) {
                 triangles.push_back(Triangle(face.mIndices[j], face.mIndices[j+1], face.mIndices[j+2]));
             }
         }

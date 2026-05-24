@@ -54,7 +54,7 @@ World::World(int world_size, TerrainGenerator& generator, TextureCache& cache): 
 
 void World::draw(GLuint shader) const {
     glm::mat4 model = glm::mat4(1.0f);
-    mesh.draw(shader, model);
+    mesh.render(shader, model);
 }
 
 const Mesh* World::getMesh() const {

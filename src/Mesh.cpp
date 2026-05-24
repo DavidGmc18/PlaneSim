@@ -80,17 +80,11 @@ void Mesh::build() {
     glBindVertexArray(0);
 }
 
-void Mesh::render(GLuint shader, glm::mat4& model, glm::mat3& normalMatrix) const {
+void Mesh::render(GLuint shader, const glm::mat4& model) const {
     material.use(shader);
 
     glUniformMatrix4fv(glGetUniformLocation(shader, "uModel"), 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix3fv(glGetUniformLocation(shader, "uNormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, 0);
-}
-
-void Mesh::draw(GLuint shader, glm::mat4& model) const {
-    glm::mat3 normalMatrix = glm::mat3(glm::transpose(glm::inverse(model)));
-    render(shader, model, normalMatrix);
 }

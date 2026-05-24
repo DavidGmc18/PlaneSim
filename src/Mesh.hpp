@@ -28,6 +28,5 @@ public:
 
     void build();
     
-    void render(GLuint shader, glm::mat4& model, glm::mat3& normalMatrix) const;
-    void draw(GLuint shader, glm::mat4& model) const;
+    void render(GLuint shader, const glm::mat4& model) const;
 };

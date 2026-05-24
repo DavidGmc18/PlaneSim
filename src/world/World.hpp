@@ -1,8 +1,8 @@
 #pragma once
 
 #include "TerrainGenerator.hpp"
-#include "TextureCache.hpp"
-#include "Mesh.hpp"
+#include "rendering/TextureCache.hpp"
+#include "rendering/Mesh.hpp"
 
 class World {
     const int WORLD_SIZE;

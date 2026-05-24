@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RigidBody.hpp"
-#include "Model.hpp"
+#include "physics/RigidBody.hpp"
+#include "rendering/Model.hpp"
 #include "control/AircraftControls.hpp"
 
 class F16 : public RigidBody {

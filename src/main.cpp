@@ -6,18 +6,20 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <format>
 
-#include "Shader.hpp"
-#include "light.hpp"
-#include "Model.hpp"
-#include "TextureCache.hpp"
-#include "TextRenderer.hpp"
-#include "CONSTANTS.h"
+#include "rendering/Shader.hpp"
+#include "rendering/light.hpp"
+#include "rendering/Model.hpp"
+#include "rendering/TextureCache.hpp"
+#include "rendering/TextRenderer.hpp"
+
+#include "physics/CONSTANTS.h"
 
 #include "world/World.hpp"
 
-#include "vehicle/F16.hpp"
-#include "vehicle/Wing.hpp"
-#include "vehicle/Engine.hpp"
+#include "aircraft/F16.hpp"
+
+#include "physics//Wing.hpp"
+#include "physics//Engine.hpp"
 
 #include "control/AircraftControls.hpp"
 

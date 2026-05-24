@@ -7,7 +7,7 @@ export CXX := g++
 export CXXFLAGS_SRC := -std=c++20 -g -O3 -march=native -Wall -Wextra
 export CXXFLAGS_EXTERNAL := -std=c++20 -O3 -march=native
 
-export INCLUDES := -I$(SRC_DIR) -isystem $(EXTERNAL_DIR)
+export INCLUDES := -I. -I$(SRC_DIR) -isystem $(EXTERNAL_DIR)
 export LDFLAGS := -lGL -lSDL2 -lassimp
 
 export BINARY := $(BUILD_DIR)/sim.bin

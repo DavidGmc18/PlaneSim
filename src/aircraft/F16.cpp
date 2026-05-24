@@ -1,7 +1,7 @@
 #include "F16.hpp"
-#include "Wing.hpp"
-#include "Engine.hpp"
-#include "Hitbox.hpp"
+#include "physics/Wing.hpp"
+#include "physics/Engine.hpp"
+#include "physics/Hitbox.hpp"
 
 const Airfoil FUSELAGE(-40.0f, 40.0f, {
     /* -40° */ AirfoilSample(-0.380f, 0.265f, 0.000f),

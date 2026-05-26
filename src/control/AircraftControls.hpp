@@ -46,6 +46,10 @@ public:
     void onMouseButtonDown(unsigned char button);
     void onMouseButtonUp(unsigned char button);
 
+    bool getKey(SDL_Scancode key) const;
+    bool getControllerButton(SDL_GameControllerButton button) const;
+    bool getMouseButton(unsigned char button) const;
+
     float getAxisValue(AxisType axis) const;
     std::span<const VirtualAxis> getAxes() const;
 };

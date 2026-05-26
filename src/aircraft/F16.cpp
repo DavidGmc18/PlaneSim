@@ -167,6 +167,13 @@ void F16::update(World* world, float dt, const AircraftControls* controls) {
 
     fbw.throttle = controls->getAxisValue(AircraftControls::THROTTLE);
 
+    if (controls->getKey(SDL_SCANCODE_1)) {
+        joints[0]->disconnect();
+    }
+    if (controls->getKey(SDL_SCANCODE_2)) {
+        joints[1]->disconnect();
+    }
+
     RigidBody::update(world, dt);
 }
 

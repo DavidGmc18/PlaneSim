@@ -8,7 +8,7 @@ void Joint::solve(RigidBody* parent, float dt) {
     if (dt == 0.0f) return;
 
     glm::quat parent_rot = parent->getPredictedOrientation(dt);
-    glm::quat child_rot = parent->getOrientation() * this->rot; //this->child->getPredictedOrientation(dt);
+    glm::quat child_rot = this->child->getPredictedOrientation(dt);
 
     glm::dvec3 parent_joint_pos = parent->getPredictedPosition(dt) + glm::dvec3(phy::toGlobalDir(parent_rot, this->pos));
     glm::dvec3 child_joint_pos = this->child->getPredictedPosition(dt) + glm::dvec3(phy::toGlobalDir(child_rot, this->child_joint_pos));
@@ -27,14 +27,18 @@ void Joint::solve(RigidBody* parent, float dt) {
     this->child->addWorldImpulseAtWorldPoint(-impulse, pos_joint);
 
     // Angle
-    *(glm::quat*)(&((char*)this->child)[80]) = parent->getOrientation() * this->rot;
-    *(glm::vec3*)(&((char*)this->child)[108]) = glm::vec3(0);
+    // *(glm::quat*)(&((char*)this->child)[80]) = parent->getOrientation() * this->rot;
+    // *(glm::vec3*)(&((char*)this->child)[108]) = glm::vec3(0);
 }
 
-void Joint::setChild(RigidBody* child, glm::vec3 child_joint_pos, glm::quat child_joint_rot) {
+void Joint::connect(RigidBody* child, glm::vec3 child_joint_pos, glm::quat child_joint_rot) {
     this->child = child;
     this->child_joint_pos = child_joint_pos;
     this->child_joint_rot = child_joint_rot;
+}
+
+void Joint::disconnect() {
+    this->child = NULL;
 }
 
 RigidBody* Joint::getChild() {

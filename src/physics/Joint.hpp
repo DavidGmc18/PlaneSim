@@ -17,6 +17,8 @@ public:
 
     virtual void solve(RigidBody* parent, float dt);
 
-    void setChild(RigidBody* child, glm::vec3 child_joint_pos, glm::quat child_joint_rot);
+    void connect(RigidBody* child, glm::vec3 child_joint_pos, glm::quat child_joint_rot);
+    void disconnect();
+    
     RigidBody* getChild();
 };

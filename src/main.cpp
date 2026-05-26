@@ -94,8 +94,8 @@ int main() {
     F16 jet(glm::dvec3(0, 5.0, 500.0), tex_cache);
     JDAM jdam1(glm::dvec3(-1, 5.0, 500), tex_cache);
     JDAM jdam2(glm::dvec3( 1, 5.0, 500), tex_cache);
-    jet.getJoints()[0]->setChild(&jdam1, glm::vec3(0.0f, 0.13f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
-    jet.getJoints()[1]->setChild(&jdam2, glm::vec3(0.0f, 0.13f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+    jet.getJoints()[0]->connect(&jdam1, glm::vec3(0.0f, 0.13f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+    jet.getJoints()[1]->connect(&jdam2, glm::vec3(0.0f, 0.13f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
 
 
     TerrainGenerator generator(0.0f, 0.0f, 1.0f);

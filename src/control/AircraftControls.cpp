@@ -95,6 +95,18 @@ void AircraftControls::onMouseButtonUp(unsigned char button) {
     this->mouse_buttons.onButtonUp(button);
 }
 
+bool AircraftControls::getKey(SDL_Scancode key) const {
+    return this->keys[key];
+}
+
+bool AircraftControls::getControllerButton(SDL_GameControllerButton button) const {
+    return this->controller_buttons[button];
+}
+
+bool AircraftControls::getMouseButton(unsigned char button) const {
+    return this->mouse_buttons[button];
+}
+
 float AircraftControls::getAxisValue(AxisType axis) const {
     return this->axes[axis].absolute;
 }

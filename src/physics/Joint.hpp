@@ -4,18 +4,19 @@
 #include "RigidBody.hpp"
 
 class Joint {
-    glm::vec3 pos;
-    // TODO add joint rotation
-    RigidBody* child;
-    glm::vec3 relative_pos;
-    glm::quat relative_orientation;
+    const glm::vec3 pos;
+    const glm::quat rot;
+
+    RigidBody* child = NULL;
+    glm::vec3 child_joint_pos;
+    glm::quat child_joint_rot;
 
 public:
-    Joint(glm::vec3 pos, RigidBody* child = NULL);
+    Joint(glm::vec3 pos, glm::quat rot);
     virtual ~Joint() = default;
 
     virtual void solve(RigidBody* parent, float dt);
 
-    void setChild(RigidBody* child, glm::vec3 relative_pos, glm::quat relative_orientation);
+    void setChild(RigidBody* child, glm::vec3 child_joint_pos, glm::quat child_joint_rot);
     RigidBody* getChild();
 };

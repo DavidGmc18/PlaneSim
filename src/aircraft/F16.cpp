@@ -152,8 +152,8 @@ F16::F16(glm::dvec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cac
     parts.push_back(new Hitbox(glm::vec3( 1.0f, -0.780f,  1.0f), 0.165f, 500000.0f, 3000.0f));
     parts.push_back(new Hitbox(glm::vec3(-1.0f, -0.780f,  1.0f), 0.165f, 500000.0f, 3000.0f));
 
-    joints.push_back(new Joint(glm::vec3(-1.52f, -0.28f, -0.4f)));
-    joints.push_back(new Joint(glm::vec3( 1.52f, -0.28f, -0.4f)));
+    joints.push_back(new Joint(glm::vec3(-1.52f, -0.14f, -0.45f), glm::angleAxis(glm::radians(-2.0f), glm::vec3(1, 0, 0))));
+    joints.push_back(new Joint(glm::vec3( 1.52f, -0.14f, -0.45f), glm::angleAxis(glm::radians(-2.0f), glm::vec3(1, 0, 0))));
 }
 
 void F16::update(World* world, float dt, const AircraftControls* controls) {
@@ -163,7 +163,7 @@ void F16::update(World* world, float dt, const AircraftControls* controls) {
     fbw.flaperon_l = 10.0f * controls->getAxisValue(AircraftControls::ROLL);
     fbw.flaperon_r = -10.0f * controls->getAxisValue(AircraftControls::ROLL);
 
-    fbw.rudder = 10.0f * controls->getAxisValue(AircraftControls::YAW);
+    fbw.rudder = -10.0f * controls->getAxisValue(AircraftControls::YAW);
 
     fbw.throttle = controls->getAxisValue(AircraftControls::THROTTLE);
 

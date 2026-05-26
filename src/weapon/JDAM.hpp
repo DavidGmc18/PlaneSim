@@ -12,8 +12,7 @@ class JDAM : public RigidBody {
 public:
     JDAM(glm::dvec3 pos, TextureCache& cache);
 
-    using RigidBody::update;
-    void update(World* world, float dt);
+    void apply(float dt) override;
 
     void drawOpaque(GLuint shader, const glm::dmat4& view, const glm::mat4& projection);
     void drawTransparent(GLuint shader, const glm::dmat4& view, const glm::mat4& projection);

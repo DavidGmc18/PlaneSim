@@ -14,8 +14,9 @@
 #include "physics/CONSTANTS.h"
 #include "world/World.hpp"
 #include "aircraft/F16.hpp"
-#include "physics//Wing.hpp"
-#include "physics//Engine.hpp"
+#include "physics/Wing.hpp"
+#include "physics/Engine.hpp"
+#include "physics/Joint.hpp"
 #include "control/AircraftControls.hpp"
 #include "camera/Camera.hpp"
 #include "weapon/JDAM.hpp"
@@ -90,10 +91,11 @@ int main() {
     ParallelLight sun(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.3f), glm::vec3(0.5f), glm::vec3(1.5f));
 
 
-    F16 jet(glm::dvec3(-500.0, 5.0, 0.0), tex_cache);
-
-
-    JDAM jdam(glm::dvec3(-490.0, 5.0, 0.0), tex_cache);
+    F16 jet(glm::dvec3(0, 5.0, 500.0), tex_cache);
+    JDAM jdam1(glm::dvec3(-1, 5.0, 500), tex_cache);
+    JDAM jdam2(glm::dvec3( 1, 5.0, 500), tex_cache);
+    jet.getJoints()[0]->setChild(&jdam1, glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+    jet.getJoints()[1]->setChild(&jdam2, glm::vec3(0.0f, 0.0f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
 
 
     TerrainGenerator generator(0.0f, 0.0f, 1.0f);
@@ -191,9 +193,17 @@ int main() {
 
         controls.update(frame_time);
 
-
         jet.update(&world, frame_time, &controls);
-        jdam.update(&world, frame_time);
+        jdam1.update(&world, frame_time);
+        jdam2.update(&world, frame_time);
+
+        jet.solve(frame_time);
+        jdam1.solve(frame_time);
+        jdam2.solve(frame_time);
+
+        jet.apply(frame_time);
+        jdam1.apply(frame_time);
+        jdam2.apply(frame_time);
 
 
         glDepthMask(GL_TRUE);
@@ -219,7 +229,8 @@ int main() {
         glEnable(GL_CULL_FACE);
 
         jet.drawOpaque(shader, view, projection);
-        jdam.drawOpaque(shader, view, projection);
+        jdam1.drawOpaque(shader, view, projection);
+        jdam2.drawOpaque(shader, view, projection);
 
         world.draw(shader, view, projection);
 
@@ -229,7 +240,8 @@ int main() {
         glDisable(GL_CULL_FACE);
 
         jet.drawTransparent(shader, view, projection);
-        jdam.drawTransparent(shader, view, projection);
+        jdam1.drawTransparent(shader, view, projection);
+        jdam2.drawTransparent(shader, view, projection);
 
 
     // Debug
@@ -239,8 +251,8 @@ int main() {
         glm::vec3 vel = jet.getVelocity();
         text_renderer.render(std::format("Vel X: {:10.3f}m/s  Y: {:10.3f}m/s  Z: {:10.3f}m/s  A: {:8.1f}m/s ({:04.2f}M)", vel.x, vel.y, vel.z, glm::length(vel), glm::length(vel) / 343.0f), glm::vec2(10, 36), glm::vec4(1));
 
-        glm::vec3 a = jet.getAcceleration();
-        text_renderer.render(std::format("Acc X: {:+5.1f}G  Y: {:+5.1f}G  Z: {:+5.1f}G  A: {:+5.1f}G", a.x/STANDARD_GRAVITY, a.y/STANDARD_GRAVITY, a.z/STANDARD_GRAVITY, glm::length(a)/STANDARD_GRAVITY), glm::vec2(10, 54), glm::vec4(1));
+        // glm::vec3 a = jet.getAcceleration();
+        // text_renderer.render(std::format("Acc X: {:+5.1f}G  Y: {:+5.1f}G  Z: {:+5.1f}G  A: {:+5.1f}G", a.x/STANDARD_GRAVITY, a.y/STANDARD_GRAVITY, a.z/STANDARD_GRAVITY, glm::length(a)/STANDARD_GRAVITY), glm::vec2(10, 54), glm::vec4(1));
 
         std::span<const VirtualAxis> axes = controls.getAxes();
         text_renderer.render(

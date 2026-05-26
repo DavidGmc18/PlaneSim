@@ -28,23 +28,22 @@ JDAM::JDAM(glm::dvec3 pos, TextureCache& cache): model("assets/JDAM/JDAM.obj", c
     inertia[2][2] = 18.0f;
     inverse_inertia = glm::inverse(inertia);
 
-    parts.push_back(new Wing("Fin TL", &FIN, glm::vec3(-0.25f,  0.25f, -1.8f), glm::vec3(0, 0, 1), glm::vec3( 1,  1, 0), 0.18f, 0.3f));
-    parts.push_back(new Wing("Fin TR", &FIN, glm::vec3( 0.25f,  0.25f, -1.8f), glm::vec3(0, 0, 1), glm::vec3(-1,  1, 0), 0.18f, 0.3f));
-    parts.push_back(new Wing("Fin BL", &FIN, glm::vec3(-0.25f, -0.25f, -1.8f), glm::vec3(0, 0, 1), glm::vec3( 1, -1, 0), 0.18f, 0.3f));
-    parts.push_back(new Wing("Fin BR", &FIN, glm::vec3( 0.25f, -0.25f, -1.8f), glm::vec3(0, 0, 1), glm::vec3(-1, -1, 0), 0.18f, 0.3f));
+    parts.push_back(new Wing("Fin TL", &FIN, glm::vec3(-0.25f,  0.25f, 1.8f), glm::vec3(0, 0, -1), glm::vec3( 1,  1, 0), 0.18f, 0.3f));
+    parts.push_back(new Wing("Fin TR", &FIN, glm::vec3( 0.25f,  0.25f, 1.8f), glm::vec3(0, 0, -1), glm::vec3(-1,  1, 0), 0.18f, 0.3f));
+    parts.push_back(new Wing("Fin BL", &FIN, glm::vec3(-0.25f, -0.25f, 1.8f), glm::vec3(0, 0, -1), glm::vec3( 1, -1, 0), 0.18f, 0.3f));
+    parts.push_back(new Wing("Fin BR", &FIN, glm::vec3( 0.25f, -0.25f, 1.8f), glm::vec3(0, 0, -1), glm::vec3(-1, -1, 0), 0.18f, 0.3f));
 
-    parts.push_back(new Hitbox(glm::vec3(0.0f, 0.0f,  1.9f), 0.24f, 25000.0f, 60.0f));
-    parts.push_back(new Hitbox(glm::vec3(0.0f, 0.0f,  0.0f), 0.24f, 40000.0f, 80.0f));
     parts.push_back(new Hitbox(glm::vec3(0.0f, 0.0f, -1.9f), 0.24f, 25000.0f, 60.0f));
+    parts.push_back(new Hitbox(glm::vec3(0.0f, 0.0f,  0.0f), 0.24f, 40000.0f, 80.0f));
+    parts.push_back(new Hitbox(glm::vec3(0.0f, 0.0f,  1.9f), 0.24f, 25000.0f, 60.0f));
 }
 
-void JDAM::update(World* world, float dt) {
-    RigidBody::update(world, dt);
+void JDAM::apply(float dt) {
+    RigidBody::apply(dt);
 
     uModel = glm::dmat4(1.0f);
     uModel = glm::translate(uModel, position);
     uModel *= glm::dmat4(glm::mat4_cast(orientation));
-    uModel = glm::rotate(uModel, glm::radians(180.0), glm::dvec3(0, 1, 0));
     uModel = glm::scale(uModel, glm::dvec3(SCALE));
 }
 

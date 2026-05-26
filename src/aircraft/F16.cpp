@@ -2,6 +2,7 @@
 #include "physics/Wing.hpp"
 #include "physics/Engine.hpp"
 #include "physics/Hitbox.hpp"
+#include "physics/Joint.hpp"
 
 const Airfoil FUSELAGE(-40.0f, 40.0f, {
     /* -40° */ AirfoilSample(-0.380f, 0.265f, 0.000f),
@@ -126,49 +127,56 @@ F16::F16(glm::dvec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cac
     inertia[2][1] = 1331.0f;
     inverse_inertia = glm::inverse(inertia);
 
-    parts.push_back(new Engine(glm::vec3(0, 0, -4.5f), glm::vec3(0, 0, 1), 64900.0f, 1.0f, &this->fbw.throttle));
+    parts.push_back(new Engine(glm::vec3(0, 0, -4.5f), glm::vec3(0, 0, -1), 64900.0f, 1.0f, &this->fbw.throttle));
 
-    parts.push_back(new Wing("Fuselage", &FUSELAGE, glm::vec3(0.0f, 0.0f, 0.3f), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 15.0f, 4.5f));
+    parts.push_back(new Wing("Fuselage", &FUSELAGE, glm::vec3(0.0f, 0.0f, -0.3f), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), 15.0f, 4.5f));
 
     // sweep - 40°, +1° vertical
-    parts.push_back(new Wing("Main wing L", &MAIN_WING, glm::vec3(-2.2f, 0.0f, 0.1f), glm::vec3(-0.643f, 0.013f, 0.766f), glm::vec3(0.0f, 0.999f, -0.017f), 4.959f, 2.8f));
-    parts.push_back(new Wing("Main wing R", &MAIN_WING, glm::vec3( 2.2f, 0.0f, 0.1f), glm::vec3( 0.643f, 0.013f, 0.766f), glm::vec3(0.0f, 0.999f, -0.017f), 4.959f, 2.8f));
+    parts.push_back(new Wing("Main wing L", &MAIN_WING, glm::vec3(-2.2f, 0.0f, -0.1f), glm::vec3(-0.643f, 0.013f, -0.766f), glm::vec3(0.0f, 0.999f, 0.017f), 4.959f, 2.8f));
+    parts.push_back(new Wing("Main wing R", &MAIN_WING, glm::vec3( 2.2f, 0.0f, -0.1f), glm::vec3( 0.643f, 0.013f, -0.766f), glm::vec3(0.0f, 0.999f, 0.017f), 4.959f, 2.8f));
 
     // sweep - 40°, -2° vertical
-    parts.push_back(new Wing("Wing tip L", &MAIN_WING, glm::vec3(-4.1f, 0.0f, -0.2f), glm::vec3(-0.643f, -0.027f, 0.766f), glm::vec3(0.0f, 0.999f, 0.035f), 3.306f, 1.6f, &this->fbw.flaperon_l, -10, 10, 80));
-    parts.push_back(new Wing("Wing tip R", &MAIN_WING, glm::vec3( 4.1f, 0.0f, -0.2f), glm::vec3( 0.643f, -0.027f, 0.766f), glm::vec3(0.0f, 0.999f, 0.035f), 3.306f, 1.6f, &this->fbw.flaperon_r, -10, 10, 80));
+    parts.push_back(new Wing("Wing tip L", &MAIN_WING, glm::vec3(-4.1f, 0.0f, 0.2f), glm::vec3(-0.643f, -0.027f, -0.766f), glm::vec3(0.0f, 0.999f, -0.035f), 3.306f, 1.6f, &this->fbw.flaperon_l, -10, 10, 80));
+    parts.push_back(new Wing("Wing tip R", &MAIN_WING, glm::vec3( 4.1f, 0.0f, 0.2f), glm::vec3( 0.643f, -0.027f, -0.766f), glm::vec3(0.0f, 0.999f, -0.035f), 3.306f, 1.6f, &this->fbw.flaperon_r, -10, 10, 80));
     
-    parts.push_back(new Wing("LERX L", &LERX, glm::vec3(-1.0f, 0.0f, 0.1f), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 6.235f, 3.8f));
-    parts.push_back(new Wing("LERX R", &LERX, glm::vec3( 1.0f, 0.0f, 0.1f), glm::vec3(0, 0, 1), glm::vec3(0, 1, 0), 6.235f, 3.8f));
+    parts.push_back(new Wing("LERX L", &LERX, glm::vec3(-1.0f, 0.0f, -0.1f), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), 6.235f, 3.8f));
+    parts.push_back(new Wing("LERX R", &LERX, glm::vec3( 1.0f, 0.0f, -0.1f), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), 6.235f, 3.8f));
 
     // Anhedral - 10°
-    parts.push_back(new Wing("Horizontal stabilizer L", &HORIZONTAL_STAB, glm::vec3(-2.5f, 0.0f, -7.0f), glm::vec3(0, 0, 1), glm::vec3(-0.174f, 0.985f, 0), 5.9f, 1.9f, &this->fbw.taileron_l, -25, 21, 60));
-    parts.push_back(new Wing("Horizontal stabilizer R", &HORIZONTAL_STAB, glm::vec3( 2.5f, 0.0f, -7.0f), glm::vec3(0, 0, 1), glm::vec3( 0.174f, 0.985f, 0), 5.9f, 1.9f, &this->fbw.taileron_r, -25, 21, 60));
+    parts.push_back(new Wing("Horizontal stabilizer L", &HORIZONTAL_STAB, glm::vec3(-2.5f, 0.0f, 7.0f), glm::vec3(0, 0, -1), glm::vec3(-0.174f, 0.985f, 0), 5.9f, 1.9f, &this->fbw.taileron_l, -25, 21, 60));
+    parts.push_back(new Wing("Horizontal stabilizer R", &HORIZONTAL_STAB, glm::vec3( 2.5f, 0.0f, 7.0f), glm::vec3(0, 0, -1), glm::vec3( 0.174f, 0.985f, 0), 5.9f, 1.9f, &this->fbw.taileron_r, -25, 21, 60));
 
-    parts.push_back(new Wing("Vertical stabilizer", &VERTICAL_STAB, glm::vec3(0.0f, 1.5f, -6.8f), glm::vec3(0, 0, 1), glm::vec3(1, 0, 0), 6.0f, 2.4f, &this->fbw.rudder, -10, 10, 120));
+    parts.push_back(new Wing("Vertical stabilizer", &VERTICAL_STAB, glm::vec3(0.0f, 1.5f, 6.8f), glm::vec3(0, 0, -1), glm::vec3(1, 0, 0), 6.0f, 2.4f, &this->fbw.rudder, -10, 10, 120));
 
-    parts.push_back(new Hitbox(glm::vec3( 0.0f, -0.835f,  2.4f), 0.110f, 500000.0f, 1000.0f));
-    parts.push_back(new Hitbox(glm::vec3( 1.0f, -0.780f, -1.0f), 0.165f, 500000.0f, 3000.0f));
-    parts.push_back(new Hitbox(glm::vec3(-1.0f, -0.780f, -1.0f), 0.165f, 500000.0f, 3000.0f));
+    parts.push_back(new Hitbox(glm::vec3( 0.0f, -0.835f, -2.4f), 0.110f, 500000.0f, 1000.0f));
+    parts.push_back(new Hitbox(glm::vec3( 1.0f, -0.780f,  1.0f), 0.165f, 500000.0f, 3000.0f));
+    parts.push_back(new Hitbox(glm::vec3(-1.0f, -0.780f,  1.0f), 0.165f, 500000.0f, 3000.0f));
+
+    joints.push_back(new Joint(glm::vec3(-1.52f, -0.28f, -0.4f)));
+    joints.push_back(new Joint(glm::vec3( 1.52f, -0.28f, -0.4f)));
 }
 
 void F16::update(World* world, float dt, const AircraftControls* controls) {
     fbw.taileron_l = 25.0f * controls->getAxisValue(AircraftControls::PITCH);
     fbw.taileron_r = 25.0f * controls->getAxisValue(AircraftControls::PITCH);
 
-    fbw.flaperon_l = -10.0f * controls->getAxisValue(AircraftControls::ROLL);
-    fbw.flaperon_r = 10.0f * controls->getAxisValue(AircraftControls::ROLL);
+    fbw.flaperon_l = 10.0f * controls->getAxisValue(AircraftControls::ROLL);
+    fbw.flaperon_r = -10.0f * controls->getAxisValue(AircraftControls::ROLL);
 
     fbw.rudder = 10.0f * controls->getAxisValue(AircraftControls::YAW);
 
     fbw.throttle = controls->getAxisValue(AircraftControls::THROTTLE);
 
     RigidBody::update(world, dt);
+}
+
+void F16::apply(float dt) {
+    RigidBody::apply(dt);
 
     uModel = glm::dmat4(1.0f);
     uModel = glm::translate(uModel, position);
     uModel *= glm::dmat4(glm::mat4_cast(orientation));
-    uModel = glm::rotate(uModel, glm::radians(-90.0), glm::dvec3(0, 1, 0));
+    uModel = glm::rotate(uModel, glm::radians(90.0), glm::dvec3(0, 1, 0));
     uModel = glm::scale(uModel, glm::dvec3(SCALE));
 }
 

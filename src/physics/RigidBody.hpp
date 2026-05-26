@@ -53,16 +53,16 @@ public:
     std::span<PhysicPart* const> getPhysicParts() const;
     std::span<Joint* const> getJoints() const;
 
-    glm::vec3 toWorldDirection(const glm::vec3& direction) const;
-    glm::vec3 toBodyDirection(const glm::vec3& direction) const;
+    glm::vec3 toLocalDir(const glm::vec3& dir) const;
+    glm::vec3 toGlobalDir(const glm::vec3& dir) const;
 
-    glm::dvec3 toWorldPos(const glm::vec3& point) const;
-    glm::vec3 toBodyPos(const glm::dvec3& point) const;
+    glm::vec3 toLocalPos(const glm::dvec3& pos) const;
+    glm::dvec3 toGlobalPos(const glm::vec3& pos) const;
 
-    glm::vec3 getBodyVelocityAtPoint(const glm::vec3& point) const;
-    glm::vec3 getWorldVelocityAtPoint(const glm::vec3& point) const;
+    glm::vec3 getGlobalVelocityAtLocal(const glm::vec3& pos) const;
+    glm::vec3 getLocalVelocityAtLocal(const glm::vec3& pos) const;
 
-    glm::mat3 getWorldInverseInertia() const;
+    glm::mat3 getGlobalInverseInertia() const;
 
     void addBodyForceAtBodyPoint(const glm::vec3& force, const glm::vec3& point);
     void addWorldForceAtWorldPoint(const glm::vec3& force, const glm::dvec3& point);

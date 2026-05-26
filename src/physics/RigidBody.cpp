@@ -1,5 +1,5 @@
 #include "RigidBody.hpp"
-#include "CONSTANTS.h"
+#include "Physics.hpp"
 #include "PhysicPart.hpp"
 #include "Joint.hpp"
 
@@ -38,7 +38,7 @@ glm::quat RigidBody::getPredictedOrientation(float dt) const {
 }
 
 void RigidBody::update(World* world, float dt) {
-    if (this->gravity) this->force.y -= STANDARD_GRAVITY * this->mass;
+    if (this->gravity) this->force.y -= phy::STANDARD_GRAVITY * this->mass;
 
     for (PhysicPart* part : this->parts) {
         part->update(this, world, dt);
@@ -102,53 +102,53 @@ std::span<Joint* const> RigidBody::getJoints() const {
     return this->joints;
 }
 
-glm::vec3 RigidBody::toWorldDirection(const glm::vec3& direction) const {
-    return this->orientation * direction;
+glm::vec3 RigidBody::toLocalDir(const glm::vec3& dir) const {
+    return phy::toLocalDir(this->orientation, dir);
 }
 
-glm::vec3 RigidBody::toBodyDirection(const glm::vec3& direction) const {
-    return glm::conjugate(this->orientation) * direction;
+glm::vec3 RigidBody::toGlobalDir(const glm::vec3& dir) const {
+    return phy::toGlobalDir(this->orientation, dir);
 }
 
-glm::dvec3 RigidBody::toWorldPos(const glm::vec3& point) const {
-    return this->position + glm::dvec3(this->orientation * point);
+glm::vec3 RigidBody::toLocalPos(const glm::dvec3& pos) const {
+    return phy::toLocalPos(this->position, this->orientation, pos);
 }
 
-glm::vec3 RigidBody::toBodyPos(const glm::dvec3& point) const {
-    return glm::conjugate(this->orientation) * glm::vec3(point - this->position);
+glm::dvec3 RigidBody::toGlobalPos(const glm::vec3& pos) const {
+    return phy::toGlobalPos(this->position, this->orientation, pos);
 }
 
-glm::vec3 RigidBody::getBodyVelocityAtPoint(const glm::vec3& point) const {
-    return toBodyDirection(this->velocity) + glm::cross(this->angular_velocity, point);
+glm::vec3 RigidBody::getGlobalVelocityAtLocal(const glm::vec3& pos) const {
+    return this->velocity + glm::cross(toGlobalDir(angular_velocity), toGlobalDir(pos));
 }
 
-glm::vec3 RigidBody::getWorldVelocityAtPoint(const glm::vec3& point) const {
-    return this->velocity + glm::cross(toWorldDirection(angular_velocity), toWorldDirection(point));
+glm::vec3 RigidBody::getLocalVelocityAtLocal(const glm::vec3& pos) const {
+    return toLocalDir(this->velocity) + glm::cross(this->angular_velocity, pos);
 }
 
-glm::mat3 RigidBody::getWorldInverseInertia() const {
+glm::mat3 RigidBody::getGlobalInverseInertia() const {
     glm::mat3 rotation = glm::mat3_cast(this->orientation);
     return rotation * this->inverse_inertia * glm::transpose(rotation);
 }
 
 void RigidBody::addBodyForceAtBodyPoint(const glm::vec3& force, const glm::vec3& point) {
-    this->force += toWorldDirection(force);
+    this->force += toGlobalDir(force);
     this->torque += glm::cross(point, force);
 }
 
 void RigidBody::addWorldForceAtWorldPoint(const glm::vec3& force, const glm::dvec3& point) {
     this->force += force;
-    this->torque += glm::cross(toBodyPos(point), toBodyDirection(force));
+    this->torque += glm::cross(toLocalPos(point), toLocalDir(force));
 }
 
 void RigidBody::addBodyImpulseAtBodyPoint(const glm::vec3& impulse, const glm::vec3& point) {
-    this->impulse += toWorldDirection(impulse);
+    this->impulse += toGlobalDir(impulse);
     this->angular_impulse += glm::cross(point, impulse);
 }
 
 void RigidBody::addWorldImpulseAtWorldPoint(const glm::vec3& impulse, const glm::dvec3& point) {
     this->impulse += impulse;
-    this->angular_impulse += glm::cross(toBodyPos(point), toBodyDirection(impulse));
+    this->angular_impulse += glm::cross(toLocalPos(point), toLocalDir(impulse));
 }
 
 void RigidBody::addTorque(const glm::vec3& torque) {
@@ -160,5 +160,5 @@ void RigidBody::addBodyAngularImpulse(const glm::vec3& angular_impulse) {
 }
 
 void RigidBody::addWorldAngularImpulse(const glm::vec3& angular_impulse) {
-    this->angular_impulse += toBodyDirection(angular_impulse);
+    this->angular_impulse += toLocalDir(angular_impulse);
 }

@@ -53,7 +53,7 @@ void Wing::update(RigidBody* body, World*, float dt) {
     }
     glm::vec3 lateral_dir = glm::normalize(glm::cross(forward_dir, normal_dir));
 
-    glm::vec3 vel = body->getBodyVelocityAtPoint(this->center_of_pressure);
+    glm::vec3 vel = body->getLocalVelocityAtLocal(this->center_of_pressure);
     if (glm::dot(vel, vel) < 0.0001f) return;
 
     float tas_forward = glm::dot(vel, forward_dir);

@@ -54,7 +54,7 @@ glm::vec3 computeClosestPointOnTriangle(const glm::vec3& A, const glm::vec3& B, 
 }
 
 void Hitbox::update(RigidBody* body, World* world, float) {
-    glm::dvec3 P = body->toWorldPos(this->pos);
+    glm::dvec3 P = body->toGlobalPos(this->pos);
 
     struct {
         glm::dvec3 x;
@@ -96,7 +96,7 @@ void Hitbox::update(RigidBody* body, World* world, float) {
         glm::vec3 spring = best_hit.normal * (std::pow(compression, 1.5f) * this->k);
         body->addWorldForceAtWorldPoint(spring, best_hit.x);
 
-        float normal_vel = glm::dot(body->getWorldVelocityAtPoint(this->pos), best_hit.normal);
+        float normal_vel = glm::dot(body->getGlobalVelocityAtLocal(this->pos), best_hit.normal);
         if (normal_vel < 0.0f) {
             glm::vec3 damping = best_hit.normal * (-normal_vel * this->d);
             body->addWorldImpulseAtWorldPoint(damping, best_hit.x);

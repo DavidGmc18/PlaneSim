@@ -8,8 +8,8 @@ void Joint::solve(RigidBody* parent, float dt) {
     if (dt == 0.0f) return;
 
     // Distance
-    glm::dvec3 parent_predicted_joint_pos = parent->getPredictedPosition(dt) + glm::dvec3(parent->toWorldDirection(this->pos));
-    glm::dvec3 child_predicted_joint_pos = this->child->getPredictedPosition(dt) + glm::dvec3(this->child->toWorldDirection(this->relative_pos));
+    glm::dvec3 parent_predicted_joint_pos = parent->getPredictedPosition(dt) + glm::dvec3(parent->toGlobalDir(this->pos));
+    glm::dvec3 child_predicted_joint_pos = this->child->getPredictedPosition(dt) + glm::dvec3(this->child->toGlobalDir(this->relative_pos));
     glm::vec3 distance = glm::vec3(child_predicted_joint_pos - parent_predicted_joint_pos);
 
     glm::vec3 target_vel = distance / dt;
@@ -18,7 +18,7 @@ void Joint::solve(RigidBody* parent, float dt) {
 
     glm::vec3 impulse = target_vel / (inverse_mass_parent + inverse_mass_child);
 
-    glm::dvec3 pos_joint = parent->toWorldPos(this->pos);
+    glm::dvec3 pos_joint = parent->toGlobalPos(this->pos);
     parent->addWorldImpulseAtWorldPoint(impulse, pos_joint);
     this->child->addWorldImpulseAtWorldPoint(-impulse, pos_joint);
 

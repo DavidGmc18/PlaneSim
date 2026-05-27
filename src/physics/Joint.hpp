@@ -15,10 +15,11 @@ public:
     Joint(glm::vec3 pos, glm::quat rot);
     virtual ~Joint() = default;
 
-    virtual void solve(RigidBody* parent, float dt);
+    virtual void solveLinear(RigidBody* parent, float dt);
+    virtual void solveAngular(RigidBody* parent, float dt);
 
     void connect(RigidBody* child, glm::vec3 child_joint_pos, glm::quat child_joint_rot);
     void disconnect();
-    
+
     RigidBody* getChild();
 };

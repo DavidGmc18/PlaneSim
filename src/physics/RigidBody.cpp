@@ -50,18 +50,23 @@ void RigidBody::solve(float dt) {
     this->computeAngularVelocity(dt);
 
     for (int i = 0; i < JOINT_ITERATIONS; i++) {
+        // Linear
         for (Joint* joint : this->joints) {
-            if (joint) joint->solve(this, dt);
+            if (!joint || !joint->getChild()) continue; 
+            joint->solveLinear(this, dt);
+            joint->getChild()->computeVelocity(dt);
+            joint->getChild()->computeAngularVelocity(dt);
         }
-        
         this->computeVelocity(dt);
         this->computeAngularVelocity(dt);
+
+        // Angular
         for (Joint* joint : this->joints) {
-            if (joint && joint->getChild()) {
-                joint->getChild()->computeVelocity(dt);
-                joint->getChild()->computeAngularVelocity(dt);
-            }
+            if (!joint || !joint->getChild()) continue; 
+            joint->solveAngular(this, dt);
+            joint->getChild()->computeAngularVelocity(dt);
         }
+        this->computeAngularVelocity(dt);
     }
 }
 
@@ -94,6 +99,10 @@ float RigidBody::getMass() const {
     return this->mass;
 }
 
+glm::mat3 RigidBody::getInverseInertia() const {
+    return this->inverse_inertia;
+}
+
 std::span<PhysicPart* const> RigidBody::getPhysicParts() const {
     return this->parts;
 }
@@ -124,11 +133,6 @@ glm::vec3 RigidBody::getGlobalVelocityAtLocal(const glm::vec3& pos) const {
 
 glm::vec3 RigidBody::getLocalVelocityAtLocal(const glm::vec3& pos) const {
     return toLocalDir(this->velocity) + glm::cross(this->angular_velocity, pos);
-}
-
-glm::mat3 RigidBody::getGlobalInverseInertia() const {
-    glm::mat3 rotation = glm::mat3_cast(this->orientation);
-    return rotation * this->inverse_inertia * glm::transpose(rotation);
 }
 
 void RigidBody::addBodyForceAtBodyPoint(const glm::vec3& force, const glm::vec3& point) {

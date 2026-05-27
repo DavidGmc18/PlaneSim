@@ -3,7 +3,7 @@
 
 Joint::Joint(glm::vec3 pos, glm::quat rot): pos(pos), rot(rot) {}
 
-void Joint::solve(RigidBody* parent, float dt) {
+void Joint::solveLinear(RigidBody* parent, float dt) {
     if (!parent || !this->child) return;
     if (dt == 0.0f) return;
 
@@ -13,7 +13,6 @@ void Joint::solve(RigidBody* parent, float dt) {
     glm::dvec3 parent_joint_pos = parent->getPredictedPosition(dt) + glm::dvec3(phy::toGlobalDir(parent_rot, this->pos));
     glm::dvec3 child_joint_pos = this->child->getPredictedPosition(dt) + glm::dvec3(phy::toGlobalDir(child_rot, this->child_joint_pos));
 
-    // Distance
     glm::vec3 joint_distance = glm::vec3(child_joint_pos - parent_joint_pos);
 
     glm::vec3 target_vel = joint_distance / dt;
@@ -22,13 +21,40 @@ void Joint::solve(RigidBody* parent, float dt) {
 
     glm::vec3 impulse = target_vel / (inverse_mass_parent + inverse_mass_child);
 
-    glm::dvec3 pos_joint = parent->toGlobalPos(this->pos);
-    parent->addWorldImpulseAtWorldPoint(impulse, pos_joint);
-    this->child->addWorldImpulseAtWorldPoint(-impulse, pos_joint);
+    parent->addWorldImpulseAtWorldPoint(impulse, parent_joint_pos);
+    this->child->addWorldImpulseAtWorldPoint(-impulse, child_joint_pos);
+}
 
-    // Angle
-    // *(glm::quat*)(&((char*)this->child)[80]) = parent->getOrientation() * this->rot;
-    // *(glm::vec3*)(&((char*)this->child)[108]) = glm::vec3(0);
+void Joint::solveAngular(RigidBody* parent, float dt) {
+    if (!parent || !this->child) return;
+    if (dt == 0.0f) return;
+
+    glm::quat parent_rot = parent->getPredictedOrientation(dt);
+    glm::quat child_rot = this->child->getPredictedOrientation(dt);
+
+    glm::quat parent_anchor_world = parent_rot * this->rot;
+    glm::quat child_anchor_world = child_rot  * this->child_joint_rot;
+    glm::quat joint_rot = child_anchor_world * glm::conjugate(parent_anchor_world);
+
+    glm::quat q = (joint_rot.w >= 0.0f) ? joint_rot : -joint_rot;
+    float sin_half = glm::length(glm::vec3(q.x, q.y, q.z));
+    if (sin_half < 1e-6f) return;
+
+    glm::vec3 axis = glm::vec3(q.x, q.y, q.z) / sin_half;
+    float angle = 2.0f * std::atan2(sin_half, q.w);
+
+    glm::vec3 target_ang_vel = axis * (angle / dt);
+
+    glm::mat3 parent_rot_matrix = glm::mat3_cast(parent_rot);
+    glm::mat3 parent_inverse_inertia = parent_rot_matrix * parent->getInverseInertia() * glm::transpose(parent_rot_matrix);
+    glm::mat3 child_rot_matrix = glm::mat3_cast(child_rot);
+    glm::mat3 child_inverse_inertia = child_rot_matrix * this->child->getInverseInertia() * glm::transpose(child_rot_matrix);
+    glm::mat3 effective_inertia = glm::inverse(parent_inverse_inertia + child_inverse_inertia);
+
+    glm::vec3 angular_impulse = effective_inertia * target_ang_vel;
+
+    parent->addWorldAngularImpulse(angular_impulse);
+    this->child->addWorldAngularImpulse(-angular_impulse);
 }
 
 void Joint::connect(RigidBody* child, glm::vec3 child_joint_pos, glm::quat child_joint_rot) {

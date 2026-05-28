@@ -117,7 +117,6 @@ F16::F16(glm::dvec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cac
     position = pos;
 
     mass = 9297.0f;
-    gravity = true;
 
     glm::mat3 inertia = glm::mat3(0.0f);
     inertia[0][0] = 75700.0f;
@@ -148,12 +147,25 @@ F16::F16(glm::dvec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cac
 
     parts.push_back(new Wing("Vertical stabilizer", &VERTICAL_STAB, glm::vec3(0.0f, 1.5f, 6.8f), glm::vec3(0, 0, -1), glm::vec3(1, 0, 0), 6.0f, 2.4f, &this->fbw.rudder, -10, 10, 120));
 
-    parts.push_back(new Hitbox(glm::vec3( 0.0f, -0.835f, -2.4f), 0.110f, 500000.0f, 1000.0f));
-    parts.push_back(new Hitbox(glm::vec3( 1.0f, -0.780f,  1.0f), 0.165f, 500000.0f, 3000.0f));
-    parts.push_back(new Hitbox(glm::vec3(-1.0f, -0.780f,  1.0f), 0.165f, 500000.0f, 3000.0f));
 
-    joints.push_back(new Joint(glm::vec3(-1.52f, -0.14f, -0.45f), glm::angleAxis(glm::radians(-2.0f), glm::vec3(1, 0, 0))));
-    joints.push_back(new Joint(glm::vec3( 1.52f, -0.14f, -0.45f), glm::angleAxis(glm::radians(-2.0f), glm::vec3(1, 0, 0))));
+    parts.push_back(new Hitbox(glm::vec3( 0.0f, -1.77f, -3.84f), 0.23f, 200000.0f, 900.0f));
+    parts.push_back(new Hitbox(glm::vec3( 1.0f, -1.67f,  0.43f), 0.32f, 1000000.0f, 4000.0f));
+    parts.push_back(new Hitbox(glm::vec3(-1.0f, -1.67f,  0.43f), 0.32f, 1000000.0f, 4000.0f));
+
+    parts.push_back(new Hitbox(glm::vec3( 0.0f, -0.43f,  5.79f), 0.12f, 100000.0f, 1000.0f));
+
+
+    joints.push_back(new Joint(glm::vec3(-4.980f,  0.05f, 1.10f), glm::quat(glm::vec3(0.0f, glm::radians(-3.0f), glm::radians(-90.0f)))));
+    joints.push_back(new Joint(glm::vec3(-4.225f, -0.36f, 0.95f), glm::quat(glm::vec3(glm::radians(-2.0f), 0.0f, 0.0f))));
+    joints.push_back(new Joint(glm::vec3(-3.220f, -0.35f, 0.29f), glm::quat(glm::vec3(glm::radians(-2.0f), 0.0f, 0.0f))));
+    joints.push_back(new Joint(glm::vec3(0, 0, 0), glm::quat(1, 0, 0, 0)));
+
+    joints.push_back(new Joint(glm::vec3(0, 0, 0), glm::quat(1, 0, 0, 0)));
+
+    joints.push_back(new Joint(glm::vec3(0, 0, 0), glm::quat(1, 0, 0, 0)));
+    joints.push_back(new Joint(glm::vec3( 3.220f, -0.35f, 0.29f), glm::quat(glm::vec3(glm::radians(-2.0f), 0.0f, 0.0f))));
+    joints.push_back(new Joint(glm::vec3( 4.225f, -0.36f, 0.95f), glm::quat(glm::vec3(glm::radians(-2.0f), 0.0f, 0.0f))));
+    joints.push_back(new Joint(glm::vec3( 4.980f,  0.05f, 1.10f), glm::quat(glm::vec3(0.0f, glm::radians( 3.0f), glm::radians( 90.0f)))));
 }
 
 void F16::update(World* world, float dt, const AircraftControls* controls) {
@@ -173,6 +185,27 @@ void F16::update(World* world, float dt, const AircraftControls* controls) {
     if (controls->getKey(SDL_SCANCODE_2)) {
         joints[1]->disconnect();
     }
+    if (controls->getKey(SDL_SCANCODE_3)) {
+        joints[2]->disconnect();
+    }
+    if (controls->getKey(SDL_SCANCODE_4)) {
+        joints[3]->disconnect();
+    }
+    if (controls->getKey(SDL_SCANCODE_5)) {
+        joints[4]->disconnect();
+    }
+    if (controls->getKey(SDL_SCANCODE_6)) {
+        joints[5]->disconnect();
+    }
+    if (controls->getKey(SDL_SCANCODE_7)) {
+        joints[6]->disconnect();
+    }
+    if (controls->getKey(SDL_SCANCODE_8)) {
+        joints[7]->disconnect();
+    }
+    if (controls->getKey(SDL_SCANCODE_9)) {
+        joints[8]->disconnect();
+    }
 
     RigidBody::update(world, dt);
 }
@@ -183,8 +216,6 @@ void F16::apply(float dt) {
     uModel = glm::dmat4(1.0f);
     uModel = glm::translate(uModel, position);
     uModel *= glm::dmat4(glm::mat4_cast(orientation));
-    uModel = glm::rotate(uModel, glm::radians(90.0), glm::dvec3(0, 1, 0));
-    uModel = glm::scale(uModel, glm::dvec3(SCALE));
 }
 
 void F16::drawOpaque(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {

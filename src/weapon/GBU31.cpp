@@ -1,4 +1,4 @@
-#include "JDAM.hpp"
+#include "GBU31.hpp"
 #include "physics/Wing.hpp"
 #include "physics/Hitbox.hpp"
 
@@ -16,11 +16,10 @@ const Airfoil FIN(-25.f, 25.0f, {
     /*  25° */ AirfoilSample( 0.90f, 0.120f, 0.0f),
 });
 
-JDAM::JDAM(glm::dvec3 pos, TextureCache& cache): model("assets/JDAM/JDAM.obj", cache, true) {
+GBU31::GBU31(glm::dvec3 pos, TextureCache& cache): model("assets/GBU-31/GBU-31.obj", cache, true) {
     position = pos;
 
     mass = 925.0f;
-    gravity = true;
 
     glm::mat3 inertia = glm::mat3(0.0f);
     inertia[0][0] = 280.0f;
@@ -38,19 +37,18 @@ JDAM::JDAM(glm::dvec3 pos, TextureCache& cache): model("assets/JDAM/JDAM.obj", c
     parts.push_back(new Hitbox(glm::vec3(0.0f, 0.0f,  1.9f), 0.24f, 25000.0f, 60.0f));
 }
 
-void JDAM::apply(float dt) {
+void GBU31::apply(float dt) {
     RigidBody::apply(dt);
 
     uModel = glm::dmat4(1.0f);
     uModel = glm::translate(uModel, position);
     uModel *= glm::dmat4(glm::mat4_cast(orientation));
-    uModel = glm::scale(uModel, glm::dvec3(SCALE));
 }
 
-void JDAM::drawOpaque(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {
+void GBU31::drawOpaque(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {
     model.drawOpaque(shader, uModel, view, projection);
 }
 
-void JDAM::drawTransparent(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {
+void GBU31::drawTransparent(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {
     model.drawTransparent(shader, uModel, view, projection);
 }

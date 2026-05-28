@@ -19,7 +19,7 @@
 #include "physics/Joint.hpp"
 #include "control/AircraftControls.hpp"
 #include "camera/Camera.hpp"
-#include "weapon/JDAM.hpp"
+#include "weapon/GBU31.hpp"
 
 int w = 1280;
 int h = 720;
@@ -92,10 +92,10 @@ int main() {
 
 
     F16 jet(glm::dvec3(0, 5.0, 500.0), tex_cache);
-    JDAM jdam1(glm::dvec3(-1, 5.0, 500), tex_cache);
-    JDAM jdam2(glm::dvec3( 1, 5.0, 500), tex_cache);
-    jet.getJoints()[0]->connect(&jdam1, glm::vec3(0.0f, 0.13f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
-    jet.getJoints()[1]->connect(&jdam2, glm::vec3(0.0f, 0.13f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+    GBU31 bomb1(glm::dvec3(-3.2, 4.6, 500.3), tex_cache);
+    GBU31 bomb2(glm::dvec3( 3.2, 4.6, 500.3), tex_cache);
+    jet.getJoints()[2]->connect(&bomb1, glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+    jet.getJoints()[6]->connect(&bomb2, glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
 
 
     TerrainGenerator generator(0.0f, 0.0f, 1.0f);
@@ -194,16 +194,16 @@ int main() {
         controls.update(frame_time);
 
         jet.update(&world, frame_time, &controls);
-        jdam1.update(&world, frame_time);
-        jdam2.update(&world, frame_time);
+        bomb1.update(&world, frame_time);
+        bomb2.update(&world, frame_time);
 
         jet.solve(frame_time);
-        jdam1.solve(frame_time);
-        jdam2.solve(frame_time);
+        bomb1.solve(frame_time);
+        bomb2.solve(frame_time);
 
         jet.apply(frame_time);
-        jdam1.apply(frame_time);
-        jdam2.apply(frame_time);
+        bomb1.apply(frame_time);
+        bomb2.apply(frame_time);
 
 
         glDepthMask(GL_TRUE);
@@ -229,8 +229,8 @@ int main() {
         glEnable(GL_CULL_FACE);
 
         jet.drawOpaque(shader, view, projection);
-        jdam1.drawOpaque(shader, view, projection);
-        jdam2.drawOpaque(shader, view, projection);
+        bomb1.drawOpaque(shader, view, projection);
+        bomb2.drawOpaque(shader, view, projection);
 
         world.draw(shader, view, projection);
 
@@ -240,8 +240,8 @@ int main() {
         glDisable(GL_CULL_FACE);
 
         jet.drawTransparent(shader, view, projection);
-        jdam1.drawTransparent(shader, view, projection);
-        jdam2.drawTransparent(shader, view, projection);
+        bomb1.drawTransparent(shader, view, projection);
+        bomb2.drawTransparent(shader, view, projection);
 
 
     // Debug

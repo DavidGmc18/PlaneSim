@@ -3,14 +3,12 @@
 #include "physics/RigidBody.hpp"
 #include "rendering/Model.hpp"
 
-class JDAM : public RigidBody {
+class GBU31 : public RigidBody {
     Model model;
     glm::dmat4 uModel;
 
-    static constexpr float SCALE = 0.5f;
-
 public:
-    JDAM(glm::dvec3 pos, TextureCache& cache);
+    GBU31(glm::dvec3 pos, TextureCache& cache);
 
     void apply(float dt) override;
 

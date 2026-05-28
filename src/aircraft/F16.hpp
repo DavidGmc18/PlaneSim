@@ -8,8 +8,6 @@ class F16 : public RigidBody {
     Model model;
     glm::dmat4 uModel;
 
-    static constexpr float SCALE = 0.05f;
-
     struct {
         float flaperon_l, flaperon_r;
         float taileron_l, taileron_r;

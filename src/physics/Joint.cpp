@@ -10,16 +10,40 @@ void Joint::solveLinear(RigidBody* parent, float dt) {
     glm::quat parent_rot = parent->getPredictedOrientation(dt);
     glm::quat child_rot = this->child->getPredictedOrientation(dt);
 
-    glm::dvec3 parent_joint_pos = parent->getPredictedPosition(dt) + glm::dvec3(phy::toGlobalDir(parent_rot, this->pos));
-    glm::dvec3 child_joint_pos = this->child->getPredictedPosition(dt) + glm::dvec3(phy::toGlobalDir(child_rot, this->child_joint_pos));
+    glm::dvec3 parent_pos = parent->getPredictedPosition(dt);
+    glm::dvec3 child_pos = this->child->getPredictedPosition(dt);
 
+    glm::vec3 lever_parent = glm::dvec3(phy::toGlobalDir(parent_rot, this->pos));
+    glm::vec3 lever_child = glm::dvec3(phy::toGlobalDir(child_rot, this->child_joint_pos));
+
+    glm::dvec3 parent_joint_pos = parent_pos + glm::dvec3(lever_parent);
+    glm::dvec3 child_joint_pos = child_pos + glm::dvec3(lever_child);
+    
     glm::vec3 joint_distance = glm::vec3(child_joint_pos - parent_joint_pos);
-
     glm::vec3 target_vel = joint_distance / dt;
-    float inverse_mass_parent = 1.0f / parent->getMass();
-    float inverse_mass_child = 1.0f / this->child->getMass();
 
-    glm::vec3 impulse = target_vel / (inverse_mass_parent + inverse_mass_child);
+    glm::mat3 parent_rot_matrix = glm::mat3_cast(parent_rot);
+    glm::mat3 parent_inverse_inertia = parent_rot_matrix * parent->getInverseInertia() * glm::transpose(parent_rot_matrix);
+    glm::mat3 child_rot_matrix = glm::mat3_cast(child_rot);
+    glm::mat3 child_inverse_inertia = child_rot_matrix * this->child->getInverseInertia() * glm::transpose(child_rot_matrix);
+
+    glm::mat3 parent_rx = glm::mat3(
+         0.0f,           -lever_parent.z,  lever_parent.y,
+         lever_parent.z,  0.0f,           -lever_parent.x,
+        -lever_parent.y,  lever_parent.x,  0.0f
+    );
+    glm::mat3 child_rx = glm::mat3(
+         0.0f,          -lever_child.z,  lever_child.y,
+         lever_child.z,  0.0f,          -lever_child.x,
+        -lever_child.y,  lever_child.x,  0.0f
+    );
+
+    glm::mat3 K = 
+        glm::mat3((1.0f / parent->getMass()) + (1.0f / this->child->getMass()))
+        -(parent_rx * parent_inverse_inertia * parent_rx)
+        -(child_rx * child_inverse_inertia * child_rx);
+
+    glm::vec3 impulse = glm::inverse(K) * target_vel;
 
     parent->addWorldImpulseAtWorldPoint(impulse, parent_joint_pos);
     this->child->addWorldImpulseAtWorldPoint(-impulse, child_joint_pos);

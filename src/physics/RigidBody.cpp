@@ -13,12 +13,14 @@ RigidBody::~RigidBody() {
     }
 }
 
-void RigidBody::computeVelocity(float dt) {;
-    this->velocity += this->force / this->mass * dt;
-    this->velocity += this->impulse / this->mass;
+void RigidBody::computeVelocity(float dt) {
+    glm::vec3 delta_vel = (this->force / this->mass * dt) + (this->impulse / this->mass);
+    this->velocity += delta_vel;
 
     this->force = glm::vec3(0);
     this->impulse = glm::vec3(0);
+
+    this->acceleration += delta_vel / dt;
 }
 
 void RigidBody::computeAngularVelocity(float dt) {;
@@ -38,7 +40,12 @@ glm::quat RigidBody::getPredictedOrientation(float dt) const {
 }
 
 void RigidBody::update(World* world, float dt) {
-    if (this->gravity) this->force.y -= phy::STANDARD_GRAVITY * this->mass;
+    this->acceleration = glm::vec3(0);
+
+    if (this->gravity) {
+        this->force.y -= phy::STANDARD_GRAVITY * this->mass;
+        this->acceleration += glm::vec3(0.0f, phy::STANDARD_GRAVITY, 0.0f);
+    }
 
     for (PhysicPart* part : this->parts) {
         part->update(this, world, dt);
@@ -109,6 +116,10 @@ std::span<PhysicPart* const> RigidBody::getPhysicParts() const {
 
 std::span<Joint* const> RigidBody::getJoints() const {
     return this->joints;
+}
+
+glm::vec3 RigidBody::getAcceleration() const {
+    return this->acceleration;
 }
 
 glm::vec3 RigidBody::toLocalDir(const glm::vec3& dir) const {

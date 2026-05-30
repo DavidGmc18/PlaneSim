@@ -279,8 +279,15 @@ int main() {
         glm::vec3 vel = entities[target]->getVelocity();
         text_renderer.render(std::format("Vel X: {:10.3f}m/s  Y: {:10.3f}m/s  Z: {:10.3f}m/s  A: {:8.1f}m/s ({:04.2f}M)", vel.x, vel.y, vel.z, glm::length(vel), glm::length(vel) / 343.0f), glm::vec2(10, 36), glm::vec4(1));
 
-        // glm::vec3 a = entities[target]->getAcceleration();
-        // text_renderer.render(std::format("Acc X: {:+5.1f}G  Y: {:+5.1f}G  Z: {:+5.1f}G  A: {:+5.1f}G", a.x/phy::STANDARD_GRAVITY, a.y/phy::STANDARD_GRAVITY, a.z/phy::STANDARD_GRAVITY, glm::length(a)/phy::STANDARD_GRAVITY), glm::vec2(10, 54), glm::vec4(1));
+        glm::vec3 a = entities[target]->getAcceleration();
+        text_renderer.render(
+            std::format(
+                "Acc X: {:>5.1f}G  Y: {:>5.1f}G  Z: {:>5.1f}G  A: {:>5.1f}G",
+                a.x/phy::STANDARD_GRAVITY,
+                a.y/phy::STANDARD_GRAVITY,
+                a.z/phy::STANDARD_GRAVITY,
+                glm::length(a)/phy::STANDARD_GRAVITY
+            ), glm::vec2(10, 54), glm::vec4(1));
 
         std::span<const VirtualAxis> axes = controls.getAxes();
         text_renderer.render(

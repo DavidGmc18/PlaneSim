@@ -26,7 +26,7 @@ protected:
     std::vector<Joint*> joints;
 
     // Debug
-    // glm::vec3 acceleration{}; // TODO
+    glm::vec3 acceleration{};
 
     // Constants
     static constexpr int JOINT_ITERATIONS = 4;
@@ -53,6 +53,8 @@ public:
 
     std::span<PhysicPart* const> getPhysicParts() const;
     std::span<Joint* const> getJoints() const;
+
+    glm::vec3 getAcceleration() const;
 
     glm::vec3 toLocalDir(const glm::vec3& dir) const;
     glm::vec3 toGlobalDir(const glm::vec3& dir) const;

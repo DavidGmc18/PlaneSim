@@ -20,7 +20,7 @@ class Camera {
 
     // Orbit mode
     glm::dvec3 target{};
-    float distance = 7.5f;
+    float distance = 10.0f;
 
 public:
     CameraMode mode;

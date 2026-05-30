@@ -3,12 +3,12 @@
 #include "physics/RigidBody.hpp"
 #include "rendering/Model.hpp"
 
-class GBU31 : public RigidBody {
-    Model model;
-    glm::dmat4 uModel;
+class Entity : public RigidBody {
+    Model model; // TODO make model shader per instance of class;
+    glm::dmat4 model_matrix;
 
 public:
-    GBU31(glm::dvec3 pos, TextureCache& cache);
+    Entity(Model model, glm::dvec3 pos = glm::dvec3(0), glm::quat rot = glm::quat(1, 0, 0, 0));
 
     void apply(float dt) override;
 

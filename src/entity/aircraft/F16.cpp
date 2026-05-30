@@ -113,7 +113,7 @@ const Airfoil VERTICAL_STAB(-20.f, 20.0f, {
     /*  20° */ AirfoilSample( 0.70f, 0.055f, 0.0f)
 });
 
-F16::F16(glm::dvec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cache, true) {
+F16::F16(TextureCache& cache, glm::dvec3 pos, glm::quat rot): AbstractAircraft(Model("assets/F-16/F-16.obj", cache, true), pos, rot) {
     position = pos;
 
     mass = 9297.0f;
@@ -168,7 +168,7 @@ F16::F16(glm::dvec3 pos, TextureCache& cache): model("assets/F-16/F-16.obj", cac
     joints.push_back(new Joint(glm::vec3( 4.980f,  0.05f, 1.10f), glm::quat(glm::vec3(0.0f, glm::radians( 3.0f), glm::radians( 90.0f)))));
 }
 
-void F16::update(World* world, float dt, const AircraftControls* controls) {
+void F16::control(const AircraftControls* controls) {
     fbw.taileron_l = 25.0f * controls->getAxisValue(AircraftControls::PITCH);
     fbw.taileron_r = 25.0f * controls->getAxisValue(AircraftControls::PITCH);
 
@@ -205,23 +205,5 @@ void F16::update(World* world, float dt, const AircraftControls* controls) {
     }
     if (controls->getKey(SDL_SCANCODE_9)) {
         joints[8]->disconnect();
-    }
-
-    RigidBody::update(world, dt);
-}
-
-void F16::apply(float dt) {
-    RigidBody::apply(dt);
-
-    uModel = glm::dmat4(1.0f);
-    uModel = glm::translate(uModel, position);
-    uModel *= glm::dmat4(glm::mat4_cast(orientation));
-}
-
-void F16::drawOpaque(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {
-    model.drawOpaque(shader, uModel, view, projection);
-}
-
-void F16::drawTransparent(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {
-    model.drawTransparent(shader, uModel, view, projection);
+    };
 }

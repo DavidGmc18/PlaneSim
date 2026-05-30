@@ -19,13 +19,13 @@ Model::Model(std::string path, TextureCache& cache, bool flip_UVs) {
     processNode(scene->mRootNode, scene, cache);
 }
 
-void Model::drawOpaque(GLuint shader, const glm::dmat4& model, const glm::dmat4& view, const glm::mat4& projection) {
+void Model::drawOpaque(GLuint shader, const glm::dmat4& model, const glm::dmat4& view, const glm::mat4& projection) const {
     for (const Mesh& mesh : opaque_meshes) {
         mesh.render(shader, model, view, projection);
     }
 }
 
-void Model::drawTransparent(GLuint shader, const glm::dmat4& model, const glm::dmat4& view, const glm::mat4& projection) {
+void Model::drawTransparent(GLuint shader, const glm::dmat4& model, const glm::dmat4& view, const glm::mat4& projection) const {
     for (const Mesh& mesh : transparent_meshes) {
         mesh.render(shader, model, view, projection);
     }

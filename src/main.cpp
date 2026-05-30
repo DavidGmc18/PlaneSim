@@ -13,13 +13,16 @@
 #include "rendering/TextRenderer.hpp"
 #include "physics/Physics.hpp"
 #include "world/World.hpp"
-#include "aircraft/F16.hpp"
 #include "physics/Wing.hpp"
 #include "physics/Engine.hpp"
 #include "physics/Joint.hpp"
 #include "control/AircraftControls.hpp"
 #include "camera/Camera.hpp"
-#include "weapon/GBU31.hpp"
+#include "entity/Entity.hpp"
+#include "entity/aircraft/AbstractAircraft.hpp"
+
+#include "entity/aircraft/F16.hpp"
+#include "entity/weapon/GBU31.hpp"
 
 int w = 1280;
 int h = 720;
@@ -91,11 +94,15 @@ int main() {
     ParallelLight sun(glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.3f), glm::vec3(0.5f), glm::vec3(1.5f));
 
 
-    F16 jet(glm::dvec3(0, 5.0, 500.0), tex_cache);
-    GBU31 bomb1(glm::dvec3(-3.2, 4.6, 500.3), tex_cache);
-    GBU31 bomb2(glm::dvec3( 3.2, 4.6, 500.3), tex_cache);
-    jet.getJoints()[2]->connect(&bomb1, glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
-    jet.getJoints()[6]->connect(&bomb2, glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+    std::vector<Entity*> entities;
+    size_t target = 0;
+
+    entities.push_back(new F16(tex_cache, glm::dvec3(0, 5.0, 500.0)));
+    entities.push_back(new GBU31 (tex_cache, glm::dvec3(-3.2, 4.6, 500.3)));
+    entities.push_back(new GBU31 (tex_cache, glm::dvec3( 3.2, 4.6, 500.3)));
+
+    entities[0]->getJoints()[2]->connect(entities[1], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f)); // TODO
+    entities[0]->getJoints()[6]->connect(entities[2], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f)); // TODO
 
 
     TerrainGenerator generator(0.0f, 0.0f, 1.0f);
@@ -142,17 +149,34 @@ int main() {
 
                 case SDL_KEYDOWN:
                     controls.onKeyDown(event.key.keysym.scancode);
-                    switch (event.key.keysym.sym) {
-                        case SDLK_F11:
+                    switch (event.key.keysym.scancode) {
+                        case SDL_SCANCODE_F11:
                             isFullscreen = !isFullscreen;
                             SDL_SetWindowFullscreen(window, isFullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
                             SDL_GL_SetSwapInterval(-1);
                             break;
 
-                        case SDLK_ESCAPE:
+                        case SDL_SCANCODE_ESCAPE:
                             SDL_SetRelativeMouseMode(SDL_FALSE);
                             SDL_ShowCursor(SDL_ENABLE);
                             break;
+
+                        case SDL_SCANCODE_C:
+                            if (target == 0) {
+                                target = entities.size() - 1;
+                            } else {
+                                target--;
+                            }
+                            break;
+
+                        case SDL_SCANCODE_V:
+                            target++;
+                            if (target >= entities.size()) {
+                                target = 0;
+                            }
+                            break;
+
+                        default: break;
                     }
                     break;
 
@@ -193,17 +217,21 @@ int main() {
 
         controls.update(frame_time);
 
-        jet.update(&world, frame_time, &controls);
-        bomb1.update(&world, frame_time);
-        bomb2.update(&world, frame_time);
+        if (AbstractAircraft* aircraft = dynamic_cast<AbstractAircraft*>(entities[target])) {
+            aircraft->control(&controls);
+        }
 
-        jet.solve(frame_time);
-        bomb1.solve(frame_time);
-        bomb2.solve(frame_time);
+        for (Entity* entity : entities) {
+            if (entity) entity->update(&world, frame_time);
+        }
 
-        jet.apply(frame_time);
-        bomb1.apply(frame_time);
-        bomb2.apply(frame_time);
+        for (Entity* entity : entities) {
+            if (entity) entity->solve(frame_time);
+        }
+
+        for (Entity* entity : entities) {
+            if (entity) entity->apply(frame_time);
+        }
 
 
         glDepthMask(GL_TRUE);
@@ -212,7 +240,7 @@ int main() {
 
         glUseProgram(shader);
         
-        camera.setTarget(jet.getPosition());
+        camera.setTarget(entities[target]->getPosition());
         camera.update(frame_time);
         glm::vec3 camera_pos = camera.getPosition();
         glUniform3f(glGetUniformLocation(shader, "cameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
@@ -228,9 +256,9 @@ int main() {
     // Opaque rendering
         glEnable(GL_CULL_FACE);
 
-        jet.drawOpaque(shader, view, projection);
-        bomb1.drawOpaque(shader, view, projection);
-        bomb2.drawOpaque(shader, view, projection);
+        for (Entity* entity : entities) {
+            if (entity) entity->drawOpaque(shader, view, projection);
+        }
 
         world.draw(shader, view, projection);
 
@@ -239,19 +267,19 @@ int main() {
         glDepthMask(GL_FALSE);
         glDisable(GL_CULL_FACE);
 
-        jet.drawTransparent(shader, view, projection);
-        bomb1.drawTransparent(shader, view, projection);
-        bomb2.drawTransparent(shader, view, projection);
+        for (Entity* entity : entities) {
+            if (entity) entity->drawTransparent(shader, view, projection);
+        }
 
 
     // Debug
-        glm::dvec3 pos = jet.getPosition();
+        glm::dvec3 pos = entities[target]->getPosition();
         text_renderer.render(std::format("Pos X: {:10.3f}m  Y: {:10.3f}m  Z: {:10.3f}m", pos.x, pos.y, pos.z), glm::vec2(10, 18), glm::vec4(1));
 
-        glm::vec3 vel = jet.getVelocity();
+        glm::vec3 vel = entities[target]->getVelocity();
         text_renderer.render(std::format("Vel X: {:10.3f}m/s  Y: {:10.3f}m/s  Z: {:10.3f}m/s  A: {:8.1f}m/s ({:04.2f}M)", vel.x, vel.y, vel.z, glm::length(vel), glm::length(vel) / 343.0f), glm::vec2(10, 36), glm::vec4(1));
 
-        // glm::vec3 a = jet.getAcceleration();
+        // glm::vec3 a = entities[target]->getAcceleration();
         // text_renderer.render(std::format("Acc X: {:+5.1f}G  Y: {:+5.1f}G  Z: {:+5.1f}G  A: {:+5.1f}G", a.x/phy::STANDARD_GRAVITY, a.y/phy::STANDARD_GRAVITY, a.z/phy::STANDARD_GRAVITY, glm::length(a)/phy::STANDARD_GRAVITY), glm::vec2(10, 54), glm::vec4(1));
 
         std::span<const VirtualAxis> axes = controls.getAxes();
@@ -267,7 +295,7 @@ int main() {
         );
 
         int y = 90;
-        std::span<const PhysicPart* const> parts = jet.getPhysicParts();
+        std::span<const PhysicPart* const> parts = entities[target]->getPhysicParts();
         for (const PhysicPart* const part : parts) {
             if (const Wing* wing = dynamic_cast<const Wing*>(part)) {
                 AirfoilSample as = wing->getAirfoilSample();

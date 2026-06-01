@@ -114,8 +114,6 @@ const Airfoil VERTICAL_STAB(-20.f, 20.0f, {
 });
 
 F16::F16(TextureCache& cache, glm::dvec3 pos, glm::quat rot): AbstractAircraft(Model("assets/F-16/F-16.obj", cache, true), pos, rot) {
-    position = pos;
-
     mass = 9297.0f;
 
     glm::mat3 inertia = glm::mat3(0.0f);

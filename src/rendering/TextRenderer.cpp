@@ -15,7 +15,7 @@ void TextRenderer::init() {
 
 void TextRenderer::terminate() {
     if (shader != 0) {
-        glDeleteShader(shader);
+        glDeleteProgram(shader);
         shader = 0;
     }
 }

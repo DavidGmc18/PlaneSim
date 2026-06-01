@@ -17,8 +17,6 @@ const Airfoil FIN(-25.f, 25.0f, {
 });
 
 GBU31::GBU31(TextureCache& cache, glm::dvec3 pos, glm::quat rot): Entity(Model("assets/GBU-31/GBU-31.obj", cache, true), pos, rot) {
-    position = pos;
-
     mass = 925.0f;
 
     glm::mat3 inertia = glm::mat3(0.0f);

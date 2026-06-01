@@ -9,8 +9,8 @@ void Entity::apply(float dt) {
     RigidBody::apply(dt);
 
     this->model_matrix = glm::dmat4(1.0f);
-    this->model_matrix = glm::translate(this->model_matrix, position);
-    this->model_matrix *= glm::dmat4(glm::mat4_cast(orientation));
+    this->model_matrix = glm::translate(this->model_matrix, this->position);
+    this->model_matrix *= glm::dmat4(glm::mat4_cast(this->orientation));
 }
 
 void Entity::drawOpaque(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) {

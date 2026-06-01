@@ -3,7 +3,6 @@
 #include "TerrainGenerator.hpp"
 #include "rendering/TextureCache.hpp"
 #include "Chunk.hpp"
-#include <vector>
 #include "rendering/Material.hpp"
 
 class World {

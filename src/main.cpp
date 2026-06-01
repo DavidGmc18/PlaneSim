@@ -247,6 +247,7 @@ int main() {
         glm::mat4 VP = projection * glm::mat4(view); // TODO
 
     // Render world
+        glEnable(GL_CULL_FACE);
         world.render(VP);
 
     // Default shader

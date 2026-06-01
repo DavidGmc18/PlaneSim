@@ -6,27 +6,34 @@
 #include <vector>
 #include <rendering/Vertex.hpp>
 
-Chunk::Chunk(glm::ivec2 coord, const TerrainGenerator& generator): coord(coord) {
+Chunk::Chunk() {
     this->height_map.resize((Chunk::UNITS + 1) * (Chunk::UNITS  + 1));
+}
 
-    glm::i64vec2 chunk_pos = this->getOffset();
+void Chunk::load(glm::ivec2 coord, const TerrainGenerator& generator) {
+    this->coord = coord;
+
+    int cx = this->coord.x * Chunk::SIZE;
+    int cz = this->coord.y * Chunk::SIZE;
     for (int z = 0; z <= Chunk::UNITS; z++) {
         for (int x = 0; x <= Chunk::UNITS; x++) {
-            int wx = chunk_pos.x + x * Chunk::GRANUALITY;
-            int wz = chunk_pos.y + z * Chunk::GRANUALITY;
+            int wx = cx + x * Chunk::GRANUALITY;
+            int wz = cz + z * Chunk::GRANUALITY;
             this->height_map[z * (Chunk::UNITS + 1) + x] = generator.getHeight(wx, wz);
         }
     }
 
     this->renderer.setHeightBuffer(this->height_map.data(), this->height_map.size() * sizeof(float));
+    this->dirty = false;
 }
 
-void Chunk::draw(const glm::mat4& VP) const {
-    this->renderer.draw(VP, this->getOffset());
+void Chunk::unload() {
+    this->dirty = true;
 }
 
-glm::i64vec2 Chunk::getOffset() const {
-    return glm::i64vec2(this->coord) * glm::i64vec2(Chunk::SIZE);
+void Chunk::draw() const {
+    if (this->dirty) return;
+    this->renderer.draw(this->coord);
 }
 
 

@@ -10,10 +10,12 @@ World::World(TerrainGenerator& generator, TextureCache& cache) {
     this->material = Material(grass_diffuse, grass_specular, grass_normal, grass_shininess, 1.0f);
 
     constexpr int N = 32;
-    chunks.reserve(N * N * 4);
+    this->chunks.resize(N * N * 4);
     for (int z = -N; z < N; z++) {
         for (int x = -N; x < N; x++) {
-            chunks.emplace_back(glm::ivec2(x, z), generator);
+            this->chunks.emplace_back();
+            glm::ivec2 coord = glm::ivec2(x, z);
+            this->chunks.back().load(coord, generator);
         }
     }
 }
@@ -25,6 +27,6 @@ void World::render(const glm::mat4& VP) const {
     glBindTexture(GL_TEXTURE_2D, material.diffuse);
 
     for (const Chunk& chunk : this->chunks) {
-        chunk.draw(VP);
+        chunk.draw();
     }
 }

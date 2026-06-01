@@ -29,5 +29,5 @@ public:
 
     void setHeightBuffer(const float* height_map, size_t bytes);
 
-    void draw(const glm::mat4& VP, glm::i64vec2 offset) const;
+    void draw(const glm::ivec2& coord) const;
 };

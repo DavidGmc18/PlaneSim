@@ -13,15 +13,18 @@ public:
     static constexpr int GRANUALITY = 1;
     static constexpr int UNITS = SIZE / GRANUALITY; // TODO assert divisible
 private:
+    bool dirty = true;
+
     glm::ivec2 coord;
 
     std::vector<float> height_map;
     ChunkRenderer renderer;
 
 public:
-    Chunk(glm::ivec2 coord, const TerrainGenerator& generator);
+    Chunk();
 
-    void draw(const glm::mat4& VP) const;
+    void load(glm::ivec2 coord, const TerrainGenerator& generator);
+    void unload();
 
-    glm::i64vec2 getOffset() const;
+    void draw() const;
 };

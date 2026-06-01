@@ -6,11 +6,11 @@ layout (location = 1) in float aY;
 uniform vec2 uOffset; // instead of model matrix
 uniform mat4 uVP;
 
-out vec2 uv;
+out vec3 FragPos;
 
 void main() {
-    vec2 xz = uOffset + aXZ;
-    gl_Position = uVP *  vec4(xz.x, aY, xz.y, 1.0);
-    
-    uv = aXZ;
+    vec2 pos_xz = uOffset + aXZ;
+    FragPos = vec3(pos_xz.x, aY, pos_xz.y);
+
+    gl_Position = uVP *  vec4(FragPos, 1.0);
 }

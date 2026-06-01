@@ -124,8 +124,10 @@ void ChunkRenderer::setHeightBuffer(const float* height_map, size_t bytes) {
     glBindVertexArray(0);
 }
 
-void ChunkRenderer::draw(const glm::mat4& VP, glm::i64vec2 offset) const {
-    glUniform2f(glGetUniformLocation(ChunkRenderer::shader, "uOffset"), static_cast<float>(offset.x), static_cast<float>(offset.y));
+void ChunkRenderer::draw(const glm::ivec2& coord) const {
+    float cx = static_cast<float>(coord.x) * static_cast<float>(Chunk::SIZE);
+    float cz = static_cast<float>(coord.y) * static_cast<float>(Chunk::SIZE);
+    glUniform2f(glGetUniformLocation(ChunkRenderer::shader, "uOffset"), cx, cz);
 
     glBindVertexArray(this->VAO);
     glDrawElements(GL_TRIANGLES, ChunkRenderer::index_count, GL_UNSIGNED_INT, 0);

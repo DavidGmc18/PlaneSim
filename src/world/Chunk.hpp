@@ -9,7 +9,9 @@
 
 class Chunk {
 public:
-    static constexpr int SIZE = 16;
+    static constexpr int SIZE = 64;
+    static constexpr int GRANUALITY = 1;
+    static constexpr int UNITS = SIZE / GRANUALITY; // TODO assert divisible
 private:
     glm::ivec2 coord;
 

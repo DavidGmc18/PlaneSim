@@ -7,12 +7,14 @@
 #include <rendering/Vertex.hpp>
 
 Chunk::Chunk(glm::ivec2 coord, const TerrainGenerator& generator): coord(coord) {
-    this->height_map.resize((Chunk::SIZE + 1) * (Chunk::SIZE + 1));
+    this->height_map.resize((Chunk::UNITS + 1) * (Chunk::UNITS  + 1));
 
     glm::i64vec2 chunk_pos = this->getOffset();
-    for (int z = 0; z <= Chunk::SIZE; z++) {
-        for (int x = 0; x <= Chunk::SIZE; x++) {
-            this->height_map[z * (Chunk::SIZE + 1) + x] = generator.getHeight(chunk_pos.x + x, chunk_pos.y + z);
+    for (int z = 0; z <= Chunk::UNITS; z++) {
+        for (int x = 0; x <= Chunk::UNITS; x++) {
+            int wx = chunk_pos.x + x * Chunk::GRANUALITY;
+            int wz = chunk_pos.y + z * Chunk::GRANUALITY;
+            this->height_map[z * (Chunk::UNITS + 1) + x] = generator.getHeight(wx, wz);
         }
     }
 

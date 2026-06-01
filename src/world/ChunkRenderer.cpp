@@ -14,10 +14,12 @@ void ChunkRenderer::init() {
 
     if (ChunkRenderer::VBO_XZ == 0) {
         std::vector<glm::vec2> xz;
-        xz.resize((Chunk::SIZE + 1) * (Chunk::SIZE + 1));
-        for (int z = 0; z <= Chunk::SIZE; z++) {
-            for (int x = 0; x <= Chunk::SIZE; x++) {
-                xz[z * (Chunk::SIZE + 1) + x] = glm::vec2(x, z);
+        xz.resize((Chunk::UNITS + 1) * (Chunk::UNITS  + 1));
+        for (int z = 0; z <= Chunk::UNITS; z++) {
+            for (int x = 0; x <= Chunk::UNITS; x++) {
+                int wx = x * Chunk::GRANUALITY;
+                int wz = z * Chunk::GRANUALITY;
+                xz[z * (Chunk::UNITS + 1) + x] = glm::vec2(wx, wz);
             }
         }
 
@@ -29,19 +31,19 @@ void ChunkRenderer::init() {
     }
 
     if (ChunkRenderer::EBO == 0) {
-        ChunkRenderer::index_count = Chunk::SIZE * Chunk::SIZE * 6;
+        ChunkRenderer::index_count = Chunk::UNITS * Chunk::UNITS * 6;
 
         std::vector<unsigned int> indices;
         indices.resize(ChunkRenderer::index_count);
 
-        for (int z = 0; z < Chunk::SIZE; z++) {
-            for (int x = 0; x < Chunk::SIZE; x++) {
-                unsigned int* quad = &indices[(z * Chunk::SIZE + x) * 6];
+        for (int z = 0; z < Chunk::UNITS; z++) {
+            for (int x = 0; x < Chunk::UNITS; x++) {
+                unsigned int* quad = &indices[(z * Chunk::UNITS + x) * 6];
 
-                unsigned int a = (z + 0) * (Chunk::SIZE + 1) + (x + 0);
-                unsigned int b = (z + 1) * (Chunk::SIZE + 1) + (x + 0);
-                unsigned int c = (z + 1) * (Chunk::SIZE + 1) + (x + 1);
-                unsigned int d = (z + 0) * (Chunk::SIZE + 1) + (x + 1);
+                unsigned int a = (z + 0) * (Chunk::UNITS + 1) + (x + 0);
+                unsigned int b = (z + 1) * (Chunk::UNITS + 1) + (x + 0);
+                unsigned int c = (z + 1) * (Chunk::UNITS + 1) + (x + 1);
+                unsigned int d = (z + 0) * (Chunk::UNITS + 1) + (x + 1);
 
                 quad[0] = a;
                 quad[1] = b;

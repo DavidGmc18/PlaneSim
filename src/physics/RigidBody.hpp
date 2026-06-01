@@ -20,7 +20,7 @@ protected:
     glm::vec3 angular_velocity{}; // Body-space
     glm::mat3 inertia{}, inverse_inertia{}; // Body-space
     float mass = 1.0f;
-    bool gravity = true;
+    bool gravity = false; // TODO <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <- <-
 
     std::vector<PhysicPart*> parts;
     std::vector<Joint*> joints;

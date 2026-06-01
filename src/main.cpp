@@ -20,6 +20,7 @@
 #include "camera/Camera.hpp"
 #include "entity/Entity.hpp"
 #include "entity/aircraft/AbstractAircraft.hpp"
+#include "world/ChunkRenderer.hpp"
 
 #include "entity/aircraft/F16.hpp"
 #include "entity/weapon/GBU31.hpp"
@@ -59,7 +60,7 @@ int main() {
         return -1;
     }
 
-    SDL_GL_SetSwapInterval(-1);
+    SDL_GL_SetSwapInterval(0);
     // SDL_SetRelativeMouseMode(SDL_TRUE);
 
     glViewport(0, 0, w, h);
@@ -97,16 +98,16 @@ int main() {
     std::vector<Entity*> entities;
     size_t target = 0;
 
-    entities.push_back(new F16(tex_cache, glm::dvec3(0, 5.0, 500.0)));
-    entities.push_back(new GBU31 (tex_cache, glm::dvec3(-3.2, 4.6, 500.3)));
-    entities.push_back(new GBU31 (tex_cache, glm::dvec3( 3.2, 4.6, 500.3)));
+    entities.push_back(new F16(tex_cache, glm::dvec3(0, 5.0, 0.0)));
+    entities.push_back(new GBU31 (tex_cache, glm::dvec3(-3.2, 4.6, 0.3)));
+    entities.push_back(new GBU31 (tex_cache, glm::dvec3( 3.2, 4.6, 0.3)));
 
     entities[0]->getJoints()[2]->connect(entities[1], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f)); // TODO
     entities[0]->getJoints()[6]->connect(entities[2], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f)); // TODO
 
-
-    TerrainGenerator generator(0.0f, 0.0f, 1.0f);
-    World world(1024, generator, tex_cache);
+    ChunkRenderer::init();
+    TerrainGenerator generator(0.0f, 10.0f, 1.0f);
+    World world(generator, tex_cache);
 
 
     TextRenderer::init();
@@ -143,7 +144,7 @@ int main() {
                         glViewport(0, 0, w, h);
                         text_renderer.onScreenResize(w, h);
                     } else if (event.window.event == SDL_WINDOWEVENT_DISPLAY_CHANGED) {
-                        SDL_GL_SetSwapInterval(-1);
+                        SDL_GL_SetSwapInterval(0);
                     }
                     break;
 
@@ -153,7 +154,7 @@ int main() {
                         case SDL_SCANCODE_F11:
                             isFullscreen = !isFullscreen;
                             SDL_SetWindowFullscreen(window, isFullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
-                            SDL_GL_SetSwapInterval(-1);
+                            SDL_GL_SetSwapInterval(0);
                             break;
 
                         case SDL_SCANCODE_ESCAPE:
@@ -237,16 +238,22 @@ int main() {
         glDepthMask(GL_TRUE);
         glClearColor(0.3f, 0.5f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glUseProgram(shader);
-        
+    
+    // Camera
         camera.setTarget(entities[target]->getPosition());
         camera.update(frame_time);
-        glm::vec3 camera_pos = camera.getPosition();
-        glUniform3f(glGetUniformLocation(shader, "cameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
-
         glm::dmat4 view = camera.getViewMatrix();
         glm::mat4 projection = camera.getProjectionMatrix((float)w / (float)h);
+        glm::mat4 VP = projection * glm::mat4(view); // TODO
+
+    // Render world
+        world.render(VP);
+
+    // Default shader
+        glUseProgram(shader);
+        
+        glm::vec3 camera_pos = camera.getPosition();
+        glUniform3f(glGetUniformLocation(shader, "cameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
 
     // Light
         sun.use(shader);
@@ -259,8 +266,6 @@ int main() {
         for (Entity* entity : entities) {
             if (entity) entity->drawOpaque(shader, view, projection);
         }
-
-        world.draw(shader, view, projection);
 
 
     // Transparent rendering
@@ -332,6 +337,7 @@ int main() {
     }
 
     TextRenderer::terminate();
+    ChunkRenderer::terminate();
 
     SDL_GL_DeleteContext(glContext);
     SDL_DestroyWindow(window);

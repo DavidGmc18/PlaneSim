@@ -54,52 +54,52 @@ glm::vec3 computeClosestPointOnTriangle(const glm::vec3& A, const glm::vec3& B, 
 }
 
 void Hitbox::update(RigidBody* body, World* world, float) {
-    glm::dvec3 P = body->toGlobalPos(this->pos);
+    // glm::dvec3 P = body->toGlobalPos(this->pos);
 
-    struct {
-        glm::dvec3 x;
-        glm::vec3 normal;
-        float height = FLT_MAX;
-    } best_hit; 
-    bool hit = false;
+    // struct {
+    //     glm::dvec3 x;
+    //     glm::vec3 normal;
+    //     float height = FLT_MAX;
+    // } best_hit; 
+    // bool hit = false;
 
-    float radius_sq = radius * radius;
+    // float radius_sq = radius * radius;
 
-    const Mesh* mesh = world->getMesh();
-    for (int z = std::floor(P.z - radius); z <= std::ceil(P.z + radius); z++) {
-        for (int x = std::floor(P.x - radius); x <= std::ceil(P.x + radius); x++) {
-            std::array<Triangle, 2> triangles = world->getSquare(x, z);
-            for (Triangle& t : triangles) {
-                const glm::vec3& A = mesh->vertices[t.v0].pos;
-                const glm::vec3& B = mesh->vertices[t.v1].pos;
-                const glm::vec3& C = mesh->vertices[t.v2].pos;
+    // const Mesh* mesh = world->getMesh();
+    // for (int z = std::floor(P.z - radius); z <= std::ceil(P.z + radius); z++) {
+    //     for (int x = std::floor(P.x - radius); x <= std::ceil(P.x + radius); x++) {
+    //         std::array<Triangle, 2> triangles = world->getSquare(x, z);
+    //         for (Triangle& t : triangles) {
+    //             const glm::vec3& A = mesh->vertices[t.v0].pos;
+    //             const glm::vec3& B = mesh->vertices[t.v1].pos;
+    //             const glm::vec3& C = mesh->vertices[t.v2].pos;
 
-                glm::vec3 face_normal = glm::normalize(glm::cross(B - A, C - A));
+    //             glm::vec3 face_normal = glm::normalize(glm::cross(B - A, C - A));
 
-                // TODO computeClosestPointOnTriangle should be in double
-                glm::dvec3 X = glm::dvec3(computeClosestPointOnTriangle(A, B, C, P));
-                if (glm::dot(P - X, P - X) > radius_sq) continue;
+    //             // TODO computeClosestPointOnTriangle should be in double
+    //             glm::dvec3 X = glm::dvec3(computeClosestPointOnTriangle(A, B, C, P));
+    //             if (glm::dot(P - X, P - X) > radius_sq) continue;
 
-                float height = glm::dot(glm::vec3(P - X), face_normal);
-                if (height < best_hit.height) {
-                    best_hit.x = X;
-                    best_hit.normal = face_normal;
-                    best_hit.height = height;
-                    hit = true;
-                }
-            }
-        }
-    }
+    //             float height = glm::dot(glm::vec3(P - X), face_normal);
+    //             if (height < best_hit.height) {
+    //                 best_hit.x = X;
+    //                 best_hit.normal = face_normal;
+    //                 best_hit.height = height;
+    //                 hit = true;
+    //             }
+    //         }
+    //     }
+    // }
 
-    if (hit) {
-        float compression = std::min((radius - best_hit.height) / radius, 1.0f);
-        glm::vec3 spring = best_hit.normal * (std::pow(compression, 1.5f) * this->k);
-        body->addWorldForceAtWorldPoint(spring, best_hit.x);
+    // if (hit) {
+    //     float compression = std::min((radius - best_hit.height) / radius, 1.0f);
+    //     glm::vec3 spring = best_hit.normal * (std::pow(compression, 1.5f) * this->k);
+    //     body->addWorldForceAtWorldPoint(spring, best_hit.x);
 
-        float normal_vel = glm::dot(body->getGlobalVelocityAtLocal(this->pos), best_hit.normal);
-        if (normal_vel < 0.0f) {
-            glm::vec3 damping = best_hit.normal * (-normal_vel * this->d);
-            body->addWorldImpulseAtWorldPoint(damping, best_hit.x);
-        }
-    }
+    //     float normal_vel = glm::dot(body->getGlobalVelocityAtLocal(this->pos), best_hit.normal);
+    //     if (normal_vel < 0.0f) {
+    //         glm::vec3 damping = best_hit.normal * (-normal_vel * this->d);
+    //         body->addWorldImpulseAtWorldPoint(damping, best_hit.x);
+    //     }
+    // }
 }

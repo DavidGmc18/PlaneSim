@@ -2,18 +2,17 @@
 
 #include "TerrainGenerator.hpp"
 #include "rendering/TextureCache.hpp"
-#include "rendering/Mesh.hpp"
+#include "Chunk.hpp"
+#include <vector>
+#include "rendering/Material.hpp"
 
 class World {
-    const int WORLD_SIZE;
-    Mesh mesh;
+    std::vector<Chunk> chunks;
+
+    Material material;
 
 public:
-    World(int world_size, TerrainGenerator& generator, TextureCache& cache);
+    World(TerrainGenerator& generator, TextureCache& cache);
 
-    void draw(GLuint shader, const glm::dmat4& view, const glm::mat4& projection) const;
-
-    const Mesh* getMesh() const;
-
-    std::array<Triangle, 2> getSquare(float x, float z) const;
+    void render(const glm::mat4& VP) const;
 };

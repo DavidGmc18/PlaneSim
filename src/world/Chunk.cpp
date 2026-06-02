@@ -23,7 +23,7 @@ void Chunk::load(glm::ivec2 coord, const TerrainGenerator& generator) {
         }
     }
 
-    this->renderer.setHeightBuffer(this->height_map.data(), this->height_map.size() * sizeof(float));
+    this->renderer.setHeightBuffer(this->height_map.data());
     this->dirty = false;
 }
 

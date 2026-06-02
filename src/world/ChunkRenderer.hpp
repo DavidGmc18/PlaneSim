@@ -10,6 +10,9 @@ class ChunkRenderer {
     inline static GLuint EBO = 0;
     inline static GLsizei index_count = 0;
 
+    inline static GLint uVPLocation = -1;
+    inline static GLint uOffsetLocation = -1;
+
     GLuint VAO = 0;
     GLuint VBO_Y = 0;
 
@@ -18,6 +21,7 @@ public:
     static void terminate();
 
     static GLuint getShader();
+    static GLint getuVPLocation();
 
     ChunkRenderer();
     ~ChunkRenderer();

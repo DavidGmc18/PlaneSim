@@ -10,7 +10,7 @@ World::World(TerrainGenerator& generator, TextureCache& cache) {
     this->material = Material(grass_diffuse, grass_specular, grass_normal, grass_shininess, 1.0f);
 
     constexpr int N = 32;
-    this->chunks.resize(N * N * 4);
+    this->chunks.reserve(N * N * 4);
     for (int z = -N; z < N; z++) {
         for (int x = -N; x < N; x++) {
             this->chunks.emplace_back();
@@ -22,7 +22,7 @@ World::World(TerrainGenerator& generator, TextureCache& cache) {
 
 void World::render(const glm::mat4& VP) const {
     glUseProgram(ChunkRenderer::getShader());
-    glUniformMatrix4fv(glGetUniformLocation(ChunkRenderer::getShader(), "uVP"), 1, GL_FALSE, glm::value_ptr(VP));
+    glUniformMatrix4fv(ChunkRenderer::getuVPLocation(), 1, GL_FALSE, glm::value_ptr(VP));
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, material.diffuse);
 

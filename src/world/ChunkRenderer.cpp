@@ -7,6 +7,9 @@ void ChunkRenderer::init() {
     if (ChunkRenderer::shader == 0) {
         ChunkRenderer::shader = compile_shader_program("shaders/chunk.vert", "shaders/chunk.frag");
 
+        ChunkRenderer::uVPLocation = glGetUniformLocation(ChunkRenderer::shader, "uVP");
+        ChunkRenderer::uOffsetLocation = glGetUniformLocation(ChunkRenderer::shader, "uOffset");
+
         glUseProgram(ChunkRenderer::shader);
         glUniform1i(glGetUniformLocation(ChunkRenderer::shader, "uTexture"), 0);
         glUseProgram(0);
@@ -73,6 +76,10 @@ GLuint ChunkRenderer::getShader() {
     return ChunkRenderer::shader;
 }
 
+GLint ChunkRenderer::getuVPLocation() {
+    return ChunkRenderer::uVPLocation;
+}
+
 ChunkRenderer::ChunkRenderer() {
     glGenVertexArrays(1, &this->VAO);
     glGenBuffers(1, &this->VBO_Y);
@@ -127,9 +134,8 @@ void ChunkRenderer::setHeightBuffer(const float* height_map, size_t bytes) {
 void ChunkRenderer::draw(const glm::ivec2& coord) const {
     float cx = static_cast<float>(coord.x) * static_cast<float>(Chunk::SIZE);
     float cz = static_cast<float>(coord.y) * static_cast<float>(Chunk::SIZE);
-    glUniform2f(glGetUniformLocation(ChunkRenderer::shader, "uOffset"), cx, cz);
+    glUniform2f(ChunkRenderer::uOffsetLocation, cx, cz);
 
     glBindVertexArray(this->VAO);
     glDrawElements(GL_TRIANGLES, ChunkRenderer::index_count, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
 }

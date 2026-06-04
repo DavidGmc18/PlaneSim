@@ -1,56 +1,43 @@
 #include "Camera.hpp"
+#include "physics/Physics.hpp"
 
-Camera::Camera(CameraMode mode): mode(mode) {}
+CameraTransform::CameraTransform(const glm::vec3& pos, bool orbit, bool relative): 
+        pos(pos), orbit(orbit), relative(relative) {}
 
-void Camera::onMouseMove(float mx, float my) {
-    glm::quat p = glm::angleAxis(glm::radians(-my), glm::vec3(1, 0, 0));
-    glm::quat y = glm::angleAxis(glm::radians(-mx), glm::vec3(0, 1, 0));
-    this->rotation = glm::normalize(y * rotation * p);
-}
+ViewData Camera::getViewData(float aspect) const {
+    ViewData data;
 
-void Camera::onMouseScroll(float mz) {
-    switch (this->mode) {
-        case CameraMode::FREE:
-            this->fov -= 5.0f * mz;
-            this->fov = glm::clamp(this->fov, 1.0f, 120.0f);
-            break;
+    glm::quat final_rot = (this->transform.relative) ? (this->target_rot * this->dynamic_rot) : (this->dynamic_rot);
 
-        case CameraMode::ORBIT:
-            this->distance -= mz;
-            this->distance = glm::clamp(this->distance, 1.0f, 256.0f);
-            break;
+    data.camera_pos = phy::toGlobalPos(this->target_pos, this->target_rot, this->transform.pos + this->dynamic_pos);
+    if (this->transform.orbit) {
+        glm::vec3 front = final_rot * glm::vec3(0.0f, 0.0f, -1.0f);
+        data.camera_pos -= glm::dvec3(this->distance * front);
     }
+
+    glm::dmat4 rot_mat = glm::dmat4(glm::mat4_cast(glm::conjugate(final_rot)));
+    glm::dmat4 pos_mat = glm::translate(glm::dmat4(1.0), -data.camera_pos);
+
+    data.view_matrix = rot_mat * pos_mat;
+    data.projection_matrix = glm::perspective(glm::radians(this->fov), aspect, Camera::MIN_DST, Camera::MAX_DST);
+
+    return data;
 }
 
-void Camera::setSpeed(glm::vec3 speed) {
-    this->speed = speed;
+void Camera::setTargetPosition(const glm::dvec3& pos) {
+    this->target_pos = pos;
 }
 
-void Camera::setTarget(glm::dvec3 target) {
-    this->target = target;
+void Camera::setTargetRotation(const glm::quat& rot) {
+    this->target_rot = rot;
 }
 
-void Camera::update(float dt) {
-    switch (this->mode) {
-        case CameraMode::FREE:
-            this->pos += dt * this->speed;
-            break;
-
-        case CameraMode::ORBIT:
-            glm::vec3 front = this->rotation * glm::vec3(0.0f, 0.0f, -1.0f);
-            this->pos = this->target - glm::dvec3(this->distance * front);
-            break;
-    }
+void Camera::setCameraTransform(const CameraTransform& transform) {
+    this->transform = transform;
 }
 
-glm::dmat4 Camera::getViewMatrix() const {
-    return glm::dmat4(glm::mat4_cast(glm::conjugate(this->rotation))) * glm::translate(glm::dmat4(1.0), -this->pos);
-}
-
-glm::mat4 Camera::getProjectionMatrix(float aspect_ratio) const {
-    return glm::perspective(glm::radians(this->fov), aspect_ratio, 0.001f, (float)(1<<20));
-}
-
-glm::dvec3 Camera::getPosition() const {
-    return this->pos;
+void Camera::rotate(float yaw, float pitch) {
+    glm::quat p = glm::angleAxis(glm::radians(-pitch), glm::vec3(1, 0, 0));
+    glm::quat y = glm::angleAxis(glm::radians(-yaw), glm::vec3(0, 1, 0));
+    this->dynamic_rot = glm::normalize(y * this->dynamic_rot * p);
 }

@@ -1,39 +1,46 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glad/glad.h>
-#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include "physics/RigidBody.hpp"
 
-enum class CameraMode {
-    FREE,
-    ORBIT
+struct CameraTransform {
+    glm::vec3 pos{};
+    bool orbit = true; // 3rd person camera or 1st person camera
+    bool relative = false; // Relative (entity) rotation or world rotation
+
+    CameraTransform() = default;
+    CameraTransform(const glm::vec3& pos, bool orbit, bool relative);
+};
+
+struct ViewData {
+    glm::dvec3 camera_pos;
+    glm::dmat4 view_matrix;
+    glm::mat4 projection_matrix;
 };
 
 class Camera {
-    glm::dvec3 pos{};
-    glm::quat rotation{1.0f, 0.0f, 0.0f, 0.0f};
-    float fov = 75.0f;
+protected:
+    static constexpr float MIN_DST = 0.001f;
+    static constexpr float MAX_DST = 1<<20; // ~1024km
+    float fov = 90.0f;
 
-    // Free mode
-    glm::vec3 speed{};
+    glm::dvec3 target_pos{};
+    glm::quat target_rot{};
 
-    // Orbit mode
-    glm::dvec3 target{};
-    float distance = 10.0f;
+    glm::vec3 dynamic_pos{};
+    glm::quat dynamic_rot{};
+
+    CameraTransform transform{};
+    float distance = 10.0f; // For orbit mode
 
 public:
-    CameraMode mode;
-    Camera(CameraMode mode);
+    ViewData getViewData(float aspect) const;
 
-    void onMouseMove(float mx, float my);
-    void onMouseScroll(float mz);
+    void setTargetPosition(const glm::dvec3& pos);
+    void setTargetRotation(const glm::quat& rot);
 
-    void setSpeed(glm::vec3 speed);
-    void setTarget(glm::dvec3 target);
+    void setCameraTransform(const CameraTransform& transform);
 
-    void update(float dt);
-    glm::dmat4 getViewMatrix() const;
-    glm::mat4 getProjectionMatrix(float aspect_ratio) const;
-    glm::dvec3 getPosition() const;
+    void rotate(float yaw, float pitch);
 };

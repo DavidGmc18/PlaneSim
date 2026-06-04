@@ -116,7 +116,8 @@ int main() {
     AircraftControls controls;
 
 
-    Camera camera(CameraMode::ORBIT);
+    Camera camera;
+    camera.setCameraTransform(CameraTransform(glm::vec3(0.0f, 1.0f, -5.1f), false, true));
 
 
     SDL_ShowWindow(window);
@@ -193,11 +194,11 @@ int main() {
                     break;
 
                 case SDL_MOUSEMOTION:
-                    camera.onMouseMove((float)event.motion.xrel * mouse_sensitivity, (float)event.motion.yrel * mouse_sensitivity);
+                    camera.rotate((float)event.motion.xrel * mouse_sensitivity, (float)event.motion.yrel * mouse_sensitivity);
                     break;
                     
                 case SDL_MOUSEWHEEL:
-                    camera.onMouseScroll((float)event.wheel.y * mouse_scroll_sensitivity);
+                    // camera.onMouseScroll((float)event.wheel.y * mouse_scroll_sensitivity); // TODO
                     break;
 
                 case SDL_CONTROLLERAXISMOTION:
@@ -237,16 +238,13 @@ int main() {
         glDepthMask(GL_TRUE);
         glClearColor(0.3f, 0.5f, 0.7f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        camera.setTargetPosition(entities[target]->getPosition());
+        camera.setTargetRotation(entities[target]->getOrientation());
+        const ViewData view_data = camera.getViewData((float)w / (float)h);
 
         glUseProgram(shader);
-        
-        camera.setTarget(entities[target]->getPosition());
-        camera.update(frame_time);
-        glm::vec3 camera_pos = camera.getPosition();
-        glUniform3f(glGetUniformLocation(shader, "cameraPos"), camera_pos.x, camera_pos.y, camera_pos.z);
-
-        glm::dmat4 view = camera.getViewMatrix();
-        glm::mat4 projection = camera.getProjectionMatrix((float)w / (float)h);
+        glUniform3f(glGetUniformLocation(shader, "cameraPos"), view_data.camera_pos.x, view_data.camera_pos.y, view_data.camera_pos.z);
 
     // Light
         sun.use(shader);
@@ -257,10 +255,10 @@ int main() {
         glEnable(GL_CULL_FACE);
 
         for (Entity* entity : entities) {
-            if (entity) entity->drawOpaque(shader, view, projection);
+            if (entity) entity->drawOpaque(shader, view_data.view_matrix, view_data.projection_matrix);
         }
 
-        world.draw(shader, view, projection);
+        world.draw(shader, view_data.view_matrix, view_data.projection_matrix);
 
 
     // Transparent rendering
@@ -268,7 +266,7 @@ int main() {
         glDisable(GL_CULL_FACE);
 
         for (Entity* entity : entities) {
-            if (entity) entity->drawTransparent(shader, view, projection);
+            if (entity) entity->drawTransparent(shader, view_data.view_matrix, view_data.projection_matrix);
         }
 
 

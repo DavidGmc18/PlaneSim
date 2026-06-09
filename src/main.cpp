@@ -27,13 +27,10 @@
 int w = 1280;
 int h = 720;
 
-float yaw = -90.0f;
-float pitch = 0.0f;
-float fov = 80.0f;
-
 float mouse_sensitivity = 0.1f;
-float mouse_scroll_sensitivity = 0.3f;
-float speed = 10.0f;
+float mouse_scroll_sensitivity = -1.0f;
+
+bool view = false;
 
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0) {
@@ -98,11 +95,15 @@ int main() {
     size_t target = 0;
 
     entities.push_back(new F16(tex_cache, glm::dvec3(0, 5.0, 1150.0)));
-    entities.push_back(new GBU31 (tex_cache, glm::dvec3(-3.2, 4.6, 1150.3)));
-    entities.push_back(new GBU31 (tex_cache, glm::dvec3( 3.2, 4.6, 1150.3)));
+    entities.push_back(new GBU31 (tex_cache, glm::dvec3(-4.225f, 5.59f, 1150.95f)));
+    entities.push_back(new GBU31 (tex_cache, glm::dvec3(-3.220f, 5.58f, 1150.29f)));
+    entities.push_back(new GBU31 (tex_cache, glm::dvec3( 3.220f, 5.58f, 1150.29f)));
+    entities.push_back(new GBU31 (tex_cache, glm::dvec3( 4.225f, 5.59f, 1150.95f)));
 
-    entities[0]->getJoints()[2]->connect(entities[1], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f)); // TODO
-    entities[0]->getJoints()[6]->connect(entities[2], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f)); // TODO
+    // entities[0]->getJoints()[1]->connect(entities[1], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+    entities[0]->getJoints()[2]->connect(entities[2], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+    entities[0]->getJoints()[6]->connect(entities[3], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
+    // entities[0]->getJoints()[7]->connect(entities[4], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f));
 
 
     TerrainGenerator generator(67);
@@ -163,17 +164,27 @@ int main() {
                             break;
 
                         case SDL_SCANCODE_C:
-                            if (target == 0) {
-                                target = entities.size() - 1;
-                            } else {
-                                target--;
+                            target++;
+                            if (target >= entities.size()) {
+                                target = 0;
+                                if (!view) {
+                                    camera.setCameraTransform(CameraTransform(glm::vec3(0.0f, 1.0f, -5.1f), false, true));
+                                }
+                            } else if (!view) {
+                                camera.setCameraTransform(CameraTransform(glm::vec3(0.0f, 0.0f, 0.0f), false, true));
                             }
                             break;
 
                         case SDL_SCANCODE_V:
-                            target++;
-                            if (target >= entities.size()) {
-                                target = 0;
+                            view = !view;
+                            if (view) {
+                                camera.setCameraTransform(CameraTransform(glm::vec3(0.0f, 0.0f, 0.0f), true, false));
+                            } else {
+                                if (target == 0) {
+                                    camera.setCameraTransform(CameraTransform(glm::vec3(0.0f, 1.0f, -5.1f), false, true));
+                                } else {
+                                    camera.setCameraTransform(CameraTransform(glm::vec3(0.0f, 0.0f, 0.0f), false, true));
+                                }
                             }
                             break;
 
@@ -198,7 +209,7 @@ int main() {
                     break;
                     
                 case SDL_MOUSEWHEEL:
-                    // camera.onMouseScroll((float)event.wheel.y * mouse_scroll_sensitivity); // TODO
+                    camera.scroll((float)event.wheel.y * mouse_scroll_sensitivity);
                     break;
 
                 case SDL_CONTROLLERAXISMOTION:

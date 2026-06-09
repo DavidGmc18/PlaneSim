@@ -19,7 +19,7 @@ ViewData Camera::getViewData(float aspect) const {
     glm::dmat4 pos_mat = glm::translate(glm::dmat4(1.0), -data.camera_pos);
 
     data.view_matrix = rot_mat * pos_mat;
-    data.projection_matrix = glm::perspective(glm::radians(this->fov), aspect, Camera::MIN_DST, Camera::MAX_DST);
+    data.projection_matrix = glm::perspective(glm::radians(this->transform.orbit ? Camera::DEFAULT_FOV : this->fov), aspect, Camera::MIN_DST, Camera::MAX_DST);
 
     return data;
 }
@@ -40,4 +40,12 @@ void Camera::rotate(float yaw, float pitch) {
     glm::quat p = glm::angleAxis(glm::radians(-pitch), glm::vec3(1, 0, 0));
     glm::quat y = glm::angleAxis(glm::radians(-yaw), glm::vec3(0, 1, 0));
     this->dynamic_rot = glm::normalize(y * this->dynamic_rot * p);
+}
+
+void Camera::scroll(float y) {
+    if (this->transform.orbit) {
+        this->distance = glm::clamp(this->distance + y, 1.0f, 30.0f);
+    } else {
+        this->fov = glm::clamp(this->fov + y, 1.0f, 150.0f);
+    }
 }

@@ -23,7 +23,8 @@ class Camera {
 protected:
     static constexpr float MIN_DST = 0.001f;
     static constexpr float MAX_DST = 1<<20; // ~1024km
-    float fov = 90.0f;
+    static constexpr float DEFAULT_FOV = 90.0f;
+    float fov = DEFAULT_FOV;
 
     glm::dvec3 target_pos{};
     glm::quat target_rot{};
@@ -43,4 +44,5 @@ public:
     void setCameraTransform(const CameraTransform& transform);
 
     void rotate(float yaw, float pitch);
+    void scroll(float y);
 };

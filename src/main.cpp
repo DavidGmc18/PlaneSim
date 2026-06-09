@@ -97,16 +97,16 @@ int main() {
     std::vector<Entity*> entities;
     size_t target = 0;
 
-    entities.push_back(new F16(tex_cache, glm::dvec3(0, 5.0, 500.0)));
-    entities.push_back(new GBU31 (tex_cache, glm::dvec3(-3.2, 4.6, 500.3)));
-    entities.push_back(new GBU31 (tex_cache, glm::dvec3( 3.2, 4.6, 500.3)));
+    entities.push_back(new F16(tex_cache, glm::dvec3(0, 5.0, 1150.0)));
+    entities.push_back(new GBU31 (tex_cache, glm::dvec3(-3.2, 4.6, 1150.3)));
+    entities.push_back(new GBU31 (tex_cache, glm::dvec3( 3.2, 4.6, 1150.3)));
 
     entities[0]->getJoints()[2]->connect(entities[1], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f)); // TODO
     entities[0]->getJoints()[6]->connect(entities[2], glm::vec3(0.0f, 0.23f, 0.0f), glm::quat(1.0f, 0.0f, 0.0f, 0.0f)); // TODO
 
 
-    TerrainGenerator generator(0.0f, 0.0f, 1.0f);
-    World world(1024, generator, tex_cache);
+    TerrainGenerator generator(67);
+    World world(8192, generator, tex_cache);
 
 
     TextRenderer::init();

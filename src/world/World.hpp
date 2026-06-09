@@ -8,7 +8,7 @@ class World {
     const int WORLD_SIZE;
     Mesh mesh;
 
-    static constexpr int UNIT_SIZE = 8;
+    static constexpr int UNIT_SIZE = 16;
     const int UNIT_COUNT = WORLD_SIZE / UNIT_SIZE;
 
 public:

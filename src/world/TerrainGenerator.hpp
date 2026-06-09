@@ -3,13 +3,10 @@
 #include <FastNoiseLite/FastNoiseLite.h>
 
 class TerrainGenerator {
-    FastNoiseLite noise;
-    float base;
-    float amplitude;
-    float frequency;
+    FastNoiseLite plain_noise;
+    FastNoiseLite mountain_noise;
 
 public:
-    TerrainGenerator() = default;
-    TerrainGenerator(float base, float amplitude, float frequency);
+    TerrainGenerator(int seed);
     float getHeight(float x, float z) const;
 };

@@ -5,7 +5,7 @@ World::World(int world_size, TerrainGenerator& generator, TextureCache& cache): 
     mesh.triangles.resize(UNIT_COUNT * UNIT_COUNT * 2);
 
     GLuint grass_diffuse = cache.get("assets/grass/diffuse.jpg");
-    GLuint grass_specular = cache.get("assets/grass/specular.jpg");
+    GLuint grass_specular = cache.getColor(glm::vec3(0.1f)); //cache.get("assets/grass/specular.jpg");
     GLuint grass_normal = cache.get("assets/grass/normal.jpg");
     GLuint grass_shininess = cache.get("assets/grass/shininess.jpg");
 

@@ -8,6 +8,9 @@ class World {
     const int WORLD_SIZE;
     Mesh mesh;
 
+    static constexpr int UNIT_SIZE = 8;
+    const int UNIT_COUNT = WORLD_SIZE / UNIT_SIZE;
+
 public:
     World(int world_size, TerrainGenerator& generator, TextureCache& cache);
 

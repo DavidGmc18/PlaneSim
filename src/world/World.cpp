@@ -1,8 +1,8 @@
 #include "World.hpp"
 
 World::World(int world_size, TerrainGenerator& generator, TextureCache& cache): WORLD_SIZE(world_size) {
-    mesh.vertices.resize((WORLD_SIZE + 1) * (WORLD_SIZE + 1));
-    mesh.triangles.resize(WORLD_SIZE * WORLD_SIZE * 2);
+    mesh.vertices.resize((UNIT_COUNT + 1) * (UNIT_COUNT + 1));
+    mesh.triangles.resize(UNIT_COUNT * UNIT_COUNT * 2);
 
     GLuint grass_diffuse = cache.get("assets/grass/diffuse.jpg");
     GLuint grass_specular = cache.get("assets/grass/specular.jpg");
@@ -12,11 +12,11 @@ World::World(int world_size, TerrainGenerator& generator, TextureCache& cache): 
     mesh.material = Material(grass_diffuse, grass_specular, grass_normal, grass_shininess, 1.0f);
 
     // Vertices
-    for (int i = 0; i < (WORLD_SIZE + 1); i++) {
-        for (int j = 0; j < (WORLD_SIZE + 1); j++) {
-            Vertex& vertex = mesh.vertices[i * (WORLD_SIZE + 1) + j];
-            float x = (float)j - ((float)WORLD_SIZE/2);
-            float z = (float)i - ((float)WORLD_SIZE/2);
+    for (int i = 0; i < (UNIT_COUNT + 1); i++) {
+        for (int j = 0; j < (UNIT_COUNT + 1); j++) {
+            Vertex& vertex = mesh.vertices[i * (UNIT_COUNT + 1) + j];
+            float x = (float)(World::UNIT_SIZE * j) - ((float)WORLD_SIZE/2);
+            float z = (float)(World::UNIT_SIZE * i) - ((float)WORLD_SIZE/2);
             float y = generator.getHeight(x, z);
             vertex.pos = glm::vec3(x, y, z);
             vertex.uv = glm::vec2(x, z);
@@ -24,13 +24,13 @@ World::World(int world_size, TerrainGenerator& generator, TextureCache& cache): 
     }
 
     // Indices
-    for (int z = 0; z < WORLD_SIZE; z++) {
-        for (int x = 0; x < WORLD_SIZE; x++) {
-            Triangle& t0 = mesh.triangles[(z * WORLD_SIZE + x) * 2];
-            Triangle& t1 = mesh.triangles[(z * WORLD_SIZE + x) * 2 + 1];
+    for (int z = 0; z < UNIT_COUNT; z++) {
+        for (int x = 0; x < UNIT_COUNT; x++) {
+            Triangle& t0 = mesh.triangles[(z * UNIT_COUNT + x) * 2];
+            Triangle& t1 = mesh.triangles[(z * UNIT_COUNT + x) * 2 + 1];
 
-            int rowA = z * (WORLD_SIZE + 1);
-            int rowB = rowA + (WORLD_SIZE + 1);
+            int rowA = z * (UNIT_COUNT + 1);
+            int rowB = rowA + (UNIT_COUNT + 1);
 
             int a = rowA + x;
             int b = a + 1;
@@ -62,16 +62,16 @@ const Mesh* World::getMesh() const {
 }
 
 std::array<Triangle, 2> World::getSquare(float x, float z) const {
-    int row = std::floor(z + (float)WORLD_SIZE/2);
-    int col = std::floor(x + (float)WORLD_SIZE/2);
+    int row = std::floor((z / (float)World::UNIT_SIZE) + (float)UNIT_COUNT/2);
+    int col = std::floor((x / (float)World::UNIT_SIZE) + (float)UNIT_COUNT/2);
 
     if (col < 0) col = 0;
     if (row < 0) row = 0;
-    if (row >= WORLD_SIZE) row = WORLD_SIZE - 1;
-    if (col >= WORLD_SIZE) col = WORLD_SIZE - 1;
+    if (row >= UNIT_COUNT) row = UNIT_COUNT - 1;
+    if (col >= UNIT_COUNT) col = UNIT_COUNT - 1;
 
-    int rowA = row * (WORLD_SIZE + 1);
-    int rowB = rowA + WORLD_SIZE + 1;
+    int rowA = row * (UNIT_COUNT + 1);
+    int rowB = rowA + UNIT_COUNT + 1;
 
     int a = rowA + col;
     int b = a + 1;

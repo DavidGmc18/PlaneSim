@@ -1,66 +1,14 @@
-#include "vulkan.h"
-
+#include "Vulkan.hpp"
 #include "types.h"
-
-#include <SDL3/SDL_video.h>
-#include <stdlib.h>
-#include <stdio.h>
-
-#include <vulkan/vulkan.h>
+#include <SDL3/SDL_vulkan.h>
+#include <vector>
 #include <vulkan/vulkan_core.h>
 
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_vulkan.h>
+VkInstance vk::instance = VK_NULL_HANDLE;
+VkPhysicalDevice vk::physical_device = VK_NULL_HANDLE;
 
-#include <vk_mem_alloc.h>
-
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(*(arr)))
-
-static inline bool chk_bool(bool res, const char* expr, const char* file, int line) {
-    if (!res) {
-        fprintf(stderr, "ERROR (%s) at %s:%d\n", expr, file, line);
-        exit(-1);
-    }
-    return res;
-}
-
-static inline void* chk_ptr(void* res, const char* expr, const char* file, int line) {
-    if (!res) {
-        fprintf(stderr, "NULL pointer (%s) at %s:%d\n", expr, file, line);
-        exit(-1);
-    }
-    return res;
-}
-
-static inline VkResult chk_vk(VkResult res, const char* expr, const char* file, int line) {
-    if (res != VK_SUCCESS) {
-        fprintf(stderr, "VK ERROR %d (%s) at %s:%d\n", res, expr, file, line);
-        exit(res);
-    }
-    return res;
-}
-
-#define chk(x) _Generic((x), \
-    bool: chk_bool, \
-    void*: chk_ptr, \
-    VkResult: chk_vk \
-)(x, #x, __FILE__, __LINE__)
-
-SDL_Window* window = NULL;
-VkInstance instance = VK_NULL_HANDLE;
-VkSurfaceKHR surface = VK_NULL_HANDLE;
-VkDevice device = VK_NULL_HANDLE;
-VmaAllocator allocator = VK_NULL_HANDLE;
-VkSwapchainKHR swapchain = VK_NULL_HANDLE;
-
-u32 swapchain_image_count = 0;
-VkImage* swapchain_images = NULL;
-
-VkImage depth_image;
-VmaAllocation depth_image_allocation;
-VkImageView depth_image_view;
-
-static inline void create_instance() {
+void vk::init() {
+    // Instance creation
     VkApplicationInfo app_info = {
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
         .pApplicationName = "Sim",
@@ -77,23 +25,18 @@ static inline void create_instance() {
         .ppEnabledExtensionNames = instance_extensions
     };
 
-    chk(vkCreateInstance(&instance_create_info, NULL, &instance));
-}
+    CHK(vkCreateInstance(&instance_create_info, nullptr, &instance));
 
-static inline VkPhysicalDevice select_physical_device() {
-    u32 device_count = 0;
-    chk(vkEnumeratePhysicalDevices(instance, &device_count, NULL));
-    VkPhysicalDevice devices[device_count];
-    chk(vkEnumeratePhysicalDevices(instance, &device_count, devices));
+
+    // Physical device selection
+    std::vector<VkPhysicalDevice> devices = vkGet<VkPhysicalDevice>(vkEnumeratePhysicalDevices, instance);
 
     u64 best_score = 0;
-    u32 best_device = 0;
-
-    for (u32 i = 0; i < device_count; i++) {
+    for (const VkPhysicalDevice& device : devices) {
         VkPhysicalDeviceProperties properties;
-        vkGetPhysicalDeviceProperties(devices[i], &properties);
+        vkGetPhysicalDeviceProperties(device, &properties);
         VkPhysicalDeviceMemoryProperties memory;
-        vkGetPhysicalDeviceMemoryProperties(devices[i], &memory);
+        vkGetPhysicalDeviceMemoryProperties(device, &memory);
 
         u64 score = 0;
         if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) score += (u64)1<<50; 
@@ -104,36 +47,37 @@ static inline VkPhysicalDevice select_physical_device() {
 
         if (score > best_score) {
             best_score = score;
-            best_device = i;
+            physical_device = device;
+        }
+    }
+    CHK(physical_device);
+
+    VkPhysicalDeviceProperties properties;
+    vkGetPhysicalDeviceProperties(physical_device, &properties);
+    printf("Selected device: %s\n", properties.deviceName);
+}
+
+void vk::destroy() {
+    vkDestroyInstance(instance, nullptr);
+}
+
+vk::Device::Device(VkSurfaceKHR surface) {
+    std::vector<VkQueueFamilyProperties> family_properties = vkGet<VkQueueFamilyProperties>(vkGetPhysicalDeviceQueueFamilyProperties, physical_device);
+    for (usize i = 0; i < family_properties.size(); i++) {
+        VkBool32 present_support = VK_FALSE;
+        CHK(vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface, &present_support));
+        if ((family_properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) && present_support) {
+            this->queue_family = i;
+            break;
         }
     }
 
-    VkPhysicalDeviceProperties properties;
-    vkGetPhysicalDeviceProperties(devices[best_device], &properties);
-    printf("Selected device: %s\n", properties.deviceName);
-
-    return devices[best_device];
-}
-
-static inline u32 find_queue_family(VkPhysicalDevice physical_device) {
-    u32 queue_family_count = 0;
-    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, NULL);
-    VkQueueFamilyProperties queue_families[queue_family_count];
-    vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &queue_family_count, queue_families);
-
-    for (u32 i = 0; i < queue_family_count; i++) {
-        VkBool32 present_support = VK_FALSE;
-        chk(vkGetPhysicalDeviceSurfaceSupportKHR(physical_device, i, surface, &present_support));
-        if ((queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT ) && present_support)
-            return i;
+    if (this->queue_family == U32_MAX) {
+        fprintf(stderr, "Failed to find queue family!\n");
+        exit(-1);
     }
 
-    fprintf(stderr, "Failed to find queue family!\n");
-    exit(-1);
-}
-
-static inline void create_device(VkPhysicalDevice physical_device, u32 queue_family) {
-    const float q_priorities =1.0f;
+    const float q_priorities = 1.0f;
     VkDeviceQueueCreateInfo queue_create_info = {
         .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
         .queueFamilyIndex = queue_family,
@@ -173,36 +117,43 @@ static inline void create_device(VkPhysicalDevice physical_device, u32 queue_fam
         .pEnabledFeatures = &enabled_vk_1_0_features
     };
 
-    chk(vkCreateDevice(physical_device, &device_create_info, NULL, &device));
-}
+    CHK(vkCreateDevice(physical_device, &device_create_info, nullptr, &this->handle));
 
-static inline void create_allocator(VkPhysicalDevice physical_device) {
+    // Allocator creation
     VmaVulkanFunctions vk_functions = {
         .vkGetInstanceProcAddr = vkGetInstanceProcAddr,
         .vkGetDeviceProcAddr = vkGetDeviceProcAddr,
         .vkCreateImage = vkCreateImage
     };
+
     VmaAllocatorCreateInfo allocator_create_info = {
         .flags = VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT, 
         .physicalDevice = physical_device,
-        .device = device,
+        .device = this->handle,
         .pVulkanFunctions = &vk_functions,
         .instance = instance
     };
-    chk(vmaCreateAllocator(&allocator_create_info, &allocator));
+
+    CHK(vmaCreateAllocator(&allocator_create_info, &this->allocator));
 }
 
-static inline void create_swapchain(VkPhysicalDevice physical_device) {
-    VkSurfaceCapabilitiesKHR surface_caps;
-    chk(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &surface_caps));
+void vk::Device::destroy() {
+    vmaDestroyAllocator(this->allocator);
+    vkDestroyDevice(this->handle, nullptr);
+}
 
-    int window_width, window_height;
-    chk(SDL_GetWindowSize(window, &window_width, &window_height));
+vk::Renderer::Renderer(VkSurfaceKHR surface) {
+    this->surface = surface;
+}
+
+void vk::Renderer::create(const vk::Device& device, const Window& window) {
+    VkSurfaceCapabilitiesKHR surface_caps;
+    CHK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical_device, surface, &surface_caps));
 
     VkExtent2D swapchain_extent = surface_caps.currentExtent;
     if (surface_caps.currentExtent.width == 0xFFFFFFFF) {
-        swapchain_extent.width = window_width;
-        swapchain_extent.height = window_height;
+        swapchain_extent.width = window.w;
+        swapchain_extent.height = window.h;
     }
 
     const VkFormat imageFormat = VK_FORMAT_B8G8R8A8_SRGB;
@@ -223,16 +174,15 @@ static inline void create_swapchain(VkPhysicalDevice physical_device) {
         .presentMode = VK_PRESENT_MODE_FIFO_KHR
     };
 
-    chk(vkCreateSwapchainKHR(device, &swapchain_create_info, NULL, &swapchain));
+    CHK(vkCreateSwapchainKHR(device.handle, &swapchain_create_info, nullptr, &swapchain));
 
-    chk(vkGetSwapchainImagesKHR(device, swapchain, &swapchain_image_count, NULL));
-    swapchain_images = (VkImage*)chk(malloc(swapchain_image_count * sizeof(VkImage)));
-    chk(vkGetSwapchainImagesKHR(device, swapchain, &swapchain_image_count, swapchain_images));
+    // Images
+    swapchain_images = vkGet<VkImage>(vkGetSwapchainImagesKHR, device.handle, swapchain);
 
     VkFormat depth_formats[] = { VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT };
     VkFormat depth_format = VK_FORMAT_UNDEFINED;
     for (u32 i = 0; i < ARRAY_SIZE(depth_formats); i++) {
-        VkFormatProperties2 format_properties = { .sType = VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2 };
+        VkFormatProperties2 format_properties = {.sType = VK_STRUCTURE_TYPE_FORMAT_PROPERTIES_2 };
         vkGetPhysicalDeviceFormatProperties2(physical_device, depth_formats[i], &format_properties);
         if (format_properties.formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
             depth_format = depth_formats[i];
@@ -245,8 +195,8 @@ static inline void create_swapchain(VkPhysicalDevice physical_device) {
         .imageType = VK_IMAGE_TYPE_2D,
         .format = depth_format,
         .extent = {
-            .width = (u32)window_width,
-            .height = (u32)window_height,
+            .width = (u32)window.w,
+            .height = (u32)window.h,
             .depth = 1
         },
         .mipLevels = 1,
@@ -262,11 +212,11 @@ static inline void create_swapchain(VkPhysicalDevice physical_device) {
         .usage = VMA_MEMORY_USAGE_AUTO
     };
 
-    chk(vmaCreateImage(allocator, &depth_image_create_info, &alloc_create_info, &depth_image, &depth_image_allocation, NULL));
+    CHK(vmaCreateImage(device.allocator, &depth_image_create_info, &alloc_create_info, &this->depth_image, &this->depth_image_allocation, NULL));
 
     VkImageViewCreateInfo depth_view_create_info = { 
         .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-        .image = depth_image,
+        .image = this->depth_image,
         .viewType = VK_IMAGE_VIEW_TYPE_2D,
         .format = depth_format,
         .subresourceRange = {
@@ -276,29 +226,12 @@ static inline void create_swapchain(VkPhysicalDevice physical_device) {
         }
     };
     
-    chk(vkCreateImageView(device, &depth_view_create_info, NULL, &depth_image_view));
+    CHK(vkCreateImageView(device.handle, &depth_view_create_info, NULL, &this->depth_image_view));
 }
 
-void vulkan_init() {
-    chk(SDL_Init(SDL_INIT_VIDEO));
-    window = SDL_CreateWindow("Sim", 1280, 720, SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
-
-    create_instance();
-
-    chk(SDL_Vulkan_CreateSurface(window, instance, NULL, &surface));
-
-    VkPhysicalDevice physical_device = select_physical_device();
-    u32 queue_family = find_queue_family(physical_device);
-    create_device(physical_device, queue_family);
-
-    create_allocator(physical_device);
-
-    create_swapchain(physical_device);
-}
-
-void vulkan_destroy() {
-    free(swapchain_images);
-    swapchain_image_count = 0;
-
-    // depth_image_allocation
+void vk::Renderer::destroy(const vk::Device& device) {
+    vkDestroyImageView(device.handle, this->depth_image_view, nullptr);
+    vmaDestroyImage(device.allocator, this->depth_image, this->depth_image_allocation);
+    vkDestroySwapchainKHR(device.handle, this->swapchain, nullptr);
+    vkDestroySurfaceKHR(instance, this->surface, nullptr);
 }

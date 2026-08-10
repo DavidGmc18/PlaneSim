@@ -22,9 +22,33 @@ target_compile_options(sim PRIVATE
     -Wno-missing-field-initializers
 )
 
+target_include_directories(sim PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+include(FetchContent)
+
+FetchContent_Declare(
+    tinyobjloader
+    GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader.git
+    GIT_TAG release
+)
+
+# FetchContent_Declare(
+#     cgltf
+#     GIT_REPOSITORY https://github.com/jkuhlmann/cgltf.git
+#     GIT_TAG v1.15
+# )
+
 find_package(Vulkan REQUIRED)
 find_package(SDL3 REQUIRED CONFIG)
+find_package(glm REQUIRED CONFIG)
+FetchContent_MakeAvailable(tinyobjloader)
+# FetchContent_MakeAvailable(cgltf)
 target_link_libraries(sim PRIVATE
     Vulkan::Vulkan
     SDL3::SDL3
+    glm::glm
+    tinyobjloader
+    # ${cgltf_SOURCE_DIR}
 )

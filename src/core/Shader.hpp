@@ -20,3 +20,10 @@ struct ShaderData {
     glm::vec4 light_pos = {0.0f, -10.0f, 10.0f, 0.0f};
     u32 selected = 1;
 };
+
+struct Texture {
+	VmaAllocation allocation = VK_NULL_HANDLE;
+	VkImage image = VK_NULL_HANDLE;
+	VkImageView view = VK_NULL_HANDLE;
+	VkSampler sampler = VK_NULL_HANDLE;
+};

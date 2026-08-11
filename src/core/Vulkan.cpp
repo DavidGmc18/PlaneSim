@@ -135,6 +135,8 @@ vk::Device::Device(VkSurfaceKHR surface) {
     };
 
     CHK(vmaCreateAllocator(&allocator_create_info, &this->allocator));
+
+    vkGetDeviceQueue(this->handle, this->queue_family, 0, &this->queue);
 }
 
 void vk::Device::destroy() {

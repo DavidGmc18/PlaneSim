@@ -1,0 +1,5 @@
+- class Device cast to VkDevice and same for all handles
+- create_info -> ci
+- alloc_info -> ai
+- begin_info -> bi
+- submit_info -> si

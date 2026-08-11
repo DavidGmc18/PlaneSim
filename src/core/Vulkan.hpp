@@ -49,6 +49,7 @@ namespace vk {
         VkDevice handle = VK_NULL_HANDLE;
         VmaAllocator allocator = VK_NULL_HANDLE;
         u32 queue_family = U32_MAX;
+        VkQueue queue;
 
         Device(VkSurfaceKHR surface);
         void destroy();

@@ -20,6 +20,7 @@ target_compile_options(sim PRIVATE
     -Wall
     -Wextra
     -Wno-missing-field-initializers
+    -fmacro-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}/= 
 )
 
 target_include_directories(sim PRIVATE
@@ -34,21 +35,15 @@ FetchContent_Declare(
     GIT_TAG release
 )
 
-# FetchContent_Declare(
-#     cgltf
-#     GIT_REPOSITORY https://github.com/jkuhlmann/cgltf.git
-#     GIT_TAG v1.15
-# )
-
 find_package(Vulkan REQUIRED)
 find_package(SDL3 REQUIRED CONFIG)
 find_package(glm REQUIRED CONFIG)
 FetchContent_MakeAvailable(tinyobjloader)
-# FetchContent_MakeAvailable(cgltf)
+find_library(KTX_LIBRARY NAMES ktx REQUIRED)
 target_link_libraries(sim PRIVATE
     Vulkan::Vulkan
     SDL3::SDL3
     glm::glm
     tinyobjloader
-    # ${cgltf_SOURCE_DIR}
+    ${KTX_LIBRARY}
 )

@@ -1,5 +1,6 @@
 #include "Vertex.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
 Triangle::Triangle(unsigned int v0, unsigned int v1, unsigned int v2)

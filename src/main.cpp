@@ -4,11 +4,13 @@
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_vulkan.h>
+#include <cstdio>
 #include <vector>
 #include <vulkan/vulkan_core.h>
 #include "vk/vk.hpp"
 #include "vk/Device.hpp"
 #include "vk/Renderer.hpp"
+#include <chrono>
 
 constexpr u32 max_frames_in_flight = 2;
 
@@ -61,7 +63,7 @@ int main() {
 
 
 
-
+    std::chrono::time_point last = std::chrono::steady_clock::now();
 
     u32 frame = 0;
     while (!window.should_close) {
@@ -199,6 +201,11 @@ int main() {
         CHK(vkQueuePresentKHR(device.queue, &present_info));
 
         frame = (frame + 1) % max_frames_in_flight;
+
+        std::chrono::time_point now = std::chrono::steady_clock::now();
+        double frame_time = std::chrono::duration<double, std::milli>(now - last).count();
+        printf("%7.3f ms\n", frame_time);
+        last = now;
     }
 
 
